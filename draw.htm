@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <title>Otsikko</title>
+  <link rel="stylesheet" title="Uusi" type="text/css" href="style.css">
+  <script type="text/javascript" src="script.js"></script>
+  <meta charset="utf-8">
+  <style>
+  #toolbar {
+    display: inline-block;
+    vertical-align: top;
+    background: #e9b96e;
+    width:40px;
+    padding: 5px;
+  }
+  .tools {
+    display: block;
+    border: 0;
+    background: transparent;
+    border-radius: 5px;
+    margin: 1px;
+    padding: 0;
+  }
+  .tools:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .toolActive {
+    border: 1px solid #000;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 0;
+  }
+  .toolActive:hover {
+    background: #fff;
+  }
+  #drawDiv {
+    margin: 0px;
+    vertical-align: top;
+    display: inline-block;
+  }
+  </style>
+  <script>
+var svgDraw = {
+	tool: "select",
+	pointerX: 0,
+	pointerY: 0,
+	active: undefined,
+	
+	init: (function() {
+		this.draw = document.getElementById("drawDiv");
+		this.svg = document.getElementById("drawSvg");
+		this.toolbar = document.getElementById("toolbar");
+		this.active = document.getElementById("test");
+	}),
+	click: (function(e) {
+		this.pointerX = e.clientX - this.draw.offsetLeft;
+		this.pointerY = e.clientY - this.draw.offsetTop;
+		
+		switch(this.tool) {
+		case "select":
+			//this.selectClick(e);
+			break;
+		case "edit":
+			//this.editClick(e);
+			break;
+		case "bezier":
+			this.bezierClick(e);
+			break;
+		case "text":
+			//this.textClick(e);
+			break;
+		}
+	}),
+	changeTool: (function(name) {
+		this.tool = name;
+		for(var i=0; i < this.toolbar.getElementsByTagName("button").length; i++) {
+			this.toolbar.getElementsByTagName("button")[i].className = " tools";
+		}
+		document.getElementById(name).className += " toolActive";
+	}),
+	bezierClick: (function(e) {
+		var data;
+		if(this.active == undefined || this.active.tagName != "PATH") {
+			var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			path.setAttribute("stroke", "#000");
+			path.setAttribute("fill", "red");
+			path.setAttribute("stroke-width", "3");
+			this.active = this.svg.appendChild(path);
+			data = "M ";
+		} else {
+			data = this.active.getAttribute("d");
+			data += " L ";
+		}
+
+		data += this.pointerX +" "+ this.pointerY;
+		this.active.setAttribute("d", data);
+		this.svg.style.display = "none";
+alert("moi");
+		this.svg.style.display = "inline-block";
+	})
+}
+  </script>
+</head>
+<body onload="svgDraw.init();">
+<div>Paina alla olevasta laatikosta...</div>
+<div id="toolbar">
+  <button class="tools toolActive" id="select" onClick="svgDraw.changeTool('select')"><img src="icons/inkscape/select.png">
+  </button><button class="tools" id="edit" onClick="svgDraw.changeTool('edit')"><img src="icons/inkscape/edit.png">
+  </button><button class="tools" id="bezier" onClick="svgDraw.changeTool('bezier')"><img src="icons/inkscape/bezier.png">
+  </button><button class="tools" id="text" onClick="svgDraw.changeTool('text')"><img src="icons/inkscape/text.png"></button>
+</div><div onclick="svgDraw.click(event)" id="drawDiv" style="width:200px;height:200px">
+  <svg height="200px" width="200px" id="drawSvg" style="border: 1px solid #000;">
+    <desc>Selaimesi ei tue svg:tä</desc>
+    <path id="test" stroke="#000" stroke-width="3" fill="red"></path>
+  </svg>
+</div>
+</body>
+</html>
