@@ -40,7 +40,7 @@ I made this WYSIWYG editor for the InfoTV, but because it was so hard to get it 
 </div>
 
 <div>
-<h3><a href="demoes/nano_inkscape.html">nanoInkscape</a></h3>
+<h3><a href="nanoInkscape/draw.htm">nanoInkscape</a></h3>
 <p>
 When I was making this site I came across with svg on web page and I wanted to try create vector graphics editor demo.
 </p>
