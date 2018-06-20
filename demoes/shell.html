@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Strict//EN">
+<html lang="en">
+<head>
+	<title>Tulostus</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!--<link rel="stylesheet" type="text/css" href="">-->
+	<style>
+#layout {
+	padding:         5px;
+	background:      -moz-linear-gradient(top, #8C8, #585);
+	background:      -webkit-linear-gradient(top, #8C8, #585);
+	background:      linear-gradient(top, #8C8, #585);
+	border:          1px solid #444;
+	border-radius:   5px;
+	box-shadow:      0 3px  5px  rgba(0, 0, 0, 0.3),
+	                 0 10px 20px rgba(255, 255, 255, 0.8) inset;
+	//-moz-user-select: none;
+	//user-select:     none;
+}
+#layout h1 {
+	margin:          0.25em;
+	font-family:     sans;
+	bont-weight:     bold;
+	color:           #040;
+	text-shadow:     0 1px 0 #8F8;
+}
+#head {
+	border:          1px solid #444;
+	padding:         10px;
+	border-radius:   5px 5px 0 0;
+	box-shadow:      0 2px  3px  rgba(0, 0, 0, 0.3) inset;
+	background:     -moz-linear-gradient(top, #696, #6A6);
+	background:     -webkit-linear-gradient(top, #696, #6A6);
+	background:     linear-gradient(top, #696, #6A6);
+}
+#textarea {
+	border:          1px solid #444;
+	min-height:      100px;
+	border-top:      0;
+	border-radius:   0 0 5px 5px;
+	box-shadow:      0 2px 3px 0 rgba(0, 0, 0, 0.5) inset;
+	background:      #EFE;
+	overflow:        auto;
+	resize:          vertical;
+	font:            16px "Dejavu sans mono", monospace;
+}
+#textarea.hover {
+	box-shadow:      0 3px  5px 1px rgba(0, 0, 0, 0.5) inset,
+	                 0 0 10px 10px rgba(64, 127, 255, 0.5);
+}
+#hack {
+	opacity:         0;
+}
+	</style>
+	<script type="text/javascript">
+"use strict";
+
+var netSockets = (function() {
+
+	var obj = new Object();
+
+	var serverURI = "ws://localhost:12000/shell.php";
+	var websocket = null;
+	var clients = [];
+
+	obj.connected = false;
+
+	if(window.MozWebSocket) {
+		window.WebSocket = window.MozWebSocket;
+	}
+
+	function connect() {
+		try {
+			websocket = new WebSocket(serverURI);
+		} catch(e) {
+			if(e instanceof ReferenceError) {
+				console.info("browser doesn't support websockets");
+				return -1;
+			} else if(e instanceof URIError) {
+				console.info("server address isn't correct");
+				return -1;
+			} else {
+				console.info("error from websocket");
+				return -1;
+			}
+		}
+		websocket.onopen = ready;
+		websocket.onclose = closed;
+		websocket.onmessage = function(evt) {
+			obj.receved(evt);
+		}
+		websocket.onerror = error;
+		return true;
+	}
+
+	function ready(evt) {
+		console.info("connection is ready");
+		obj.connected = true;
+	}
+	function closed(evt) {
+		obj.connected = false;
+		console.info("connection closed");
+	}
+	function error(error) {
+		console.info("connection error: ");
+		console.info(error);
+		websocket.close();
+		obj.connected = false;
+	}
+	obj.close = function() {
+		websocket.close();
+	}
+	obj.receved = function(evt) {
+		console.info("data receved from server: \""+ evt.data +"\"");
+		
+	}
+	obj.send = function(data) {
+		if(!obj.connected) return false;
+		console.info("send to server: \""+ data +"\"");
+		websocket.send(data);
+		return true;
+	}
+
+	connect();
+	return obj;
+})();
+
+window.addEventListener("load", function() {
+	var textarea   = document.querySelector("#textarea");
+	var input      = document.querySelector("#hack");
+	var blinker    = document.createElement("span");
+	var blinkState = true;
+	var writenode  = null;
+	var output     = "";
+	var outputCursor = 0;
+	var blinking   = false;//interal
+	var focused    = false;
+
+	var user       = "aleksi";
+	var localhost  = "debian";
+	var cwd        = "/home/aleksi";
+
+	blinker.textContent = "\u00A0";
+	blinker.id = "blinker";
+	textarea.appendChild(blinker);
+
+	//textarea.setAttribute("contentEditable", "true");
+	window.addEventListener("click", function(event) {
+		unfocus();
+	});
+	textarea.addEventListener("click", function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		focus();
+	});
+	document.querySelector("#closeButton").addEventListener("click", function(event) {
+		netSockets.close();
+	});
+	window.addEventListener("keydown", function(event) {
+		if(!focused) return;
+
+		writenode = blinker.previousSibling;
+		if(!writenode) {
+			writenode = document.createTextNode("");
+			textarea.insertBefore(writenode, blinker);
+		}
+		switch(event.keyCode) {
+		case 8://backspace
+			if(output != "") {
+				output = output.slice(0, -1);
+				outputCursor--;
+				writenode.textContent = writenode.textContent.slice(0, -1);
+			}
+			break;
+		case 9://tab
+			
+			break;
+		case 13://enter
+			console.log("send: "+ output);
+			netSockets.send(output +"\n");
+			var linebreak = document.createElement("br");
+			textarea.insertBefore(linebreak, blinker);
+			writenode = document.createTextNode("");
+			textarea.insertBefore(writenode, blinker);
+			break;
+		case 37://left
+			if(blinker.textContent != "\u00A0") {
+				var afterNode = blinker.nextSibling;
+				if(!afterNode) {
+					afterNode = document.createTextNode("");
+					textarea.insertBefore(afterNode, blinker.nextSibling);
+				}
+				afterNode.textContent = blinker.textContent + afterNode.textContent;
+			}
+			if(writenode.textContent != "") {
+				var letter = writenode.textContent.slice(-1);
+				writenode.textContent = writenode.textContent.slice(0, -1);
+				blinker.textContent = letter;
+				outputCursor--;
+			}
+			break;
+		case 39://right
+			//console.log("right");
+			var afterNode = blinker.nextSibling;
+			if(!afterNode || afterNode.textContent == "") {
+				if(blinker.textContent != "\u00A0") {
+					writenode.textContent += blinker.textContent;
+					blinker.textContent = "\u00A0";
+				}
+			} else {
+				writenode.textContent += blinker.textContent;
+				var letter = afterNode.textContent.slice(0, 1);
+				afterNode.textContent = afterNode.textContent.slice(1);
+				blinker.textContent = letter;
+				outputCursor++;
+			}
+			break;
+		default:
+			//alert(input.value +" "+ event.keyCode +" "+ String.fromCharCode(event.keyCode));
+			setTimeout(function() {
+				output = output.slice(0, outputCursor) +
+				         input.value +
+				         output.slice(outputCursor);
+				outputCursor++;
+				writenode.textContent += input.value;
+				input.value = "";
+			}, 50);
+			break;
+		}
+	});
+	netSockets.receved = function(evt) {
+		writenode = blinker.previousSibling;
+		if(evt.data == "c") {
+			console.log("end");
+			prompt();
+		} else {
+			var msg = evt.data.substr(1);
+			
+			var added = document.createElement("span");
+			added.innerHTML = msg.replace(/\n/g, "<br>");
+			var bell = /\a/.test(msg);
+			
+			textarea.insertBefore(added, blinker);
+			writenode = document.createTextNode("");
+			textarea.insertBefore(writenode, blinker);
+		}
+	};
+	function prompt() {
+		var text = user +"@"+ localhost +":"+ cwd +"$ ";
+		writenode = document.createTextNode("");
+		writenode.textContent = text;
+		textarea.insertBefore(writenode, blinker);
+		output = "";
+	}
+	function blink() {
+		if(!blinker) blinker = textarea.querySelector("#blinker");
+
+		blinker.style.background = (blinkState) ? "#000" : "";
+		blinker.style.color = (blinkState) ? "#fff" : "";
+		blinkState = !blinkState;
+	}
+	function focus() {
+		if(!focused) {
+			if(!blinking) blinking = setInterval(blink, 500);
+			blinker.style.border = "";
+			focused = true;
+		}
+		input.focus();
+	}
+	function unfocus() {
+		console.log("unfocus");
+		if(focused) {
+			clearInterval(blinking);	
+			blinking = false;
+
+			blinker.style.background = "";
+			blinker.style.color = "";
+			blinker.style.border = "1px solid #000";
+			input.blur();
+			focused = false;
+		}
+	}
+
+	prompt();
+	focus();
+	
+	window.addEventListener("keyup", function(event) {
+	});
+}, false);
+	</script>
+</head>
+<body>
+<div id="layout"><button id="closeButton" style="float: right;">close</button>
+<h1>Terminal</h1>
+<div id="head">
+Menues
+</div>
+<div id="textarea"></div>
+
+</div>
+<input id="hack">
+</body>
+</html>
