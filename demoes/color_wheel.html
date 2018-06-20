@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>HTML5</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="color_wheel.js"></script>
+	<script type="text/javascript">
+window.onload = function() {
+	var n = document.querySelector("#test");
+	var a = color_wheel(document.querySelector("#wheel"), function(color) {
+		document.body.style.backgroundColor = "rgb("+ color[0] +", "+ color[1] +", "+ color[2] +")";
+		console.info("rgb("+ color[0] +", "+ color[1] +", "+ color[2] +")");
+	});
+	last = 10;
+	function resize() {
+		/*last++;
+		if(last < 10) return;
+		last = 0;*/
+
+		//a.resize(Math.min(n.offsetWidth, n.offsetHeight) - 20);
+	}
+	function mouseUp() {
+		document.removeEventListener("mousemove", resize);
+		document.removeEventListener("mouseup", mouseUp);
+		a.resize(Math.min(n.offsetWidth, n.offsetHeight) - 20);
+	}
+	n.addEventListener("mousedown", function(e) {
+		if(e.target === n) {
+			document.addEventListener("mousemove", resize);
+			document.addEventListener("mouseup", mouseUp);
+		}
+	});
+}
+
+	</script>
+	<style>
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#test {
+	background: none repeat scroll 0 0 #FFFFEE;
+	border: 1px solid;
+	display: inline-block;
+	margin: 100px;
+	padding: 10px;
+	overflow: hidden;
+	resize: both;
+}
+	</style>
+</head>
+<body>
+<div id="test">
+<div id="wheel">
+</div></div>
+</body>
+</html>

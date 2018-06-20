@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Wysiwyg editor</title>
+	<meta charset="utf-8">
+	<!--<link rel="stylesheet" type="text/css" href="">-->
+	<script type="text/javascript" src="color_wheel.js"></script>
+	<script type="text/javascript">
+	
+function dropdown_list(node) {
+	this.dropdown = node;
+	this.options = node.querySelector(".options");
+	this.title = node.querySelector(".title");
+	this.open = false;
+	editor.dropdown_lists.push(this);
+	
+	this.show = function(event) {
+		this.options.style.display = "block";
+		this.open = true;
+	}
+	this.hide = function() {
+		this.options.style.display = "none";
+		this.open = false;
+	}
+	this.click = function(event) {
+		switch(event.target) {
+			case this.title:
+				if(this.open) this.hide();
+				else this.show();
+				break;
+		}
+	}
+	node.dropdown = this;
+}
+function isChildOf(node, target) {
+	while(target) {
+		if(target.parentNode === node) return true;
+		target = target.parentNode;
+	}
+	return false;
+}
+var dropdown_style, dropdown_fonts, dropdown_size;
+
+var editor = {
+	dropdown_lists: new Array(),
+	panel: null,
+	panels: new Array(),
+	panel_active: 0,
+	init: (function() {
+		this.edit = document.querySelector("#edit");
+		this.window = this.edit.contentWindow;
+		this.messages = document.querySelector("#messages");
+		
+		this.window.document.designMode = "on";
+		this.window.document.execCommand("styleWithCSS", false, true);
+		this.window.document.execCommand("enableInlineTableEditing", false, "false");
+		document.addEventListener("click", this.cb_click, false);
+		
+		dropdown_style = new dropdown_list(document.querySelector("#style"));
+		dropdown_fonts = new dropdown_list(document.querySelector("#fonts"));
+		dropdown_size = new dropdown_list(document.querySelector("#size"));
+
+		(function() {
+			var color = document.querySelector("#textColor");
+			var colorSelector = document.createElement("div");
+			colorSelector.style.display = "none";
+			var colorHeader = document.createElement("span");
+			colorHeader.innerHTML = "<div class=\"color\" style=\"display: inline-block; height: 12px\"></div> Color selector";
+			colorHeader.className = "selector-header";
+			var colorNode = document.createElement("div");
+			colorNode.className = "selector-wheel";
+
+			colorSelector.className = "color-selector";
+			colorSelector.appendChild(colorHeader);
+			colorSelector.appendChild(colorNode);
+			document.body.appendChild(colorSelector);
+
+			color_wheel(colorNode, function(c) {
+				color.firstChild.style.background = "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")";
+				color.firstChild.style.borderColor = "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")";
+
+				colorHeader.firstChild.style.background = "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")";
+				colorHeader.firstChild.style.borderColor = "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")";
+
+				editor.editStyle({"color": "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")"});
+			});
+			function unfocus(e) {
+				if(! isChildOf(colorSelector, e.target) && e.target !== color) {
+					colorSelector.style.display = "none";
+					document.removeEventListener("click", unfocus);
+					editor.window.removeEventListener("focus", unfocus);
+				}
+			}
+
+			color.addEventListener("click", function(e) {
+				colorSelector.style.display = "block";
+
+				var c = getCoord(color);
+				colorSelector.style.left = c[0] +"px";
+				colorSelector.style.top  = (c[1] + 4) +"px";
+
+				document.addEventListener("click", unfocus);
+				editor.window.addEventListener("focus", unfocus);
+			});
+		})();
+
+		panel = document.querySelector("#panels");
+		panel.style.width = "300px";
+		panelResizer = document.querySelector("#panel-resizer");
+
+		this.panels[0] = document.querySelector("#text");
+		this.panels[1] = document.querySelector("#objects");
+		this.panels[2] = document.querySelector("#downloads");
+
+		var startDragX = 0;
+		var oldWidth = 300;
+
+		function dragMove(e) {
+			//var s = this.panel.style.width;
+			panel.style.width = Math.max(280, oldWidth + (startDragX - e.clientX)) +"px";
+			editor.edit.style.width = "-moz-calc(100% - "+ panel.style.width +")";
+			console.info("dragging" + (oldWidth + startDragX - e.clientX));
+			
+		}
+		function dragEnd(e) {
+			editor.window.removeEventListener("mousemove", dragMove);
+			editor.window.removeEventListener("mouseup", dragEnd);
+			window.removeEventListener("mousemove", dragMove);
+			window.removeEventListener("mouseup", dragEnd);
+		}
+		panelResizer.addEventListener("mousedown", function(e) {
+			console.info("drag"+ panel.style.width);
+			startDragX = e.clientX;
+			oldWidth = parseInt(panel.style.width);
+			
+			editor.window.addEventListener("mousemove", dragMove);
+			editor.window.addEventListener("mouseup", dragEnd);
+			window.addEventListener("mousemove", dragMove);
+			window.addEventListener("mouseup", dragEnd);
+		});
+		
+		object_list.init();
+	}),
+	cb_click : (function(event) { editor.click(event); }),
+	click: (function(event) {
+		var i;
+		for(i = 0; i < this.dropdown_lists.length; i++) {
+			if(event.target.parentNode == this.dropdown_lists[i].dropdown)
+				this.dropdown_lists[i].click(event);
+			else this.dropdown_lists[i].hide();
+		}
+	}),
+	panelsChange: (function(n, i) {
+		this.panels[this.panel_active].style.display = "none";
+		this.panels[i].style.display = "block";
+		document.querySelector("#panel-tabs .active").className = "tab";
+		n.className = "tab active";
+		this.panel_active = i;
+	}),
+	editCommand: (function(command, value) {
+		this.window.document.execCommand(command, false, value);
+		this.window.focus();
+	}),
+	editStyle: (function(style) {
+		var sel = this.window.getSelection().getRangeAt(0);
+		if(sel.toString().length == 0) return;
+		selectionNode(sel, "span", null, style);
+		this.window.focus();
+	}),
+	hearder: (function(i) {
+		this.window.document.execCommand("heading", false, "<h"+ i +">");
+		this.window.focus();
+	}),
+	paragraph: (function() {
+		this.window.document.execCommand("formatblock", false, "<p>");
+		this.window.focus();
+	})
+}
+	function isNeaded(node, attr, style) {
+		var not_remove = true;
+		for(var a in attr) {
+			if(node.getAttribute(a) !== attr[a]) not_remove = false;
+		}
+		if(!node.style) return (!not_remove);
+
+		for(var s in style) {
+			if(node.style[s] !== style[s]) not_remove = false;
+		}
+		return (!not_remove);
+	}
+
+
+	function nodeEdit(node, attr, style, tagName, removeIfPossible) {
+		var not_remove = true;
+		if(tagName != undefined) {
+			if(node != undefined) {
+				if(node.parentNode.childNodes.length == 1) {
+					node = node.parentNode;
+				}
+						
+				if(node.nodeType == 3) {
+					var node2 = document.createElement(tagName);
+					range = document.createRange();
+					range.selectNodeContents(node);
+					range.surroundContents(node2);
+					range.detach();
+					node = node2;
+				}
+			} else {
+				var node2 = document.createElement(tagName);
+				node = node2;
+			}
+		} else if(node == undefined) return null;
+		
+		for(var a in attr) {
+			if(node.getAttribute(a) !== attr[a]) not_remove = false;
+			node.setAttribute(a, attr[a]);
+		}
+		for(var s in style) {
+			if(node.style[s] !== style[s]) not_remove = false;
+			node.style[s] = style[s];
+		}
+		console.info(removeIfPossible);
+		if(removeIfPossible === true && ! not_remove && node.parentNode)
+			node.parentNode.removeChild(node);
+
+		return node;
+	}
+	function removeInRange(range, node) {
+		var len = 0, newTextNode;
+
+		if(node.previousSibling) {
+			if(node.previousSibling.nodeType == 3) {
+				//alert("1");
+				len += node.previousSibling.length;
+				newTextNode = node.previousSibling;
+			} else {
+				newTextNode = document.createTextNode("");
+				newTextNode = node.parentNode.insertBefore(newTextNode, node);
+			}
+		} else {
+			newTextNode = document.createTextNode("");
+			newTextNode = node.parentNode.insertBefore(newTextNode, node);
+		}
+
+		newTextNode.textContent += node.textContent;
+		if(range.endContainer == node) {
+			range.setEnd(newTextNode, len + range.endOffset);
+		}
+		len += node.textContent.length;
+
+		if(node.nextSibling) {
+			if(node.nextSibling.nodeType == 3) {
+				if(range.endContainer == node.nextSibling)
+					range.setEnd(newTextNode, len + range.endOffset);
+				node.parentNode.removeChild(node.nextSibling);
+			}
+		}
+		node.parentNode.removeChild(node);
+		
+	}
+	function styleCheck(node, style, range) {
+		if(node.nodeType == 3) return;
+		
+		if(node.hasChildNodes()) {
+			styleCheckLoop(node, style);
+		}
+
+		for(var s in style) {
+			if(! node.style) break;
+			node.style[s] = "";
+		}
+		if(node.getAttribute("style") == "")
+			node.removeAttribute("style");
+
+		if(! node.firstChild) {
+			node.parentNode.removeChild(node);
+		} else if(! node.hasAttributes()) {
+			node = removeInRange(range, node);
+		}
+		return node;
+	}
+	function styleCheckLoop(node, style, range) {
+		var n = node.firstChild;
+		while(n) {
+			styleCheck(n, style, range);
+			n = n.nextSibling;
+		}
+	}
+	function nextNode(node) {
+		var n = node;
+		var firsts = true;
+		while(n) {
+			while(n) {
+				if(n.nodeType != 1 && n.nodeType != 3) return -1;
+				if(n.textContent.length > 0 && !firsts) {
+					while(n) {
+						if(!n.firstChild) break;
+						n = n.firstChild;
+					}
+					return n;
+				} else if(n.nextSibling) {
+					n = n.nextSibling;
+					if(n.textContent.length > 0) firsts = false;
+				} else break;
+			}
+			n = n.parentNode;
+		}
+		return -1;
+	}
+	function checkNodeLoop(node, range, attr, style, tagName) {
+		var nodeRange = editor.window.document.createRange();
+		while(n) {
+			while(n) {
+				if((n.nodeType == 1 || n.nodeType == 3) && !firsts) {
+					nodeRange.selectNodeContents(n);
+					i = range.compareBoundaryPoints(Range.END_TO_END, nodeRange);
+					if(i > -1) {
+						n = nodeEdit(n, attr, style, tagName, true);
+					} else if(i == -1) {
+						while(n) {
+							nodeRange.selectNodeContents(n);
+							i = range.compareBoundaryPoints(Range.END_TO_END, nodeRange);
+							if(i > -1) {
+								styleCheckLoop(n, style);
+								nodeEdit(n, attr, style, tagName, true);
+							} else if(i == -1 || ! n.firstChild) {
+								
+								nodeRange.detach();
+								return;
+							}
+							n = n.firstChild;
+						}
+					}
+				}
+				if(n.nextSibling) {
+					if(n.nextSibling.textContent.length > 0) {
+						firsts = false;
+					} else {
+						firsts = true;
+						n.nextSibling
+					}
+					n = n.nextSibling;
+				} else break;
+			}
+			firsts = true;
+			if(! n) break;
+			n = n.parentNode;
+		}
+		nodeRange.detach();
+	}
+	function selectionNodeLoop(node, range, attr, style, tagName) {
+		var n = node, i;
+		var firsts = true;
+		var nodeRange = editor.window.document.createRange();
+		while(n) {
+			while(n) {
+				if((n.nodeType == 1 || n.nodeType == 3) && !firsts) {
+					nodeRange.selectNodeContents(n);
+					i = range.compareBoundaryPoints(Range.END_TO_END, nodeRange);
+					if(i > -1) {
+						styleCheckLoop(n, style);
+						n = nodeEdit(n, attr, style, tagName);
+					} else if(i == -1) {
+						while(n) {
+							nodeRange.selectNodeContents(n);
+							i = range.compareBoundaryPoints(Range.END_TO_END, nodeRange);
+							if(i > -1) {
+								styleCheckLoop(n, style);
+								nodeEdit(n, attr, style, tagName);
+							} else if(i == -1 || ! n.firstChild) {
+								
+								nodeRange.detach();
+								return;
+							}
+							n = n.firstChild;
+						}
+					}
+				}
+				if(n.nextSibling) {
+					if(n.nextSibling.textContent.length > 0) {
+						firsts = false;
+					} else {
+						firsts = true;
+						n.nextSibling
+					}
+					n = n.nextSibling;
+				} else break;
+			}
+			firsts = true;
+			if(! n) break;
+			n = n.parentNode;
+		}
+		nodeRange.detach();
+		return -1;
+	}
+	function selectionNode(range, tagName, attr, style) {
+		console.info(range.startContainer.nodeType +":"+ range.startOffset +" "+ range.endContainer.nodeType +":"+ range.endOffset);
+		if(range.startContainer.nodeType != 3) {
+			range.setStart(range.startContainer.childNodes[range.startOffset].firstChild, 0);
+		} else if(range.startOffset == range.startContainer.textContent.length) {
+			range.setStart(nextNode(range.startContainer), 0);
+		}
+
+		if(range.endContainer.nodeType != 3) {
+			var n = range.endContainer.childNodes[range.endOffset-1];
+			if(n.nodeType != 3) n = n.firstChild;
+			range.setEnd(n, n.textContent.length);
+		} else if(range.endOffset == 0) {
+			var n = nextNode(range.endContainer);
+			range.setEnd(n, n.length);
+		}
+		if(range.startContainer.parentNode === range.endContainer.parentNode) {
+			var node = nodeEdit(undefined, attr, style, tagName);
+			range.surroundContents(node);
+
+			
+		} else if(range.startContainer === range.endContainer && range.startOffset == 0 && range.endOffset == range.endContainer.length) {
+			nodeEdit(range.startContainer, attr, style, tagName);
+		} else if(range.startContainer === range.endContainer) {
+			//alert("part"+ tagName);
+			var node = nodeEdit(undefined, attr, style, tagName);
+			range.surroundContents(node);
+		} else if(range.startContainer !== range.endContainer) {
+			var range2 = editor.window.document.createRange();
+
+			var i, j;
+			var sList = [],
+			    eList = [];
+			var sNode = range.startContainer,
+			    eNode = range.endContainer,
+			    branchNode;
+
+			for(i = 0; sNode; i++) {
+				sList[i] = sNode;
+				sNode = sNode.parentNode;
+			}
+			for(j = 0; eNode; j++) {
+				eList[j] = eNode;
+				eNode = eNode.parentNode;
+			}
+			i--; j--;
+			for(; i >= 0 && j >= 0; i--, j--) {
+				if(sList[i+1] && sList[i] != eList[j])  {
+					branchNode = sList[i+1];
+					break;
+				}				
+			}
+
+			if(isNeaded(range.startContainer.parentNode, attr, style)) {
+				console.info("startNode");
+				var nodeStart = nodeEdit(undefined, attr, style, tagName);
+				range2.setStart(range.startContainer, range.startOffset);
+				range2.setEnd(range.startContainer, range.startContainer.length);
+				range2.surroundContents(nodeStart);
+			}
+
+			if(isNeaded(range.endContainer.parentNode, attr, style)) {
+				console.info("endNode");
+				var nodeEnd = nodeEdit(undefined, attr, style, tagName);
+				range2.setStart(range.endContainer, 0);
+				range2.setEnd(range.endContainer, range.endOffset);
+				range2.surroundContents(nodeEnd);
+			}
+
+			selectionNodeLoop(nodeStart, range, attr, style, tagName);
+		} else
+			alert("not supported yet");
+	}
+var object_list = {
+	init: (function() {
+		//editor.window.document.addEventListener("DOMSubtreeModified", this.update_cb, false);
+		editor.window.document.addEventListener("DOMNodeInserted", this.new_node_cb, false);
+		editor.window.document.addEventListener("DOMNodeRemoved", this.remove_node_cb, false);
+		editor.window.document.addEventListener("DOMAttrModified", this.change_node_cb, false);
+		editor.window.document.addEventListener("DOMCharacterDataModified", this.change_node_cb, false);
+		
+		this.redo();
+		downloads.init();
+	}),
+	new_node: (function(n) {
+		node = document.createElement("div");
+		
+		if(n.nodeType == 3) {
+			if(n.textContent.length > 16) {
+				node.textContent = n.textContent.substr(0, 16);
+				node.textContent += "...";
+			} else node.textContent = n.textContent;
+			node.className = "text";
+		} else {
+			var link = document.createElement("a");
+			node.className = "element";
+			link.href = "#";
+			link.addEventListener("click", function() {alert("jee")}, false);
+			link.innerHTML += "["+ n.tagName.toUpperCase() +"]";
+			node.appendChild(link);
+		}
+		
+		n.object_list_node = node;
+		return node;
+	}),
+	change_node: (function(n, node) {
+		if(!node) node = document.createElement("div");
+		
+		if(n.nodeType == 3) {
+			if(n.textContent.length > 16) {
+				node.textContent = n.textContent.substr(0, 16);
+				node.textContent += "...";
+			} else node.textContent = n.textContent;
+			node.className = "text";
+		} else {
+			var link = node.firstChild;
+			expand.addEventListener("click", function() {alert("jee")}, false);
+			node.innerHTML += "["+ n.tagName.toUpperCase() +"]";
+			node.className = "element";
+		}
+		
+		n.object_list_node = node;
+		return node;
+	}),
+	loop: (function(place, node) {
+		var node_list = document.createElement("div");
+		place.appendChild(node_list);
+		place.childs = node_list;
+		node = node.firstChild;
+		place = node_list;
+		while(node) {
+			//alert("child "+ node.tagName +" "+ place.tagName);
+			var place_new =  this.new_node(node);
+			place.appendChild(place_new);
+
+			if(node.childNodes.length > 0) this.loop(place_new, node);
+			node = node.nextSibling;
+		}
+		return node_list;
+	}),
+	redo_cb: (function() { object_list.redo() }),
+	redo: (function() {
+		if(this.list) this.list.parentNode.removeChild(this.list);
+		this.list = this.loop(document.querySelector("#object_list"), editor.window.document.body);
+		editor.window.document.body.object_list_node = this.list;
+	}),
+	new_node_cb: (function(event) { object_list.update(event, 0) }),
+	remove_node_cb: (function(event) { object_list.update(event, 1) }),
+	change_node_cb: (function(event) { object_list.update(event, 2) }),
+	update: (function(event, i) {
+		switch(i) {
+			case 0:
+				//editor.messages.innerHTML += event.target+"(new)";
+				var n;
+				this.new_node(event.target);
+				if(event.target.nextSibling) n = event.target.nextSibling.object_list_node;
+				if(!event.target.parentNode.object_list_node.childs) {
+					var node_list = document.createElement("div");
+					event.target.parentNode.object_list_node.appendChild(node_list);
+					event.target.parentNode.object_list_node.childs = node_list;
+				}
+				event.target.parentNode.object_list_node.childs.insertBefore(this.new_node(event.target), n);
+				if(event.target.tagName && event.target.tagName.toUpperCase() == "IMG") downloads.create();
+				break;
+			case 1:
+				if(event.target.object_list_node)
+					event.target.parentNode.object_list_node.removeChild(event.target.object_list_node);
+				break;
+			case 2:
+				this.change_node(event.target, event.target.object_list_node);
+				break;
+			default:
+				editor.messages.innerHTML += "No support<br>";
+				break;
+		}
+	})
+}
+var downloads = {
+	init: (function() {
+		this.table = document.querySelector("#downloads_table");
+	}),
+	create: (function(event) {
+		var row = document.createElement("tr");
+		this.table.appendChild(row);
+		
+		var cell = document.createElement("td");
+		row.appendChild(cell);
+		cell.innerHTML = "Test";
+		
+		cell = document.createElement("td");
+		row.appendChild(cell);
+		cell.innerHTML = "moi";
+	})
+}
+	</script>
+	<style>
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		overflow: hidden;
+	}
+	#panels {
+		float: right;
+		width: 300px;
+		height: 100%;
+	}
+	#panels *:not(input){
+		-moz-user-select: none;
+	}
+	#panel-resizer {
+		background: transparent;
+		cursor: ew-resize;
+		float: left;
+		height: 100%;
+ 		width: 3px;
+		margin-right: -1px;
+	}
+	#panel-tabs a {
+		color: #000;
+		text-decoration: none;
+	}
+	#panel-tabs {
+		padding: 5px 8px 0;
+		border-bottom: 1px solid #000;
+		background-color: #aaa;
+		background: -moz-linear-gradient(center bottom , #CDC6BE, #EDE6DE 5px) repeat scroll 0 0 transparent;
+		background: linear-gradient(center bottom , #CDC6BE, #EDE6DE 5px);
+	}
+	#panel-tabs .tab {
+		position: relative;
+		display: inline-block;
+		margin: 0;
+		padding: 3px 7px 0;
+		border: 1px solid #666;
+		border-bottom: 0;
+		border-radius: 6px 6px 0 0;
+		background-color: #ddd;
+		box-shadow: 0 2px 5px #FFFFFF inset;
+	}
+	#panel-tabs .tab.active {
+		top: 1px;
+		border: 1px solid #000;
+		border-bottom: #fff;
+		background-color: #fff;
+		box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+	}
+	#panel-contents {
+		padding: 0 5px;
+		background-color: #fff;
+		overflow-y: auto;
+		position: relative;
+		z-index: 10;
+		height: -moz-calc(100% - 3em);
+		height: calc(100% - 3em);
+	}
+	#panel-contents > .panel {
+		display: none;
+	}
+	#panel-contents > .panel:first-child {
+		display: block;
+	}
+	.panel .selection {
+		margin-top: 10px;
+		display: inline-block;
+	}
+	.panel .selection > .title {
+		border: 1px solid #000;
+	}
+	.panel .selection > .options,
+	.panel .selection > .title {
+		min-width: 50px;
+	}
+	.panel .selection > .options {
+		position: absolute;
+		border: 1px solid #000;
+		background: #fff;
+		display: none;
+	}
+	.panel .selection > .options > div {
+		padding: 2px 5px;
+		max-height: 48px;
+		overflow: hidden;
+	}
+	.panel .selection > .options > div:hover {
+		background: #8f8;
+	}
+	.panel .row {
+		margin-bottom: 1em;
+	}
+	.color {
+		border: 1px groove #000;
+		background-color: #FF0000;
+		border: 1px inset #FF0000;
+		border-radius: 2px;
+		height: 16px;
+		width: 24px;
+	}
+	.color-selector {
+		position: absolute;
+		z-index: 100;
+	}
+	.color-selector .selector-header {
+		border: 1px solid #000;
+		border-bottom: 0;
+		background: #ede6de;
+		border-radius: 5px 5px 0 0;
+		padding: 5px 5px 0;
+	}
+	.color-selector .selector-wheel {
+		border: 1px solid #000;
+		padding: 10px;
+		margin-top: -1px;
+		border-radius: 0 5px 5px;
+		background: #ede6de;
+	}
+	#edit {
+		width: 1600px;
+		width: -moz-calc(100% - 300px);
+		width: calc(100% - 300px);
+		overflow: auto;
+		height: 100%;
+		border: 0;
+		box-shadow: inset -2px 0 2px rgba(0,0,0,0.3);
+	}
+	#object_list {
+		border: 1px solid #000;
+		min-height: 100px;
+		height: 200px;
+		overflow-y: auto;
+		resize: vertical;
+		border-radius: 3px;
+	}
+	#object_list .element > a {
+		font-weight: bold;
+		background: url(minimize.png) no-repeat;
+		padding-left: 18px;
+		margin-left: 2px;
+	}
+	#object_list .element > div {
+		padding-left: 16px;
+	}
+	#object_list div.text {
+		font-style: italic;
+		padding-left: 24px;
+	}
+	#object_list div.element > span {
+		display: inline-block;
+		margin: 0 4px;
+		/*background: url(maximize.png) no-repeat;*/
+		background: url(minimize.png) no-repeat;
+		width: 16px;
+		height: 16px;
+	}
+	#object_list div.element > div {
+		padding-left: 24px;
+	}
+	</style>
+</head>
+<body onload="editor.init();">
+<iframe id="edit"></iframe>
+<div id="panels">
+<div id="panel-resizer"></div>
+<div id="panel-tabs">
+	<a href="javascript: void(0)" class="tab active" onclick="editor.panelsChange(this, 0)">Text</a>
+	<a href="javascript: void(0)" class="tab" onclick="editor.panelsChange(this, 1)">Objects</a>
+	<a href="javascript: void(0)" class="tab" onclick="editor.panelsChange(this, 2)">Downloads</a>
+</div>
+<div id="panel-contents">
+<div class="panel" id="text">
+	<div class="row">
+		<div class="selection" id="style">
+			<input type="text" class="title" value="style">
+			<div class="options">
+				<div onclick="editor.editCommand('formatblock', '<h1>');">header 1</div>
+				<div onclick="editor.editCommand('formatblock', '<h2>');">header 2</div>
+				<div onclick="editor.editCommand('formatblock', '<h3>');">header 3</div>
+				<div onclick="editor.editCommand('formatblock', '<p>');">paragraph</div>
+			</div>
+		</div>
+		<div class="selection" id="fonts">
+			<input type="text" class="title" value="fonts">
+			<div class="options">
+				<div style="font-family: Sans;" onClick="editor.editStyle({'fontFamily': 'sans'});">Sans</div>
+				<div style="font-family: Serif;" onClick="editor.editStyle({'fontFamily': 'serif'});">Serif</div>
+			</div>
+		</div>
+		<div class="selection" id="size">
+			<input type="text" class="title" value="size">
+			<div class="options">
+				<div style="font-size:  8px;" onClick="editor.editStyle({'fontSize': '8px'});">8</div>
+				<div style="font-size: 10px;" onClick="editor.editStyle({'fontSize': '10px'});">10</div>
+				<div style="font-size: 12px;" onClick="editor.editStyle({'fontSize': '12px'});">12</div>
+				<div style="font-size: 16px;" onClick="editor.editStyle({'fontSize': '16px'});">16</div>
+				<div style="font-size: 18px;" onClick="editor.editStyle({'fontSize': '18px'});">18</div>
+				<div style="font-size: 20px;" onClick="editor.editStyle({'fontSize': '20px'});">20</div>
+				<div style="font-size: 24px;" onClick="editor.editStyle({'fontSize': '24px'});">24</div>
+				<div style="font-size: 32px;" onClick="editor.editStyle({'fontSize': '32px'});">32</div>
+				<div style="font-size: 48px;" onClick="editor.editStyle({'fontSize': '48px'});">48</div>
+				<div style="font-size: 64px;" onClick="editor.editStyle({'fontSize': '64px'});">64</div>
+				<div style="font-size: 72px;" onClick="editor.editStyle({'fontSize': '72px'});">72</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<button style="font-weight: bold;" onclick="editor.editStyle({'fontWeight': 'bold'});">b</button>
+		<button style="font-style: italic;" onclick="editor.editStyle({'fontStyle': 'italic'});">i</button>
+		<button style="text-decoration: underline;" onclick="editor.editStyle({'textDecoration': 'underline'});">u</button>
+		<button style="text-decoration: line-through" onclick="editor.editStyle({'textDecoration': 'line-through'});">through</button>
+	</div>
+	<div class="row">
+		<button style="padding: 0pt;" id="textColor"><div class="color"></div></button>
+	</div>
+</div>
+<div class="panel" id="objects">
+	<h3>Node Tree</h3>
+	<div id="object_list"><a href="#" style="font-weight: bold">[BODY]</a></div>
+	<button onclick="object_list.redo_cb()">force update</button>
+	<div id="messages"></div>
+	<h3>Positioning</h3>
+	<div class="row">
+		<button onclick="editor.editCommand('justifyleft', null);"><img src="/usr/share/icons/gnome/24x24/actions/gtk-justify-left.png"></button>
+		<button onclick="editor.editCommand('justifycenter', null);"><img src="/usr/share/icons/gnome/24x24/actions/gtk-justify-center.png"></button>
+		<button onclick="editor.editCommand('justifyright', null);"><img src="/usr/share/icons/gnome/24x24/actions/gtk-justify-right.png"></button>
+		<button onclick="editor.editCommand('justifyfull', null);"><img src="/usr/share/icons/gnome/24x24/actions/gtk-justify-fill.png"></button>
+	</div>
+	<h3>New</h3>
+	<div class="row">
+		<button onclick="">Table</button>
+		<button onclick="">Image</button>
+		<button onclick="">List</button>
+	</div>
+</div>
+<div class="panel" id="downloads">
+	<table id="downloads_table">
+	</table>
+</div>
+</div>
+</div>
+</body>
+</html>

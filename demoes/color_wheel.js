@@ -1,0 +1,374 @@
+/*
+    Copyright (C) 2011  Aleksi Salmela
+
+    The JavaScript code in this file is free software: you can
+    redistribute it and/or modify it under the terms of the GNU
+    General Public License (GNU GPL) as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option)
+    any later version.  The code is distributed WITHOUT ANY WARRANTY;
+    without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+    As additional permission under GNU GPL version 3 section 7, you
+    may distribute non-source (e.g., minimized or compacted) forms of
+    that code without the copy of the GNU GPL normally required by
+    section 4, provided you include this license notice and a URL
+    through which recipients can access the Corresponding Source.
+
+    Changelog:
+
+      2011-02-23 Aleksi Salmela
+        * first version (1.0.0)
+*/
+function SVtoRGB(hue, s, v) {
+	var r = 0,
+	    g = 0,
+	    b = 0;
+
+	//s *= 255;
+	//v *= 255;
+	var min = v * (1 - s);
+	var delta = v - min;
+
+	min *= 255;
+	delta *= 255;
+
+	r = min + (hue[0]/255) * delta;
+	g = min + (hue[1]/255) * delta;
+	b = min + (hue[2]/255) * delta;
+	//console.info(Math.floor(s*100) +" "+ Math.floor(v*100))
+
+	return [Math.floor(r), Math.floor(g), Math.floor(b)];
+}
+function hueToRGB(hue) {
+	hue *= 6;
+	var int = Math.floor(hue);
+	var fact = Math.floor((hue - int) * 255);
+
+	switch(int) {
+		case 0:  return [255,  fact,     0];
+		case 1:  return [255-fact, 255,  0];
+		case 2:  return [0,    255,      fact];
+		case 3:  return [0,    255-fact, 255];
+		case 4:  return [fact, 0,        255];
+		default: return [255,  0,        255-fact];
+	}
+}
+function lerp(a, b, i) {
+	i = Math.max(0, i);
+	return a + (b - a) * i;
+}
+
+function vec2(x, y) {
+	this.x = x;
+	this.y = y;
+}
+vec2.prototype.assign = function(v) {
+	this.x = v.x;
+	this.y = v.y;
+};
+vec2.prototype.add = function(v) {
+	return new vec2(this.x + v.x, this.y + v.y);
+};
+vec2.prototype.addS = function(s) {
+	return new vec2(this.x + s, this.y + s);
+};
+vec2.prototype.sub = function(v) {
+	return new vec2(this.x - v.x, this.y - v.y);
+};
+vec2.prototype.mulS = function(s) {
+	return new vec2(this.x * s, this.y * s);
+};
+vec2.prototype.dot = function(v) {
+	return (this.x * v.x + this.y * v.y);
+};
+
+function getCoord(node) {
+	var l = t = 0;
+	while(node) {
+		l += node.offsetLeft;
+		t += node.offsetTop;
+		node = node.offsetParent;
+	}
+	return [l, t];
+}
+
+function color_wheel(node, func) {
+	var hue_select = document.createElement("canvas");
+	var wheel = document.createElement("div");
+	var triangle_select = document.createElement("canvas");
+	var select_circle = document.createElement("canvas");
+	node.appendChild(hue_select);
+	node.appendChild(wheel);
+	wheel.appendChild(triangle_select);
+	wheel.appendChild(select_circle);
+
+	wheel.style.display          = "inline-block";
+	select_circle.style.position = "absolute";
+	hue_select.style.position    = "absolute";
+	select_circle.width          =  select_circle.height = 8;
+	node.style.MozUserSelect     = "none";
+
+	var hue_ctx = hue_select.getContext("2d");
+	var tri_ctx = triangle_select.getContext("2d");
+	var circle_ctx = select_circle.getContext("2d");
+
+	var drag = false;
+	var rotation = 0;
+	var tri_width_int = 0,
+	    tri_line_half = 0,
+	    delta = 0;
+	var tri_spot = new vec2(0,0);
+	var radius = 127,
+	    rot = 0,
+	    u = 0, v = 0;
+
+	var hue = [255, 0, 0];
+
+	var triangle = {
+		a: new vec2(0,0),
+		b: new vec2(0,0),
+		c: new vec2(0,0)
+	};
+
+	function draw_circle(color) {
+		select_circle.width = select_circle.width;
+		if(color) {
+			circle_ctx.strokeStyle = "white";
+		} else {
+			circle_ctx.strokeStyle = "black";
+		}
+		circle_ctx.beginPath();
+		circle_ctx.arc(4, 4, 3.5, 0, 2 * Math.PI, true);
+		circle_ctx.stroke();
+	}
+
+	function redraw_hue() {
+		var x = 1, y = 0, angle = 0;
+		var delta = ( 1.5 / (radius * Math.PI));
+
+		hue_ctx.translate(radius, radius);
+		while (angle < Math.PI / 2) {
+			var a, b, a2, b2;
+
+			var frac = (angle * 3 / Math.PI);
+			frac     =  frac - Math.floor(frac);
+
+			if(angle < Math.PI / 3) {
+				a =  255;
+				b =  Math.floor(frac*255);
+			} else {
+				a =  Math.floor(255-frac*255);
+				b =  255;
+			}
+
+			hue_ctx.strokeStyle = "rgb("+ a +", "+ b +", 0)";
+			hue_ctx.beginPath();
+			hue_ctx.moveTo(x * radius,        y * radius);
+			hue_ctx.lineTo(x * radius * 0.75, y * radius * 0.75);
+			hue_ctx.stroke();
+
+			hue_ctx.strokeStyle = "rgb("+ (255-a) +", 255, "+ (255-b) +")";
+			hue_ctx.beginPath();
+			hue_ctx.moveTo(-x * radius,        y * radius);
+			hue_ctx.lineTo(-x * radius * 0.75, y * radius * 0.75);
+			hue_ctx.stroke();
+
+			hue_ctx.strokeStyle = "rgb("+ a +", 0, "+ b +")";
+			hue_ctx.beginPath();
+			hue_ctx.moveTo(x * radius,        -y * radius);
+			hue_ctx.lineTo(x * radius * 0.75, -y * radius * 0.75);
+			hue_ctx.stroke();
+
+			hue_ctx.strokeStyle = "rgb("+ (255-a) +", "+ (255-b) +", 255)";
+			hue_ctx.beginPath();
+			hue_ctx.moveTo(-x * radius,        -y * radius);
+			hue_ctx.lineTo(-x * radius * 0.75, -y * radius * 0.75);
+			hue_ctx.stroke();
+
+			angle += delta;
+			x = Math.cos(angle);
+			y = -Math.sin(angle);
+		}
+	}
+	function redraw_tri(hue, rot) {
+		tri_ctx.save();
+
+		var tri_line = (radius*2) * 0.75 * Math.sin(Math.PI / 3);
+		tri_line_half = Math.ceil(tri_line / 2);
+		var tri_width = tri_line * Math.cos(Math.PI / 6);
+		tri_width_int = Math.ceil(tri_width);
+		var imageData = tri_ctx.createImageData(2 * tri_line_half, tri_width_int),
+		    data = imageData.data;
+		delta = (tri_line / 2) / tri_width;
+		var offset = 0;
+
+		var i, j;
+		for(i = 0; i < tri_width_int; i++) {
+			offset += 2 * tri_line_half;
+			var scalar = (tri_width_int - i) / tri_width_int;
+			var scalar2 = i / tri_width_int;
+			start = [hue[0] * scalar, hue[1] * scalar, hue[2] * scalar];
+			end = [lerp(hue[0], 255, scalar2), lerp(hue[1], 255, scalar2), lerp(hue[2], 255, scalar2)];
+
+			for(j = 0; j <= Math.ceil(i*delta); j++) {
+				var index = Math.ceil(i*delta);
+				data[(offset + tri_line_half-j)*4 + 0] = lerp(start[0], end[0], 0.5 - j / (2*index));
+				data[(offset + tri_line_half-j)*4 + 1] = lerp(start[1], end[1], 0.5 - j / (2*index));
+				data[(offset + tri_line_half-j)*4 + 2] = lerp(start[2], end[2], 0.5 - j / (2*index));
+				data[(offset + tri_line_half-j)*4 + 3] = 255;
+				data[(offset + tri_line_half+j)*4 + 0] = lerp(start[0], end[0], 0.5 + j / (2*index));
+				data[(offset + tri_line_half+j)*4 + 1] = lerp(start[1], end[1], 0.5 + j / (2*index));
+				data[(offset + tri_line_half+j)*4 + 2] = lerp(start[2], end[2], 0.5 + j / (2*index));
+				data[(offset + tri_line_half+j)*4 + 3] = 255;
+			}
+			//antialiasing
+			var fact = i*delta - Math.floor(i*delta);
+			data[(offset + tri_line_half-j + 1)*4 + 3] = fact * 255;
+			data[(offset + tri_line_half+j - 1)*4 + 3] = fact * 255;
+			data[(tri_line_half*3)*4 + 3] = 255;//fix
+		}
+		tri_ctx.putImageData(imageData, radius - imageData.width/ 2 - 1, radius * 0.25 - 1);
+
+		tri_ctx.strokeStyle = "rgb(0, 0, 0)";
+		tri_ctx.translate(radius, radius);
+		tri_ctx.beginPath();
+		tri_ctx.moveTo(-0.5, -radius);
+		tri_ctx.lineTo(-0.5, -radius * 0.75);
+		tri_ctx.stroke();
+		tri_ctx.restore();
+		rotation = rot * 180 / Math.PI;
+		wheel.style.MozTransform = "rotate("+ Math.round(90+rotation) +"deg)";
+		wheel.style.WebkitTransform = "rotate("+ Math.round(90 + rotation) +"deg)";
+		wheel.style.transform = "rotate("+ Math.round(90 + rotation) +"deg)";
+
+		var cosi = Math.cos(rot + Math.PI / 2),
+		    sini = Math.sin(rot + Math.PI / 2);
+
+		triangle.a.x =  sini * (radius * 0.75);
+		triangle.a.y = -cosi * (radius * 0.75);
+
+		triangle.b.x =  cosi * tri_line_half - sini * (tri_width_int - radius * 0.75) - triangle.a.x;
+		triangle.b.y =  sini * tri_line_half + cosi * (tri_width_int - radius * 0.75) - triangle.a.y;
+
+		triangle.c.x = -cosi * tri_line_half - sini * (tri_width_int - radius * 0.75) - triangle.a.x;
+		triangle.c.y = -sini * tri_line_half + cosi * (tri_width_int - radius * 0.75) - triangle.a.y;
+	}
+	function selectColor(u, v){
+		var point = triangle.c.mulS(v);
+		point = point.add(triangle.b.mulS(u));
+		point = point.add(triangle.a);
+
+		var cosi = Math.cos(-rotation / 180 * Math.PI - Math.PI / 2),
+		    sini = Math.sin(-rotation / 180 * Math.PI - Math.PI / 2);
+
+		tri_spot.x = cosi * point.x - sini * point.y;
+		tri_spot.y = sini * point.x + cosi * point.y;
+		
+		select_circle.style.left = radius + tri_spot.x - (select_circle.width/2) +"px";
+		select_circle.style.top  = radius + tri_spot.y - (select_circle.width/2) +"px";
+
+		tri_spot.x2 = u+v;
+		tri_spot.y2 = 0.5 + tri_spot.x / ((tri_spot.y+radius) * delta);
+
+		rotateWheel();
+
+		//pixel = SVtoRGB(hue, 1-u, 1-v);
+		func(pixel);
+	}
+	function rotateWheel() {
+		var start = [lerp(hue[0], 0,   tri_spot.x2), lerp(hue[1], 0,   tri_spot.x2), lerp(hue[2], 0,   tri_spot.x2)];
+		var end   = [lerp(hue[0], 255, tri_spot.x2), lerp(hue[1], 255, tri_spot.x2), lerp(hue[2], 255, tri_spot.x2)];
+
+		pixel = [Math.floor(lerp(start[0], end[0], tri_spot.y2)),
+		         Math.floor(lerp(start[1], end[1], tri_spot.y2)),
+		         Math.floor(lerp(start[2], end[2], tri_spot.y2))];
+	}
+	function click(e, c) {
+		var coord = getCoord(hue_select);
+		var x = e.clientX - coord[0] - radius,
+		    y = e.clientY - coord[1] - radius;
+		var dist = x*x + y*y;
+
+		if(!c && !drag) return;
+
+		var onHue = dist > (radius*0.75)*(radius*0.75) && dist < radius*radius;
+
+		if(c && onHue) drag = 1;
+
+		if(drag != 1) {
+			// Compute vectors (source: http://www.blackpawn.com/texts/pointinpoly/default.html)
+			var v = new vec2(x, y);
+			v = v.sub(triangle.a);
+
+			//console.info(triangle.a.x +","+ triangle.a.y +" "+ triangle.b.x +","+ triangle.b.y +" "+ triangle.c.x +","+ triangle.c.y);
+
+			// Compute dot products
+			var dot00 = triangle.b.dot(triangle.b);
+			var dot01 = triangle.b.dot(triangle.c);
+			var dot02 = triangle.b.dot(v);
+			var dot11 = triangle.c.dot(triangle.c);
+			var dot12 = triangle.c.dot(v);
+
+			// Compute barycentric coordinates
+			var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+			var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+			var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+	
+			// Check if point is in triangle
+			if(c && u >= 0 && v >= 0 && u + v < 1) {
+				selectColor(u, v);
+				drag = 2;
+			}
+			if(drag == 2) {
+				if (u < 0) u = 0;
+				if (v < 0) v = 0;
+				if (u + v > 1) {
+					var sum = (u+v);
+					u = u/sum;
+					v = v/sum;
+				}
+				selectColor(u, v);
+			}
+
+			return;
+		} else if(!drag) return;
+
+		dist = Math.sqrt(dist);
+		x *= (radius-2) / dist;
+		y *= (radius-2) / dist;
+
+		hue = hue_ctx.getImageData(Math.floor(x) + radius, Math.floor(y) + radius, 1, 1).data;
+		var rot = Math.atan2(y, x);
+		redraw_tri(hue, rot);
+
+		rotateWheel();
+		func(pixel);
+	}
+	wheel.addEventListener("mousedown", function(e) {
+		if(e.which == 1) {
+			click(e, true);
+		}
+	});
+	document.addEventListener("mouseup", function(e) {
+		drag = false;
+	});
+	document.addEventListener("mousemove", click);
+
+	var obj = {
+		resize: function(size) {
+			triangle_select.width = hue_select.width = size;
+			triangle_select.height = hue_select.height = size;
+			radius = size / 2;
+
+			draw_circle(0);
+			redraw_hue();
+			redraw_tri(hue, rot);
+			rotateWheel();
+		}
+	};
+	obj.resize(radius * 2);
+	selectColor(0, 0);
+
+	return obj;
+}
