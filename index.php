@@ -13,6 +13,7 @@
     <header id="header">
       <div id="headerright"><a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a> | <a href="http://64.37.52.32/~fooshell/">Suora osoite</a></div>
       <h1><span>Sivusto</span></h1>
+      <div id="nav_placeholder"></div>
       <nav>
         <div id="menus">
           <ol>
@@ -153,7 +154,7 @@ echo "</div>";
       </article>
       <div id="copyrights">
         Teksti on saatavilla <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution/Share-Alike</a> -lisenssillä.
-        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä.
+        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL).
       </div>
     </div>
   </div>

@@ -32,7 +32,7 @@ I started this project at ninth year of comprehensive school to replace my previ
 </div>
 
 <div>
-<h3><a href="demoes/editable.html">Text editor</a></h3>
+<h3><a href="demoes/editor.html">Text editor</a></h3>
 <img src="images/text_editor.png" />
 <p>
 I made this WYSIWYG editor for the InfoTV, but because it was so hard to get it working well I finally desided to not use it.
