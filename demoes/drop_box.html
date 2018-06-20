@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Strict//EN">
+<html lang="en">
+<head>
+	<title>Tulostus</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!--<link rel="stylesheet" type="text/css" href="">-->
+	<style>
+#layout {
+	padding:         5px;
+	background:      -moz-linear-gradient(top, #8C8, #585);
+	background:      -webkit-linear-gradient(top, #8C8, #585);
+	background:      linear-gradient(top, #8C8, #585);
+	border:          1px solid #444;
+	border-radius:   5px;
+	box-shadow:      0 3px  5px  rgba(0, 0, 0, 0.3),
+	                 0 10px 20px rgba(255, 255, 255, 0.8) inset;
+	//-moz-user-select: none;
+	//user-select:     none;
+}
+#layout h1 {
+	margin:          0.25em;
+	font-family:     sans;
+	bont-weight:     bold;
+	color:           #040;
+	text-shadow:     0 1px 0 #8F8;
+}
+progress#loading {
+	//display:         none;
+	overflow:        hidden;
+	float:           right;
+	height:          25px;
+	width:           250px;
+	background:      -moz-linear-gradient(top, #686, #8A8);
+	background:      -webkit-linear-gradient(top, #686, #8A8);
+	background:      linear-gradient(top, #686, #8A8);
+	border:          0;
+	border-radius:   8px;
+	-webkit-box-shadow: 0 1px 0 #cfc,
+	                 0 3px 5px rgba(0,0,0,0.5) inset;
+	box-shadow:      0 1px 0   #cfc,
+	                 0 3px 5px rgba(0,0,0,0.5) inset;
+}
+@-moz-keyframes mloading {  
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 40px 0;
+	}
+}
+@-webkit-keyframes wloading {  
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 40px 0;
+	}
+}
+progress#loading::-moz-progress-bar {
+	background:      -moz-repeating-linear-gradient(top -30deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1) 20px,
+	                      rgba(255, 255, 255, 0.0) 20px, rgba(255, 255, 255, 0.0) 40px),
+	                 -moz-linear-gradient(top, #6C6, #4A4);
+	background:      repeating-linear-gradient(top -30deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1) 20px,
+	                      rgba(255, 255, 255, 0.0) 20px, rgba(255, 255, 255, 0.0) 40px),
+	                 linear-gradient(top, #6C6, #4A4);
+	border-radius:   8px;
+	margin:          1px;
+	height:          23px;
+	-moz-animation:  2s linear 0s normal none infinite mloading;
+}
+progress#loading::-webkit-progress-bar {
+	background:      -webkit-repeating-linear-gradient(top -30deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1) 20px,
+	                      rgba(255, 255, 255, 0.0) 20px, rgba(255, 255, 255, 0.0) 40px),
+	                 -webkit-linear-gradient(top, #6C6, #4A4);
+	background:      repeating-linear-gradient(top -30deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1) 20px,
+	                      rgba(255, 255, 255, 0.0) 20px, rgba(255, 255, 255, 0.0) 40px),
+	                 linear-gradient(top, #6C6, #4A4);
+	border-radius:   8px;
+	margin:          1px;
+	height:          23px;
+	-webkit-animation: 2s linear 0s normal none infinite wloading;
+}
+#head {
+	border:          1px solid #444;
+	padding:         10px;
+	border-radius:   5px 5px 0 0;
+	box-shadow:      0 2px  3px  rgba(0, 0, 0, 0.3) inset;
+	background:     -moz-linear-gradient(top, #696, #6A6);
+	background:     -webkit-linear-gradient(top, #696, #6A6);
+	background:     linear-gradient(top, #696, #6A6);
+}
+#dropbox {
+	border:          1px solid #444;
+	min-height:      100px;
+	border-top:      0;
+	border-radius:   0 0 5px 5px;
+	box-shadow:      0 3px  5px 1px rgba(0, 0, 0, 0.5) inset;
+	background:      #EFE;
+	overflow:        auto;
+	resize:          vertical;
+}
+#dropbox.hover {
+	box-shadow:      0 3px  5px 1px rgba(0, 0, 0, 0.5) inset,
+	                 0 0 10px 10px rgba(64, 127, 255, 0.5);
+}
+#dropbox > div {
+	width:           180px;
+	height:          180px;
+	float:           left;
+	padding:         10px;
+	-moz-user-select: none;
+	user-select:     none;
+}
+#dropbox > div#selected {
+	background:      rgba(0, 0, 0, 0.3);
+	border:          1px solid rgba(0, 0, 0, 0.5);
+	border-radius:   3px;
+	margin:          5px;
+	padding:         4px;
+}
+#dropbox > div > div.icon-block {
+	height:          160px;
+}
+#dropbox > div > div.icon-block > img {
+	max-width:       180px;
+	max-height:      160px;
+	display:         block;
+	margin:          0 auto;
+	border-radius:   2px;
+}
+#dropbox > div > div.title {
+	text-align:      center;
+	text-overflow:   ellipsis;
+	overflow:        hidden;
+	white-space:     nowrap;
+}
+	</style>
+	<script type="text/javascript">
+"use strict";
+window.addEventListener("load", function() {
+	var selected = null;
+	var directory = "./";
+	var state = 0;
+	var state_max = 1;
+
+	var dropbox = document.querySelector("#dropbox");
+	var loading = document.querySelector("#loading");
+
+	var dragEnter = function(event) {
+		//event.stopPropagation();
+		event.preventDefault();
+	};
+	var dragExit = dragEnter;
+	function dragOver(event) {
+		event.preventDefault();
+		event.target.classList.add("hover");
+	}
+	function dragEnd(event) {
+		event.preventDefault();
+	}
+	function dragLeave(event) {
+		event.target.classList.remove("hover");
+	}
+	function dragStart(event) {
+		var datatransfer = event.dataTransfer;
+		var img = event.target.querySelector("img");
+		datatransfer.setData("text/uri-list", event.target.dataset.address);
+
+		var canvas = document.createElement("canvas");
+		canvas.width = canvas.height = 200;
+		var ctx = canvas.getContext("2d");
+		
+		ctx.drawImage(img, 0, 0, (img.width < img.height) ? img.width / img.height * 200  : 200,
+		                         (img.width > img.height) ? img.height / img.width * 200 : 200);
+		datatransfer.setDragImage(canvas, 50, 50); 
+
+		if(selected) selected.id = "";
+		event.target.id = "selected";
+		selected = event.target;
+
+		return true;
+	}
+	function select(event) {
+		if(selected) selected.id = "";
+		var target = event.target;
+
+		while(target && target.draggable != true) {
+			target = target.parentNode;
+		}
+		if(! target) return;
+		console.info(target);
+
+		target.id = "selected";
+		selected = target;
+	}
+	function dragStartImage(event) {
+		event.preventDefault();
+		event.target.id = "selected";
+	}
+	function set_file(url, name, type) {
+		var item       = document.createElement("div");
+		var icon_block = document.createElement("div");
+		var title      = document.createElement("div");
+		var icon       = document.createElement("img");
+
+		icon.src = url;
+		icon.draggable       = false;
+		title.textContent    = name;
+		icon_block.appendChild(icon);
+
+		icon_block.className = "icon-block";
+		title.className      = "title";
+
+		item.appendChild(icon_block);
+		item.appendChild(title);
+		dropbox.appendChild(item);
+
+		item.dataset.dataType = type;
+		item.dataset.address = location.protocol +"//"+ location.hostname +"/demoes/uploads/"+ name;
+		item.draggable       = true;
+		item.addEventListener("click", select, true);
+	}
+	function ready_listener(name, type) {
+		return (function(event) {
+			set_file(event.target.result, name, type);
+			sendFile(event.target.result, name, type);
+			state++;
+		});
+	}
+	function drop(event) {
+		//event.stopPropagation();
+		event.preventDefault();
+		event.target.classList.remove("hover");
+
+		var files = event.dataTransfer.files;
+		var len = files.length;
+
+		var name;
+		state_max = len;
+		state     = 0;
+		for(var i = 0; i < len; i++) {
+			var reader = new FileReader();
+			name = files[i].name;
+			reader.onprogress = uploadProgress;
+			reader.addEventListener("load",
+			          ready_listener(files[i].name, files[i].type));
+			reader.readAsDataURL(files[i]);
+		}
+	}
+	var ajax;
+	function sendFile(data, name, type) {
+		ajax = new XMLHttpRequest();
+
+		ajax.upload.addEventListener('progress', uploadProgress, false);
+		ajax.onreadystatechange = stateChange;
+
+		ajax.open("POST", "./ajax.php", true);
+		var offset = /base64,/.exec(data);
+		ajax.send("file="+ name +"&type="+ type +"&content="+ data.substr(offset.index+7));
+	}
+	function uploadProgress(event) {
+		var percent = event.loaded / event.total / state_max + state / state_max;
+		console.log(event.loaded / event.total / state_max +" "+ state / state_max);
+		loading.setAttribute("value", Math.round(percent * 100));
+	}
+	function stateChange(event) {
+		if(ajax.readyState == 4) {
+			console.info(ajax.responseText);
+		}
+	}
+	function getDirectory() {
+		ajax = new XMLHttpRequest();
+
+		ajax.upload.addEventListener('progress', uploadProgress, false);
+		ajax.onreadystatechange = updateView;
+
+		ajax.open("POST", "./ajax.php", true);
+		ajax.send("dir="+ directory);
+	}
+	function updateView(event) {
+		if(ajax.readyState == 4) {
+			var list = JSON.parse(ajax.responseText);
+			console.info(list);
+			for(var file in list.files) {
+				var name = list.files[file];
+				if(name == null) continue;
+				set_file("uploads/"+ directory + name, name, "");
+			}
+		}
+	}
+
+	//dropbox.addEventListener("dragenter", dragEnter, true);
+	dropbox.addEventListener("dragstart", dragStart, false);
+	dropbox.addEventListener("dragend",   dragEnd, false);
+	dropbox.addEventListener("dragover",  dragOver, false);
+	dropbox.addEventListener("dragleave", dragLeave, false);
+	dropbox.addEventListener("drop",      drop, true);
+
+	getDirectory();
+}, false);
+	</script>
+</head>
+<body>
+<div id="layout">
+<h1>Drop box</h1>
+<div id="head">
+<progress id="loading" max="100" value="0"></progress>
+<form action="tulosta.php" enctype="multipart/form-data" method="post">
+	<input type="file" name="tiedosto">
+	<input type="submit" value="Talenna">
+</form>
+</div>
+
+<div id="dropbox"></div>
+<img id="preview">
+
+</div>
+</body>
+</html>
