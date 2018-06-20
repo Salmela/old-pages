@@ -8,7 +8,6 @@ case "main":
 <p>Tein tämän sivun kouluni vapaa-valintaisena työnä, huhtikuussa 2011. Sivun tarkoituksena oli HTML5 ja CSS3 testaus. Aikaa sivun tekemisessä oli vain 8 koulu tuntia, joten tein sivuja myös kotona. Päätin että sivu pitää näkyä kaikilla selaimilla edes jotenkin siedettävässä muodossa (jopa IE:issä).</p>
 END;
 	break;
-
 case "demo":
 	echo <<<END
 <h1>Demot</h1>
@@ -47,7 +46,7 @@ When I was making this site I came across with svg on web page and I wanted to t
 </div>
 
 <div>
-<h3><a href="demoes/image.html">Photo editor</a></h3>
+<h3><a href="demoes/image.old.html">Photo editor</a></h3>
 </div>
 
 END;

@@ -11,7 +11,7 @@
 <body onload="login.init(); search.init(); content.init();">
   <div id="wrap">
     <header id="header">
-      <div id="headerright"><a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a> | <a href="http://64.37.52.32/~fooshell/">Suora osoite</a></div>
+      <div id="headerright"><a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a></div>
       <h1><span>Sivusto</span></h1>
       <div id="nav_placeholder"></div>
       <nav>
@@ -20,19 +20,17 @@
             <li id="main"><a href="#main" onclick="content.load('main');">Etusivu</a></li>
             <li id="demo" class="menu"><a href="#demo" onclick="content.load('demo');">Demoja</a>
               <ul>
-                <li><a href="#demo-slideshow" onclick="content.load('demo-slideshow');">Javascript</a></li>
+                <li><a href="#demo" onclick="content.load('demo');">Javascript</a></li>
                 <li><a href="javascript: void(0)" onclick="window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300');">Gtk</a></li>
-                <li><a href="javascript: void(0)" onclick="">OpenGL</a></li>
               </ul>
             </li>
             <li id="links" class="menu"><a href="#links" onclick="content.load('links');">Linkkejä</a>
               <ul>
-                <li><a href="http://www.google.com">HTML5</a></li>
-                <li><a href="http://www.gnu.org">Linux</a></li>
-                <li><a href="http://www.kernel.org">Miscellaneous</a></li>
+                <li><a href="http://www.google.com">Google</a></li>
+                <li><a href="http://www.kernel.org">Linux</a></li>
+                <li><a href="http://www.wikipedia.org">Wikipedia</a></li>
               </ul>
             </li>
-            <li id="author"><a href="#author" onclick="content.load('author');">Tekijä</a></li>
           </ol>
         </div>
       </nav>
@@ -154,7 +152,8 @@ echo "</div>";
       </article>
       <div id="copyrights">
         Teksti on saatavilla <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution/Share-Alike</a> -lisenssillä.
-        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL).
+        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL).</br>
+	© Aleksi Salmela
       </div>
     </div>
   </div>
