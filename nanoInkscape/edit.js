@@ -27,7 +27,7 @@ nanoInk.addTool("edit", {
 								"x": -3.5,
 								"y": -3.5,
 								"height": 6, "width": 6,
-								"class": "nodeCorner",
+								"class": "node nodeCorner",
 								"transform": "translate("+ point.x +
 									", "+ point.y +") rotate(45)"
 							});
@@ -73,7 +73,7 @@ nanoInk.addTool("edit", {
 							"x": -3.5,
 							"y": -3.5,
 							"height": 6, "width": 6,
-							"class": "nodeSmooth",
+							"class": "node nodeSmooth",
 							"transform": "translate("+ point.x +
 								", "+ point.y +")"
 						});
@@ -93,6 +93,7 @@ nanoInk.addTool("edit", {
 								"fill": "transparent", "r": 4,
 								"x": -2.5,
 								"y": -2.5,
+								"class": "node",
 								"transform": "translate("+ point.x2 +
 									", "+ point.y2 +")"
 							});
@@ -101,6 +102,7 @@ nanoInk.addTool("edit", {
 							tmpElem.controlPoint = nanoInk.newElem("rect", {
 								"x": 0, "y": 0,
 								"height": 0, "width": 0,
+								"class": "node",
 								"transform": "translate("+ point.x2 +
 									", "+ point.y2 +")"
 							});
@@ -125,6 +127,7 @@ nanoInk.addTool("edit", {
 									"fill": "transparent", "r": 4,
 									"x": -2.5,
 									"y": -2.5,
+									"class": "node",
 									"transform": "translate("+ nextPoint.x1 +
 										", "+ nextPoint.y1 +")"
 								});
@@ -133,6 +136,7 @@ nanoInk.addTool("edit", {
 								tmpElem.controlPoint2 = nanoInk.newElem("rect", {
 									"x": 0, "y": 0,
 									"height": 0, "width": 0,
+									"class": "node",
 									"transform": "translate("+ nextPoint.x1 +
 										", "+ nextPoint.y1 +")"
 								});

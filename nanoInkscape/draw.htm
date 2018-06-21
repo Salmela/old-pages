@@ -45,6 +45,10 @@
     vertical-align: top;
     display: inline-block;
   }
+  /* select tool */
+  #canvas.select-mode {
+    cursor: move;
+  }
   /* bezier tool */
   .bezier {
     stroke: #00f;
@@ -58,6 +62,11 @@
     fill: #f00;
   }
   /* edit tool */
+  .node {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
   .nodeCorner {
     stroke: #000;
     fill: green;

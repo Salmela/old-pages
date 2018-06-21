@@ -71,7 +71,7 @@ var nanoInk = {
 			this.pointerX = position.x;
 			this.pointerY = position.y;
 
-			this.tool.mouseMove();
+			this.tool.mouseMove(e);
 		}
 	}),
 	mouseUp: (function(e) {
@@ -139,8 +139,12 @@ nanoInk.addTool("select", {
 	uninit: (function() {
 
 	}),
-	mouseMove: (function() {
-		
+	mouseMove: (function(e) {
+		if(e.target.tagName != "svg") {
+			nanoInk.canvas.classList.add("select-mode");
+		} else {
+			nanoInk.canvas.classList.remove("select-mode");
+		}
 	}),
 	mouseDrag: (function() {
 		if (this.isInMovingMode) {
