@@ -45,6 +45,7 @@
     vertical-align: top;
     display: inline-block;
   }
+
   /* select tool */
   #canvas.select-mode {
     cursor: move;
@@ -53,6 +54,12 @@
     fill: transparent;
     stroke: #000;
   }
+  .active-object {
+    fill: transparent;
+    stroke: #000;
+    stroke-dasharray: 4;
+  }
+
   /* bezier tool */
   .bezier {
     stroke: #00f;
@@ -65,6 +72,7 @@
   #helperClosepath:hover {
     fill: #f00;
   }
+
   /* edit tool */
   .node {
     cursor: grab;

@@ -52,6 +52,7 @@ var nanoInk = {
 		return this.canvas.appendChild(elem);
 	}),
 	remElem: (function(elem) {
+		if (!elem) return;
 		this.canvas.removeChild(elem);
 	}),
 	newAttr: (function(elem, attr) {
@@ -60,7 +61,9 @@ var nanoInk = {
 		}
 	}),
 	setActiveNode: (function(node) {
+		var old = this.activeObject;
 		this.activeObject = node;
+		this.emit("setActiveNode", old, node);
 	}),
 	addTool: (function(toolName, toolObj) {
 		this.toolList[toolName] = toolObj;
@@ -162,6 +165,7 @@ nanoInk.addTool("select", {
 
 	}),
 	init: (function() {
+		this.setActiveNode(null, nanoInk.activeNode);
 	}),
 	uninit: (function() {
 
@@ -181,6 +185,7 @@ nanoInk.addTool("select", {
 				"transform": "translate("+ (this.oldX + nanoInk.pointerEndX - nanoInk.pointerStartX) +
 				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
 			});
+			nanoInk.newAttr(this.nodeBoundingBox, this._getBoundingBox(nanoInk.activeObject));
 		} else if (this.boxSelection) {
 			var minX = Math.floor(Math.min(nanoInk.pointerEndX, nanoInk.pointerStartX));
 			var minY = Math.floor(Math.min(nanoInk.pointerEndY, nanoInk.pointerStartY));
@@ -197,7 +202,7 @@ nanoInk.addTool("select", {
 		}
 	}),
 	mouseDown: (function() {
-		if(nanoInk.eTarget.tagName != "svg") {
+		if (this.nodeBoundingBox != nanoInk.eTarget && nanoInk.eTarget.tagName != "svg") {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
 			nanoInk.setActiveNode(nanoInk.eTarget);
@@ -231,5 +236,23 @@ nanoInk.addTool("select", {
 			nanoInk.remElem(nanoInk.activeObject);
 			nanoInk.setActiveNode(null);
 		}
+	}),
+	setActiveNode: (function(oldValue, newValue) {
+		if (!newValue) {
+			nanoInk.remElem(this.nodeBoundingBox);
+			return;
+		}
+		this.nodeBoundingBox = nanoInk.newElem("rect", Object.assign({},
+			this._getBoundingBox(newValue), {"class": "active-object"}));
+		nanoInk.canvas.insertBefore(this.nodeBoundingBox, newValue);
+	}),
+	_getBoundingBox: (function(node) {
+		var box = node.getBBox();
+		return {
+			"x": box.x,
+			"y": box.y,
+			"height": box.height,
+			"width": box.width,
+		};
 	})
 });
