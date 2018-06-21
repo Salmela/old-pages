@@ -155,6 +155,18 @@ nanoInk.addTool("select", {
 				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
 			});
 		} else if (this.boxSelection) {
+			var minX = Math.floor(Math.min(nanoInk.pointerEndX, nanoInk.pointerStartX));
+			var minY = Math.floor(Math.min(nanoInk.pointerEndY, nanoInk.pointerStartY));
+			var maxX = Math.floor(Math.max(nanoInk.pointerEndX, nanoInk.pointerStartX));
+			var maxY = Math.floor(Math.max(nanoInk.pointerEndY, nanoInk.pointerStartY));
+
+			nanoInk.newAttr(this.selectionBox, {
+				"width": maxX - minX,
+				"height": maxY - minY,
+				// make sure that the edges are middle of pixels (for crispiness)
+				"x": minX + 0.5,
+				"y": minY + 0.5
+			});
 		}
 	}),
 	mouseDown: (function() {
@@ -173,10 +185,18 @@ nanoInk.addTool("select", {
 		} else {//select
 			this.isInMovingMode = false;
 			this.boxSelection = true;
+			this.selectionBox = nanoInk.newElem("rect", {
+				"x": nanoInk.pointerX,
+				"y": nanoInk.pointerY,
+				"height": 1, "width": 1,
+				"id": "selection-box"
+			});
 		}
 	}),
 	mouseUp: (function() {
+		if (this.selectionBox) {
+			nanoInk.remElem(this.selectionBox);
+		}
 		this.isInMovingMode = this.boxSelection = false;
-		
 	})
 });
