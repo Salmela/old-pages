@@ -56,8 +56,9 @@ var nanoInk = {
 	}),
 	mouseDown: (function(e) {
 		if(this.toolList.length == 0) return;
-		this.pointerStartX = e.clientX - this.draw.offsetLeft;
-		this.pointerStartY = e.clientY - this.draw.offsetTop;
+		var position = this._getPointerPosition(e);
+		this.pointerStartX = position.x;
+		this.pointerStartY = position.y;
 		this.eTarget = e.target;
 		this.pointerDown = true;
 		this.pointerDrag = false;
@@ -66,16 +67,17 @@ var nanoInk = {
 	}),
 	mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
+		var position = this._getPointerPosition(e);
 		if(this.pointerDown == true) {
 			this.pointerDrag = true;
 
-			this.pointerEndX = e.clientX - this.draw.offsetLeft;
-			this.pointerEndY = e.clientY - this.draw.offsetTop;
+			this.pointerEndX = position.x;
+			this.pointerEndY = position.y;
 
 			this.tool.mouseDrag();
 		} else {
-			this.pointerX = e.clientX - this.draw.offsetLeft;
-			this.pointerY = e.clientY - this.draw.offsetTop;
+			this.pointerX = position.x;
+			this.pointerY = position.y;
 
 			this.tool.mouseMove();
 		}
@@ -85,12 +87,20 @@ var nanoInk = {
 		this.eTarget = e.target;
 		this.pointerDown = false;
 		if(this.pointerDrag = true) {
-			this.pointerEndX = e.clientX - this.draw.offsetLeft;
-			this.pointerEndY = e.clientY - this.draw.offsetTop;
+			var position = this._getPointerPosition(e);
+			this.pointerEndX = position.x;
+			this.pointerEndY = position.y;
 
 		} else { this.pointerEndX = this.pointerEndY = undefined; }
 
 		this.tool.mouseUp();
+	}),
+	_getPointerPosition: (function(e) {
+		var canvasPosition = this.canvas.getBoundingClientRect();
+		return {
+			x: e.clientX - canvasPosition.left,
+			y: e.clientY - canvasPosition.top
+		};
 	}),
 	keyDown: (function(event) {
 		var handler = this.tool.keyDown;
