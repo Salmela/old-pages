@@ -1,4 +1,5 @@
 "use strict";
+
 nanoInk.addTool("edit", {
 	draggingElem: null,
 	controlNodes: [],
@@ -7,14 +8,16 @@ nanoInk.addTool("edit", {
 		
 	}),
 	init: (function() {
-		if(nanoInk.active != undefined) {
+		if(nanoInk.active !== undefined) {
 			var i;
 			var controlPoints = nanoInk.active.pathSegList;
 			var tmpElem;
 			var last = controlPoints.length-1;
 
 			for(i = last; i >= 0; i--) {
-				switch(controlPoints[i].pathSegTypeAsLetter) {
+				var point = controlPoints[i];
+				var nextPoint = controlPoints[i + 1];
+				switch(point.pathSegTypeAsLetter) {
 					case "M":
 						if(i == 0 && controlPoints[last].pathSegTypeAsLetter == "z") break;
 						tmpElem = nanoInk.newElem("rect", {
@@ -22,39 +25,39 @@ nanoInk.addTool("edit", {
 							"y": -3.5,
 							"height": 6, "width": 6,
 							"id": "nodeCorner",
-							"transform": "translate("+ controlPoints[i].x
-							            +", "+ controlPoints[i].y +") rotate(45)"
+							"transform": "translate("+ point.x
+							            +", "+ point.y +") rotate(45)"
 						});
-						if(controlPoints[i+1] != undefined && controlPoints[i+1].pathSegTypeAsLetter == "C") {
+						if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
 							tmpElem.tangent2 = nanoInk.newElem("line", {
 								"stroke": "#000",
-								"x1": controlPoints[i].x,
-								"y1": controlPoints[i].y,
-								"x2": controlPoints[i+1].x1,
-								"y2": controlPoints[i+1].y1
+								"x1": point.x,
+								"y1": point.y,
+								"x2": nextPoint.x1,
+								"y2": nextPoint.y1
 							});
 							tmpElem.controlPoint2 = nanoInk.newElem("circle", {
 								"stroke": "#000",
 								"fill": "transparent", "r": 4,
 								"x": -2.5,
 								"y": -2.5,
-								"transform": "translate("+ controlPoints[i+1].x1
-									    +", "+ controlPoints[i+1].y1 +")"
+								"transform": "translate("+ nextPoint.x1
+									    +", "+ nextPoint.y1 +")"
 							});
 						}
-						tmpElem.nanoInkscapeNode = controlPoints[i];
+						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 						break;
 					case "L":
 						nanoInk.newElem("rect", {
-							"x": controlPoints[i].x-3.5,
-							"y": controlPoints[i].y-3.5,
+							"x": point.x-3.5,
+							"y": point.y-3.5,
 							"height": 6, "width": 6,
 							"id": "nodeCorner",
-							"transform": "translate("+ controlPoints[i].x
-							            +", "+ controlPoints[i].y +") rotate(45)"
+							"transform": "translate("+ point.x
+							            +", "+ point.y +") rotate(45)"
 						});
-						tmpElem.nanoInkscapeNode = controlPoints[i];
+						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 						break;
 					case "C":
@@ -64,16 +67,16 @@ nanoInk.addTool("edit", {
 							"y": -3.5,
 							"height": 6, "width": 6,
 							"id": "nodeSmooth",
-							"transform": "translate("+ controlPoints[i].x
-							            +", "+ controlPoints[i].y +")"
+							"transform": "translate("+ point.x
+							            +", "+ point.y +")"
 						});
 
 						tmpElem.tangent = nanoInk.newElem("line", {
 							"stroke": "#000",
-							"x1": controlPoints[i].x,
-							"y1": controlPoints[i].y,
-							"x2": controlPoints[i].x2,
-							"y2": controlPoints[i].y2
+							"x1": point.x,
+							"y1": point.y,
+							"x2": point.x2,
+							"y2": point.y2
 						});
 						tmpElem.tangent.nanoInkscapeType = "tangent1";
 						tmpElem.tangent.nanoInkscapeONode = tmpElem;
@@ -82,20 +85,20 @@ nanoInk.addTool("edit", {
 							"fill": "transparent", "r": 4,
 							"x": -2.5,
 							"y": -2.5,
-							"transform": "translate("+ controlPoints[i].x2
-							            +", "+ controlPoints[i].y2 +")"
+							"transform": "translate("+ point.x2
+							            +", "+ point.y2 +")"
 						});
 						tmpElem.controlPoint.nanoInkscapeType = "controlPoint1";
 						tmpElem.controlPoint.nanoInkscapeONode = tmpElem;
-						tmpElem.controlPoint.nanoInkscapeNode = controlPoints[i];
+						tmpElem.controlPoint.nanoInkscapeNode = point;
 
-						if(controlPoints[i+1] != undefined && controlPoints[i+1].pathSegTypeAsLetter == "C") {
+						if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
 							tmpElem.tangent2 = nanoInk.newElem("line", {
 								"stroke": "#000",
-								"x1": controlPoints[i].x,
-								"y1": controlPoints[i].y,
-								"x2": controlPoints[i+1].x1,
-								"y2": controlPoints[i+1].y1
+								"x1": point.x,
+								"y1": point.y,
+								"x2": nextPoint.x1,
+								"y2": nextPoint.y1
 							});
 							tmpElem.tangent2.nanoInkscapeType = "tangent2";
 							tmpElem.tangent2.nanoInkscapeONode = tmpElem;
@@ -104,16 +107,16 @@ nanoInk.addTool("edit", {
 								"fill": "transparent", "r": 4,
 								"x": -2.5,
 								"y": -2.5,
-								"transform": "translate("+ controlPoints[i+1].x1
-									    +", "+ controlPoints[i+1].y1 +")"
+								"transform": "translate("+ nextPoint.x1
+									    +", "+ nextPoint.y1 +")"
 							});
 							tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 							tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
-							tmpElem.controlPoint2.nanoInkscapeNode = controlPoints[i+1];
+							tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
 							
-							tmpElem.nanoInkscapeNode2 = controlPoints[i+1];
+							tmpElem.nanoInkscapeNode2 = nextPoint;
 						}
-						tmpElem.nanoInkscapeNode = controlPoints[i];
+						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 						break;
 				}
