@@ -111,19 +111,8 @@ nanoInk.addTool("bezier", {
 			this.tempCurve += nanoInk.pointerStartX +","+ nanoInk.pointerStartY;
 		}
 		if(this.closepath) {
-
-			nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
-			nanoInk.newAttr(this.curveHelper2, {"style": "visibility: hidden"});
-			nanoInk.newAttr(nanoInk.active, {
-				"class": "",
-				"fill": nanoInk.fill,
-				"stroke": nanoInk.stroke,
-				"d": this.tempCurve +" z"
-			});
-
-			nanoInk.remElem(this.zHelper);
-			this.tempCurve = "";
-			this.oldControlPoint = undefined;
+			var makeClosed = true;
+			this._endPathEditing(makeClosed);
 			return;
 
 		} else if(this.tempCurve == "") {
@@ -145,9 +134,25 @@ nanoInk.addTool("bezier", {
 	keyDown: (function(key) {
 		if (key == "Enter" || key == 13) {
 			if(this.tempCurve != "") {
-				this.tempCurve = "";
-				this.oldControlPoint = undefined;
+				var makeClosed = false;
+				this._endPathEditing(makeClosed);
 			}
 		}
+	}),
+	_endPathEditing: (function(makeClosed) {
+		nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
+		nanoInk.newAttr(this.curveHelper2, {"style": "visibility: hidden"});
+		nanoInk.newAttr(nanoInk.active, {
+			"class": "",
+			"fill": nanoInk.fill,
+			"stroke": nanoInk.stroke,
+			"d": makeClosed ? this.tempCurve + " z" : this.tempCurve
+		});
+
+		nanoInk.remElem(this.zHelper);
+		this.zHelper = null;
+		this.tempCurve = "";
+		this.oldControlPoint = undefined;
+		this.closepath = true;
 	})
 });
