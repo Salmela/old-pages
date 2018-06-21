@@ -19,14 +19,20 @@ nanoInk.addTool("edit", {
 				var nextPoint = controlPoints[i + 1];
 				switch(point.pathSegTypeAsLetter) {
 					case "M":
-						tmpElem = nanoInk.newElem("rect", {
-							"x": -3.5,
-							"y": -3.5,
-							"height": 6, "width": 6,
-							"class": "nodeCorner",
-							"transform": "translate("+ point.x +
-								", "+ point.y +") rotate(45)"
-						});
+						if(i == 0 && controlPoints[last].pathSegTypeAsLetter == "z") {
+							tmpElem = this.controlNodes[0];
+							tmpElem.nanoInkscapeNode2 = point;
+						} else {
+							tmpElem = nanoInk.newElem("rect", {
+								"x": -3.5,
+								"y": -3.5,
+								"height": 6, "width": 6,
+								"class": "nodeCorner",
+								"transform": "translate("+ point.x +
+									", "+ point.y +") rotate(45)"
+							});
+							tmpElem.nanoInkscapeNode = point;
+						}
 						if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
 							tmpElem.tangent2 = nanoInk.newElem("line", {
 								"stroke": "#000",
@@ -47,7 +53,6 @@ nanoInk.addTool("edit", {
 							tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 							tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
 						}
-						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 						break;
 					case "L":
@@ -135,8 +140,6 @@ nanoInk.addTool("edit", {
 							tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 							tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 							tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
-		
-							tmpElem.nanoInkscapeNode2 = nextPoint;
 						}
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
@@ -210,6 +213,10 @@ nanoInk.addTool("edit", {
 				    dy = py - this.draggingElem.nanoInkscapeNode.y;
 				this.draggingElem.nanoInkscapeNode.x = px;
 				this.draggingElem.nanoInkscapeNode.y = py;
+				if (this.draggingElem.nanoInkscapeNode2) {
+					this.draggingElem.nanoInkscapeNode2.x = this.draggingElem.nanoInkscapeNode.x;
+					this.draggingElem.nanoInkscapeNode2.y = this.draggingElem.nanoInkscapeNode.y;
+				}
 
 				var ctrP1 = this.draggingElem.controlPoint;
 				var ctrP2 = this.draggingElem.controlPoint2;
