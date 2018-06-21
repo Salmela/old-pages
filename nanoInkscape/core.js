@@ -10,7 +10,7 @@ function print_obj(obj) {
 
 var nanoInk = {
 //general
-	tool: "select",
+	tool: null,
 	toolList: {},
 	active: undefined,
 
@@ -62,7 +62,7 @@ var nanoInk = {
 		this.pointerDown = true;
 		this.pointerDrag = false;
 
-		this.toolList[this.tool].mouseDown();
+		this.tool.mouseDown();
 	}),
 	mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
@@ -72,12 +72,12 @@ var nanoInk = {
 			this.pointerEndX = e.clientX - this.draw.offsetLeft;
 			this.pointerEndY = e.clientY - this.draw.offsetTop;
 
-			this.toolList[this.tool].mouseDrag();
+			this.tool.mouseDrag();
 		} else {
 			this.pointerX = e.clientX - this.draw.offsetLeft;
 			this.pointerY = e.clientY - this.draw.offsetTop;
 
-			this.toolList[this.tool].mouseMove();
+			this.tool.mouseMove();
 		}
 	}),
 	mouseUp: (function(e) {
@@ -90,37 +90,38 @@ var nanoInk = {
 
 		} else { this.pointerEndX = this.pointerEndY = undefined; }
 
-		this.toolList[this.tool].mouseUp();
+		this.tool.mouseUp();
 	}),
-	keyDown: (function(e) {
-		var handler = this.toolList[this.tool].keyDown;
+	keyDown: (function(event) {
+		var handler = this.tool.keyDown;
 		var key = event.key || event.keyCode;
-		handler && handler(key);
+		handler && handler.call(this.tool, key);
 	}),
-	keyUp: (function(e) {
-		var handler = this.toolList[this.tool].keyUp;
+	keyUp: (function(event) {
+		var handler = this.tool.keyUp;
 		var key = event.key || event.keyCode;
-		handler && handler(key);
+		handler && handler.call(this.tool, key);
 	}),
 	addTool: (function(toolName, toolObj) {
 		this.toolList[toolName] = toolObj;
-		this.toolList[toolName].mainInit();
+		toolObj.mainInit();
+		if (toolName == "select") this.tool = toolObj;
 	}),
 	changeTool: (function(toolName) {
 		if(this.toolList.length == 0) return;
-		this.toolList[this.tool].uninit();
+		this.tool.uninit();
 		for(var i=0; i < this.toolbar.getElementsByTagName("button").length; i++) {
 			this.toolbar.getElementsByTagName("button")[i].className = " tools";
 		}
 		document.getElementById("tool_"+toolName).className += " toolActive";
 		
-		this.tool = toolName;
-		this.toolList[this.tool].init();
+		this.tool = this.toolList[toolName];
+		this.tool.init();
 	}),
 };
 
-document.addEventListener('keydown', nanoInk.keyDown);
-document.addEventListener('keyup', nanoInk.keyUp);
+window.addEventListener('keydown', function(e) {nanoInk.keyDown(e)});
+window.addEventListener('keyup', function(e) {nanoInk.keyUp(e)});
 
 nanoInk.addTool("select", {
 	move: false,
