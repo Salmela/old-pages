@@ -122,8 +122,8 @@ var nanoInk = {
 	}),
 };
 
-window.addEventListener('keydown', function(e) {nanoInk.keyDown(e)});
-window.addEventListener('keyup', function(e) {nanoInk.keyUp(e)});
+window.addEventListener('keypress', function(e) {nanoInk.keyDown(e)});
+window.addEventListener('keyrelease', function(e) {nanoInk.keyUp(e)});
 
 nanoInk.addTool("select", {
 	isInMovingMode: false,
