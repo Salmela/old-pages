@@ -216,7 +216,7 @@ nanoInk.addTool("edit", {
 				var tang1 = this.draggingElem.tangent;
 				var tang2 = this.draggingElem.tangent2;
 
-				if(tang1) {
+				if (tang1) {
 					var t = re.exec(ctrP1.getAttributeNS(null, "transform"));
 					var x = parseFloat(t[1])+dx,
 					    y = parseFloat(t[2])+dy;
@@ -228,11 +228,12 @@ nanoInk.addTool("edit", {
 					tang1.setAttributeNS(null, "y2", y);
 					ctrP1.nanoInkscapeNode.x2 = x;
 					ctrP1.nanoInkscapeNode.y2 = y;
-				} else {
+				} else if (ctrP1) {
 					ctrP1.nanoInkscapeNode.x2 = px;
 					ctrP1.nanoInkscapeNode.y2 = py;
 				}
-				if(tang2) {
+
+				if (tang2) {
 					var t = re.exec(ctrP2.getAttributeNS(null, "transform"));
 					var x = parseFloat(t[1])+dx,
 					    y = parseFloat(t[2])+dy;
@@ -244,7 +245,7 @@ nanoInk.addTool("edit", {
 					tang2.setAttributeNS(null, "y2", y);
 					ctrP2.nanoInkscapeNode.x1 = x;
 					ctrP2.nanoInkscapeNode.y1 = y;
-				} else {
+				} else if (ctrP2) {
 					ctrP2.nanoInkscapeNode.x1 = px;
 					ctrP2.nanoInkscapeNode.y1 = py;
 				}
