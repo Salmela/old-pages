@@ -14,18 +14,8 @@ nanoInk.addTool("bezier", {
 	}),
 	uninit: (function() {
 		if(this.tempCurve != "") {
-
-			nanoInk.newAttr(nanoInk.active, {
-				"class": "",
-				"fill": nanoInk.fill,
-				"stroke": nanoInk.stroke,
-				"d": this.tempCurve
-			});
-
-			nanoInk.remElem(this.zHelper);
-			this.tempCurve = "";
-			this.oldControlPoint = undefined;
-
+			var makeClosed = false;
+			this._endPathEditing(makeClosed);
 		}
 		nanoInk.remElem(this.curveHelper);
 		nanoInk.remElem(this.curveHelper2);
