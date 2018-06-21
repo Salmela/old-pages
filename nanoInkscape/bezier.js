@@ -8,7 +8,7 @@ nanoInk.addTool("bezier", {
 		
 	}),
 	init: (function() {
-		nanoInk.active = undefined;
+		nanoInk.activeObject = undefined;
 		this.curveHelper = nanoInk.newElem("line", {"stroke": "#000", "style": "visibility: hidden"});
 		this.curveHelper2 = nanoInk.newElem("circle", {"stroke": "#000", "fill": "transparent", "r": 4, "style": "visibility: hidden"});
 	}),
@@ -33,7 +33,7 @@ nanoInk.addTool("bezier", {
 				data += " L";
 				data += nanoInk.pointerX +","+ nanoInk.pointerY;
 			}
-			nanoInk.active.setAttributeNS(null, "d", data);
+			nanoInk.activeObject.setAttributeNS(null, "d", data);
 		}
 	}),
 	mouseDrag: (function(initialize) {
@@ -66,7 +66,7 @@ nanoInk.addTool("bezier", {
 			data += " L";
 			data += nanoInk.pointerX +","+ nanoInk.pointerY;
 		}
-		nanoInk.active.setAttributeNS(null, "d", data);
+		nanoInk.activeObject.setAttributeNS(null, "d", data);
 	}),
 	mouseDown: (function() {
 		nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
@@ -75,7 +75,7 @@ nanoInk.addTool("bezier", {
 		if(nanoInk.eTarget === this.TailHandleNode) {
 			this.doPathClosing = true;
 		} else if(this.doPathClosing) {
-			nanoInk.active = nanoInk.newElem("path", {"class": "bezier"});
+			nanoInk.activeObject = nanoInk.newElem("path", {"class": "bezier"});
 			this.TailHandleNode = nanoInk.newElem("rect", {
 				"x": nanoInk.pointerStartX-3.5,
 				"y": nanoInk.pointerStartY-3.5,
@@ -86,9 +86,9 @@ nanoInk.addTool("bezier", {
 		}
 	}),
 	mouseUp: (function() {
-		if(!nanoInk.active) return;
+		if(!nanoInk.activeObject) return;
 
-		//data = nanoInk.active.getAttributeNS(null, "d");
+		//data = nanoInk.activeObject.getAttributeNS(null, "d");
 		if(this.doPathClosing) {
 			nanoInk.pointerStartX = parseFloat(this.TailHandleNode.getAttributeNS(null, "x"))+3.5;
 			nanoInk.pointerStartY = parseFloat(this.TailHandleNode.getAttributeNS(null, "y"))+3.5;
@@ -115,7 +115,7 @@ nanoInk.addTool("bezier", {
 		} else {
 			this.oldControlPoint = undefined;
 		}
-		nanoInk.active.setAttributeNS(null, "d", this.tempCurve);
+		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
 		if(nanoInk.pointerDrag) {
 			this.oldControlPoint = nanoInk.pointerEndX +","+ nanoInk.pointerEndY;
@@ -132,7 +132,7 @@ nanoInk.addTool("bezier", {
 	_endPathEditing: (function(makeClosed) {
 		nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
 		nanoInk.newAttr(this.curveHelper2, {"style": "visibility: hidden"});
-		nanoInk.newAttr(nanoInk.active, {
+		nanoInk.newAttr(nanoInk.activeObject, {
 			"class": "",
 			"fill": nanoInk.fill,
 			"stroke": nanoInk.stroke,

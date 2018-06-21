@@ -4,7 +4,7 @@ var nanoInk = {
 //general
 	tool: null,
 	toolList: {},
-	active: null,
+	activeObject: null,
 
 //events
 	pointerX: 0,
@@ -17,7 +17,7 @@ var nanoInk = {
 //styles
 	fill: "transparent",
 	stroke: "#000",
-	
+
 //methods
 	init: (function() {
 		this.toolbar = document.getElementById("toolbar");
@@ -30,6 +30,14 @@ var nanoInk = {
 		document.querySelector("#stroke_color").addEventListener("change", function() {
 			nanoInk.stroke = this.value;
 		});
+		nanoInk.stroke = inputNode.value;
+
+		this.canvas.addEventListener('mouseup', function(e) {nanoInk._mouseUp(e)});
+		this.canvas.addEventListener('mousedown', function(e) {nanoInk._mouseDown(e)});
+		this.canvas.addEventListener('mousemove', function(e) {nanoInk._mouseMove(e)});
+
+		window.addEventListener('keypress', function(e) {nanoInk._keyDown(e)});
+		window.addEventListener('keyrelease', function(e) {nanoInk._keyUp(e)});
 	}),
 	newElem: (function(tag, attr) {
 		var elem = document.createElementNS(SVG_NS, tag);
@@ -46,7 +54,11 @@ var nanoInk = {
 			elem.setAttributeNS(null, i, attr[i]);
 		}
 	}),
-	mouseDown: (function(e) {
+	setActiveNode: (function(node) {
+		this.activeObject = node;
+	}),
+
+	_mouseDown: (function(e) {
 		if(this.toolList.length == 0) return;
 		var position = this._getPointerPosition(e);
 		this.pointerStartX = position.x;
@@ -57,7 +69,7 @@ var nanoInk = {
 
 		this.tool.mouseDown();
 	}),
-	mouseMove: (function(e) {
+	_mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
 		var position = this._getPointerPosition(e);
 		if(this.pointerDown == true) {
@@ -74,7 +86,7 @@ var nanoInk = {
 			this.tool.mouseMove(e);
 		}
 	}),
-	mouseUp: (function(e) {
+	_mouseUp: (function(e) {
 		if(this.toolList.length == 0) return;
 		this.eTarget = e.target;
 		this.pointerDown = false;
@@ -94,12 +106,12 @@ var nanoInk = {
 			y: e.clientY - canvasPosition.top
 		};
 	}),
-	keyDown: (function(event) {
+	_keyDown: (function(event) {
 		var handler = this.tool.keyDown;
 		var key = event.key || event.keyCode;
 		handler && handler.call(this.tool, key);
 	}),
-	keyUp: (function(event) {
+	_keyUp: (function(event) {
 		var handler = this.tool.keyUp;
 		var key = event.key || event.keyCode;
 		handler && handler.call(this.tool, key);
@@ -119,11 +131,12 @@ var nanoInk = {
 		
 		this.tool = this.toolList[toolName];
 		this.tool.init();
-	}),
+	})
 };
 
-window.addEventListener('keypress', function(e) {nanoInk.keyDown(e)});
-window.addEventListener('keyrelease', function(e) {nanoInk.keyUp(e)});
+window.addEventListener('load', function(e) {
+	nanoInk.init();
+});
 
 nanoInk.addTool("select", {
 	isInMovingMode: false,
@@ -150,7 +163,7 @@ nanoInk.addTool("select", {
 		if (this.isInMovingMode) {
 			nanoInk.statusbar.textContent = (nanoInk.pointerEndX - nanoInk.pointerStartX) +", "+ (nanoInk.pointerEndY - nanoInk.pointerStartY);
 
-			nanoInk.newAttr(nanoInk.active, {
+			nanoInk.newAttr(nanoInk.activeObject, {
 				"transform": "translate("+ (this.oldX + nanoInk.pointerEndX - nanoInk.pointerStartX) +
 				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
 			});
@@ -173,10 +186,10 @@ nanoInk.addTool("select", {
 		if(nanoInk.eTarget.tagName != "svg") {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
-			nanoInk.active = nanoInk.eTarget;
-			if(nanoInk.active.hasAttributeNS(null, "transform")) {
-				var oldValues = /translate\(([^,]*), ([^)]*)\)/.exec(nanoInk.active.getAttributeNS(null, "transform"));
-				//alert(nanoInk.active.getAttributeNS(null, "transform"));
+			nanoInk.activeObject = nanoInk.eTarget;
+			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
+				var oldValues = /translate\(([^,]*), ([^)]*)\)/.exec(nanoInk.activeObject.getAttributeNS(null, "transform"));
+				//alert(nanoInk.activeObject.getAttributeNS(null, "transform"));
 				this.oldX = parseFloat(oldValues[1]);
 				this.oldY = parseFloat(oldValues[2]);
 			} else {
@@ -200,9 +213,9 @@ nanoInk.addTool("select", {
 		this.isInMovingMode = this.boxSelection = false;
 	}),
 	keyDown: (function(key) {
-		if (nanoInk.active && (key == "Delete" || key == 46)) {
-			nanoInk.remElem(nanoInk.active);
-			nanoInk.active = null;
+		if (nanoInk.activeObject && (key == "Delete" || key == 46)) {
+			nanoInk.remElem(nanoInk.activeObject);
+			nanoInk.activeObject = null;
 		}
 	})
 });
