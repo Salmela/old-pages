@@ -24,10 +24,15 @@ var nanoInk = {
 		this.canvas = document.getElementById("canvas");
 		this.draw = document.getElementById("drawDiv");
 		this.statusbar = document.getElementById("statusbar");
-		document.querySelector("#fill_color").addEventListener("change", function() {
+
+		var inputNode = document.getElementById("fill_color");
+		inputNode.addEventListener("change", function() {
 			nanoInk.fill = this.value;
 		});
-		document.querySelector("#stroke_color").addEventListener("change", function() {
+		nanoInk.fill = inputNode.value;
+
+		var inputNode = document.getElementById("stroke_color");
+		inputNode.addEventListener("change", function() {
 			nanoInk.stroke = this.value;
 		});
 		nanoInk.stroke = inputNode.value;
