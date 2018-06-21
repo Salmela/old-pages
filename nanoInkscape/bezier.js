@@ -2,7 +2,7 @@
 nanoInk.addTool("bezier", {
 	oldControlPoint: undefined,
 	tempCurve: "",
-	closepath: true,
+	doPathClosing: true,
 
 	mainInit: (function() {
 		
@@ -72,26 +72,26 @@ nanoInk.addTool("bezier", {
 		nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
 		nanoInk.newAttr(this.curveHelper2, {"style": "visibility: hidden"});
 
-		if(nanoInk.eTarget === this.zHelper) {
-			this.closepath = true;
-		} else if(this.closepath == true) {
+		if(nanoInk.eTarget === this.TailHandleNode) {
+			this.doPathClosing = true;
+		} else if(this.doPathClosing) {
 			nanoInk.active = nanoInk.newElem("path", {"class": "bezier"});
-			this.zHelper = nanoInk.newElem("rect", {
+			this.TailHandleNode = nanoInk.newElem("rect", {
 				"x": nanoInk.pointerStartX-3.5,
 				"y": nanoInk.pointerStartY-3.5,
 				"height": 6, "width": 6,
 				"id": "helperClosepath"
 			});
-			this.closepath = false;
+			this.doPathClosing = false;
 		}
 	}),
 	mouseUp: (function() {
 		if(nanoInk.active == undefined) return;
 
 		//data = nanoInk.active.getAttributeNS(null, "d");
-		if(this.closepath) {
-			nanoInk.pointerStartX = parseFloat(this.zHelper.getAttributeNS(null, "x"))+3.5;
-			nanoInk.pointerStartY = parseFloat(this.zHelper.getAttributeNS(null, "y"))+3.5;
+		if(this.doPathClosing) {
+			nanoInk.pointerStartX = parseFloat(this.TailHandleNode.getAttributeNS(null, "x"))+3.5;
+			nanoInk.pointerStartY = parseFloat(this.TailHandleNode.getAttributeNS(null, "y"))+3.5;
 		}
 		if(this.oldControlPoint != undefined) {
 			this.tempCurve += " C";
@@ -100,7 +100,7 @@ nanoInk.addTool("bezier", {
 			this.tempCurve += nanoInk.pointerStartY - (nanoInk.pointerEndY - nanoInk.pointerStartY) + " ";
 			this.tempCurve += nanoInk.pointerStartX +","+ nanoInk.pointerStartY;
 		}
-		if(this.closepath) {
+		if(this.doPathClosing) {
 			var makeClosed = true;
 			this._endPathEditing(makeClosed);
 			return;
@@ -139,10 +139,10 @@ nanoInk.addTool("bezier", {
 			"d": makeClosed ? this.tempCurve + " z" : this.tempCurve
 		});
 
-		nanoInk.remElem(this.zHelper);
-		this.zHelper = null;
+		nanoInk.remElem(this.TailHandleNode);
+		this.TailHandleNode = null;
 		this.tempCurve = "";
 		this.oldControlPoint = undefined;
-		this.closepath = true;
+		this.doPathClosing = true;
 	})
 });
