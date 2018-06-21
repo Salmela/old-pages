@@ -24,9 +24,9 @@ nanoInk.addTool("edit", {
 							"x": -3.5,
 							"y": -3.5,
 							"height": 6, "width": 6,
-							"id": "nodeCorner",
-							"transform": "translate("+ point.x
-							            +", "+ point.y +") rotate(45)"
+							"class": "nodeCorner",
+							"transform": "translate("+ point.x +
+								", "+ point.y +") rotate(45)"
 						});
 						if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
 							tmpElem.tangent2 = nanoInk.newElem("line", {
@@ -41,8 +41,8 @@ nanoInk.addTool("edit", {
 								"fill": "transparent", "r": 4,
 								"x": -2.5,
 								"y": -2.5,
-								"transform": "translate("+ nextPoint.x1
-									    +", "+ nextPoint.y1 +")"
+								"transform": "translate("+ nextPoint.x1 +
+									", "+ nextPoint.y1 +")"
 							});
 						}
 						tmpElem.nanoInkscapeNode = point;
@@ -53,9 +53,9 @@ nanoInk.addTool("edit", {
 							"x": point.x-3.5,
 							"y": point.y-3.5,
 							"height": 6, "width": 6,
-							"id": "nodeCorner",
-							"transform": "translate("+ point.x
-							            +", "+ point.y +") rotate(45)"
+							"class": "nodeCorner",
+							"transform": "translate("+ point.x +
+								", "+ point.y +") rotate(45)"
 						});
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
@@ -66,9 +66,9 @@ nanoInk.addTool("edit", {
 							"x": -3.5,
 							"y": -3.5,
 							"height": 6, "width": 6,
-							"id": "nodeSmooth",
-							"transform": "translate("+ point.x
-							            +", "+ point.y +")"
+							"class": "nodeSmooth",
+							"transform": "translate("+ point.x +
+								", "+ point.y +")"
 						});
 
 						tmpElem.tangent = nanoInk.newElem("line", {
@@ -107,13 +107,13 @@ nanoInk.addTool("edit", {
 								"fill": "transparent", "r": 4,
 								"x": -2.5,
 								"y": -2.5,
-								"transform": "translate("+ nextPoint.x1
-									    +", "+ nextPoint.y1 +")"
+								"transform": "translate("+ nextPoint.x1 +
+									", "+ nextPoint.y1 +")"
 							});
 							tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 							tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 							tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
-							
+		
 							tmpElem.nanoInkscapeNode2 = nextPoint;
 						}
 						tmpElem.nanoInkscapeNode = point;
@@ -121,7 +121,7 @@ nanoInk.addTool("edit", {
 						break;
 				}
 			}
-		} 
+		}
 	}),
 	uninit: (function() {
 		while(this.controlNodes.length != 0) {
@@ -172,7 +172,8 @@ nanoInk.addTool("edit", {
 					tang1.setAttributeNS(null, "y2", nY);
 					ctrP1.nanoInkscapeNode.x1 = nX;
 					ctrP1.nanoInkscapeNode.y1 = nY;
-				} if(ctrP2) {
+				}
+				if(ctrP2) {
 					ctrP2.setAttributeNS(null, "transform", "translate("+ px +", "+ py +")");
 					tang2.setAttributeNS(null, "x2", px);
 					tang2.setAttributeNS(null, "y2", py);
@@ -181,8 +182,8 @@ nanoInk.addTool("edit", {
 				}
 			}
 			if(this.draggingElem.nanoInkscapeType == undefined) {
-				this.draggingElem.setAttributeNS(null, "transform", "translate("+ px
-				                               +", "+ py +")");
+				this.draggingElem.setAttributeNS(null, "transform", "translate("+ px +
+					", "+ py +")");
 				var dx = px - this.draggingElem.nanoInkscapeNode.x,
 				    dy = py - this.draggingElem.nanoInkscapeNode.y;
 				this.draggingElem.nanoInkscapeNode.x = px;
@@ -198,7 +199,7 @@ nanoInk.addTool("edit", {
 					var x = parseFloat(t[1])+dx,
 					    y = parseFloat(t[2])+dy;
 					ctrP1.setAttributeNS(null, "transform",
-					      "translate("+ x +", "+ y +")");
+						"translate("+ x +", "+ y +")");
 					tang1.setAttributeNS(null, "x1", px);
 					tang1.setAttributeNS(null, "y1", py);
 					tang1.setAttributeNS(null, "x2", x);
@@ -211,7 +212,7 @@ nanoInk.addTool("edit", {
 					var x = parseFloat(t[1])+dx,
 					    y = parseFloat(t[2])+dy;
 					ctrP2.setAttributeNS(null, "transform",
-					      "translate("+ x +", "+ y +")");
+						"translate("+ x +", "+ y +")");
 					tang2.setAttributeNS(null, "x1", px);
 					tang2.setAttributeNS(null, "y1", py);
 					tang2.setAttributeNS(null, "x2", x);
