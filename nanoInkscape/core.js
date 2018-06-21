@@ -126,7 +126,7 @@ window.addEventListener('keydown', function(e) {nanoInk.keyDown(e)});
 window.addEventListener('keyup', function(e) {nanoInk.keyUp(e)});
 
 nanoInk.addTool("select", {
-	move: false,
+	isInMovingMode: false,
 	boxSelection: false,
 	oldX: 0,
 	oldY: 0,
@@ -143,18 +143,19 @@ nanoInk.addTool("select", {
 		
 	}),
 	mouseDrag: (function() {
-		if(this.move == true) {
+		if (this.isInMovingMode) {
 			nanoInk.statusbar.textContent = (nanoInk.pointerEndX - nanoInk.pointerStartX) +", "+ (nanoInk.pointerEndY - nanoInk.pointerStartY);
 
 			nanoInk.newAttr(nanoInk.active, {
 				"transform": "translate("+ (this.oldX + nanoInk.pointerEndX - nanoInk.pointerStartX) +
 				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
 			});
+		} else if (this.boxSelection) {
 		}
 	}),
 	mouseDown: (function() {
-		if(nanoInk.eTarget.tagName != "svg") {//move
-			this.move = true;
+		if(nanoInk.eTarget.tagName != "svg") {
+			this.isInMovingMode = true;
 			this.boxSelection = false;
 			nanoInk.active = nanoInk.eTarget;
 			if(nanoInk.active.hasAttributeNS(null, "transform")) {
@@ -166,12 +167,12 @@ nanoInk.addTool("select", {
 				this.oldX = this.oldY = 0;
 			}	
 		} else {//select
-			this.move = false;
+			this.isInMovingMode = false;
 			this.boxSelection = true;
 		}
 	}),
 	mouseUp: (function() {
-		this.move = this.boxSelection = false;
+		this.isInMovingMode = this.boxSelection = false;
 		
 	})
 });
