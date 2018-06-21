@@ -5,12 +5,12 @@ nanoInk.addTool("edit", {
 	controlNodes: [],
 
 	mainInit: (function() {
-		
 	}),
+
 	init: (function() {
-		if(nanoInk.active !== undefined) {
+		if(nanoInk.activeObject) {
 			var i;
-			var controlPoints = nanoInk.active.pathSegList;
+			var controlPoints = nanoInk.activeObject.pathSegList;
 			var tmpElem;
 			var last = controlPoints.length-1;
 

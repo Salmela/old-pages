@@ -8,7 +8,7 @@ nanoInk.addTool("bezier", {
 		
 	}),
 	init: (function() {
-		nanoInk.activeObject = undefined;
+		nanoInk.setActiveNode(null);
 		this.curveHelper = nanoInk.newElem("line", {"stroke": "#000", "style": "visibility: hidden"});
 		this.curveHelper2 = nanoInk.newElem("circle", {"stroke": "#000", "fill": "transparent", "r": 4, "style": "visibility: hidden"});
 	}),
@@ -75,7 +75,7 @@ nanoInk.addTool("bezier", {
 		if(nanoInk.eTarget === this.TailHandleNode) {
 			this.doPathClosing = true;
 		} else if(this.doPathClosing) {
-			nanoInk.activeObject = nanoInk.newElem("path", {"class": "bezier"});
+			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
 			this.TailHandleNode = nanoInk.newElem("rect", {
 				"x": nanoInk.pointerStartX-3.5,
 				"y": nanoInk.pointerStartY-3.5,

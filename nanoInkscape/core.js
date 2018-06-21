@@ -2,7 +2,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 
 var nanoInk = {
 //general
-	tool: null,
+	tool: {},//dummy tool
 	toolList: {},
 	activeObject: null,
 
@@ -62,65 +62,6 @@ var nanoInk = {
 	setActiveNode: (function(node) {
 		this.activeObject = node;
 	}),
-
-	_mouseDown: (function(e) {
-		if(this.toolList.length == 0) return;
-		var position = this._getPointerPosition(e);
-		this.pointerStartX = position.x;
-		this.pointerStartY = position.y;
-		this.eTarget = e.target;
-		this.pointerDown = true;
-		this.pointerDrag = false;
-
-		this.tool.mouseDown();
-	}),
-	_mouseMove: (function(e) {
-		if(this.toolList.length == 0) return;
-		var position = this._getPointerPosition(e);
-		if(this.pointerDown == true) {
-			this.pointerDrag = true;
-
-			this.pointerEndX = position.x;
-			this.pointerEndY = position.y;
-
-			this.tool.mouseDrag();
-		} else {
-			this.pointerX = position.x;
-			this.pointerY = position.y;
-
-			this.tool.mouseMove(e);
-		}
-	}),
-	_mouseUp: (function(e) {
-		if(this.toolList.length == 0) return;
-		this.eTarget = e.target;
-		this.pointerDown = false;
-		if(this.pointerDrag = true) {
-			var position = this._getPointerPosition(e);
-			this.pointerEndX = position.x;
-			this.pointerEndY = position.y;
-
-		} else { this.pointerEndX = this.pointerEndY = undefined; }
-
-		this.tool.mouseUp();
-	}),
-	_getPointerPosition: (function(e) {
-		var canvasPosition = this.canvas.getBoundingClientRect();
-		return {
-			x: e.clientX - canvasPosition.left,
-			y: e.clientY - canvasPosition.top
-		};
-	}),
-	_keyDown: (function(event) {
-		var handler = this.tool.keyDown;
-		var key = event.key || event.keyCode;
-		handler && handler.call(this.tool, key);
-	}),
-	_keyUp: (function(event) {
-		var handler = this.tool.keyUp;
-		var key = event.key || event.keyCode;
-		handler && handler.call(this.tool, key);
-	}),
 	addTool: (function(toolName, toolObj) {
 		this.toolList[toolName] = toolObj;
 		toolObj.mainInit();
@@ -136,6 +77,74 @@ var nanoInk = {
 		
 		this.tool = this.toolList[toolName];
 		this.tool.init();
+	}),
+
+	_mouseDown: (function(e) {
+		var position = this._getPointerPosition(e);
+		this.pointerStartX = position.x;
+		this.pointerStartY = position.y;
+		this.eTarget = e.target;
+		this.pointerDown = true;
+		this.pointerDrag = false;
+
+		this.emit("mouseDown");
+	}),
+	_mouseMove: (function(e) {
+		if(this.toolList.length == 0) return;
+		var position = this._getPointerPosition(e);
+		if(this.pointerDown == true) {
+			this.pointerDrag = true;
+
+			this.pointerEndX = position.x;
+			this.pointerEndY = position.y;
+
+			this.emit("mouseDrag");
+		} else {
+			this.pointerX = position.x;
+			this.pointerY = position.y;
+
+			this.emit("mouseMove", e);
+		}
+	}),
+	_mouseUp: (function(e) {
+		if(this.toolList.length == 0) return;
+		this.eTarget = e.target;
+		this.pointerDown = false;
+		if(this.pointerDrag = true) {
+			var position = this._getPointerPosition(e);
+			this.pointerEndX = position.x;
+			this.pointerEndY = position.y;
+
+		} else { this.pointerEndX = this.pointerEndY = undefined; }
+
+		this.emit("mouseUp");
+	}),
+	_getPointerPosition: (function(e) {
+		var canvasPosition = this.canvas.getBoundingClientRect();
+		return {
+			x: e.clientX - canvasPosition.left,
+			y: e.clientY - canvasPosition.top
+		};
+	}),
+	_keyDown: (function(event) {
+		var key = event.key || event.keyCode;
+		this.emit("keyDown", key);
+	}),
+	_keyUp: (function(event) {
+		var key = event.key || event.keyCode;
+		this.emit("keyUp", key);
+	}),
+	emit: (function(name) {
+		var handler = this.tool[name];
+
+		var args = new Array(arguments.length - 1);
+		for(var i = 1; i < arguments.length; i++) {
+			args[i - 1] = arguments[i];
+		}
+
+		if (handler) {
+			handler.apply(this.tool, args);
+		}
 	})
 };
 
@@ -191,7 +200,7 @@ nanoInk.addTool("select", {
 		if(nanoInk.eTarget.tagName != "svg") {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
-			nanoInk.activeObject = nanoInk.eTarget;
+			nanoInk.setActiveNode(nanoInk.eTarget);
 			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
 				var oldValues = /translate\(([^,]*), ([^)]*)\)/.exec(nanoInk.activeObject.getAttributeNS(null, "transform"));
 				//alert(nanoInk.activeObject.getAttributeNS(null, "transform"));
@@ -220,7 +229,7 @@ nanoInk.addTool("select", {
 	keyDown: (function(key) {
 		if (nanoInk.activeObject && (key == "Delete" || key == 46)) {
 			nanoInk.remElem(nanoInk.activeObject);
-			nanoInk.activeObject = null;
+			nanoInk.setActiveNode(null);
 		}
 	})
 });

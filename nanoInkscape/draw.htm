@@ -93,13 +93,13 @@
   <script type="text/javascript" src="bezier.js"></script>
   <!--<script type="text/javascript" src="text.js"></script>-->
 </head>
-<body onload="nanoInk.init();">
+<body>
 <div id="toolbar">
   <button class="tools toolActive" id="tool_select" onClick="nanoInk.changeTool('select')"><img src="../icons/inkscape/select.png" />
   </button><button class="tools" id="tool_edit" onClick="nanoInk.changeTool('edit')"><img src="../icons/inkscape/edit.png" />
   </button><button class="tools" id="tool_bezier" onClick="nanoInk.changeTool('bezier')"><img src="../icons/inkscape/bezier.png" />
   </button><button class="tools" id="tool3" onClick="nanoInk.changeTool(3)"><img src="../icons/inkscape/text.png" /></button>
-</div><div onMouseUp="nanoInk.mouseUp(event)" onMouseDown="nanoInk.mouseDown(event)" onMouseMove="nanoInk.mouseMove(event)"  id="drawDiv">
+</div><div id="drawDiv">
   <svg height="600px" width="600px" id="canvas" style="border: 1px solid #000;">
     <desc>Selaimesi ei tue svg:tä</desc>
   </svg>
