@@ -141,5 +141,13 @@ nanoInk.addTool("bezier", {
 		if(nanoInk.pointerDrag) {
 			this.oldControlPoint = nanoInk.pointerEndX +","+ nanoInk.pointerEndY;
 		}
+	}),
+	keyDown: (function(key) {
+		if (key == "Enter" || key == 13) {
+			if(this.tempCurve != "") {
+				this.tempCurve = "";
+				this.oldControlPoint = undefined;
+			}
+		}
 	})
 });

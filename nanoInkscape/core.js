@@ -92,6 +92,16 @@ var nanoInk = {
 
 		this.toolList[this.tool].mouseUp();
 	}),
+	keyDown: (function(e) {
+		var handler = this.toolList[this.tool].keyDown;
+		var key = event.key || event.keyCode;
+		handler && handler(key);
+	}),
+	keyUp: (function(e) {
+		var handler = this.toolList[this.tool].keyUp;
+		var key = event.key || event.keyCode;
+		handler && handler(key);
+	}),
 	addTool: (function(toolName, toolObj) {
 		this.toolList[toolName] = toolObj;
 		this.toolList[toolName].mainInit();
@@ -108,6 +118,9 @@ var nanoInk = {
 		this.toolList[this.tool].init();
 	}),
 };
+
+document.addEventListener('keydown', nanoInk.keyDown);
+document.addEventListener('keyup', nanoInk.keyUp);
 
 nanoInk.addTool("select", {
 	move: false,
