@@ -44,6 +44,9 @@ nanoInk.addTool("edit", {
 								"transform": "translate("+ nextPoint.x1 +
 									", "+ nextPoint.y1 +")"
 							});
+							tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
+							tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
+							tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
 						}
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
