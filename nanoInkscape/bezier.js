@@ -86,7 +86,7 @@ nanoInk.addTool("bezier", {
 		}
 	}),
 	mouseUp: (function() {
-		if(nanoInk.active == undefined) return;
+		if(!nanoInk.active) return;
 
 		//data = nanoInk.active.getAttributeNS(null, "d");
 		if(this.doPathClosing) {

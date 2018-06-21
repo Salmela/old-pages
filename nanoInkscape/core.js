@@ -4,7 +4,7 @@ var nanoInk = {
 //general
 	tool: null,
 	toolList: {},
-	active: undefined,
+	active: null,
 
 //events
 	pointerX: 0,
@@ -198,5 +198,11 @@ nanoInk.addTool("select", {
 			nanoInk.remElem(this.selectionBox);
 		}
 		this.isInMovingMode = this.boxSelection = false;
+	}),
+	keyDown: (function(key) {
+		if (nanoInk.active && (key == "Delete" || key == 46)) {
+			nanoInk.remElem(nanoInk.active);
+			nanoInk.active = null;
+		}
 	})
 });
