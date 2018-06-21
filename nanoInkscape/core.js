@@ -1,13 +1,5 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-function print_obj(obj) {
-	var str = "";
-	for(i in obj) {
-		str += i +"=>"+ obj[i] +", ";
-	}
-	alert(str);
-}
-
 var nanoInk = {
 //general
 	tool: null,
