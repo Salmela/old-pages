@@ -7,16 +7,56 @@ function Vector(x, y) {
 
 Vector.prototype.add = function(another) {
 	return Vector(this.x + another.x, this.y + another.y);
-}
+};
 
 Vector.prototype.sub = function(another) {
 	return Vector(this.x - another.x, this.y - another.y);
-}
+};
+
+var templateEngine = {
+	_templateKeyPrefix: "data-template-",
+	_templateKeyPattern: null,
+
+	init: (function() {
+		this._templateKeyPattern = new RegExp("^" + this._templateKeyPrefix + "(.*)");
+	}),
+	createNodesFromTemplate: (function(parentNode, context) {
+		var template = parentNode.getElementsByClassName("template")[0];
+		var newToolNode = template.cloneNode(true);
+		newToolNode.classList.remove("template");
+		this._updateRecursively(newToolNode, context);
+		parentNode.appendChild(newToolNode);
+		return newToolNode;
+	}),
+	_updateRecursively: (function(node, context) {
+		var templateAttributes = [];
+		// find the template attributes
+		for (var i in Object.keys(node.attributes)) {
+			var attribute = node.attributes[i];
+			var parts = this._templateKeyPattern.exec(attribute.name);
+			if (parts) {
+				templateAttributes.push(parts[1]);
+			}
+		}
+		// update the template attributes
+		for (var i in templateAttributes) {
+			var attribute = templateAttributes[i];
+			var templateAttribute = this._templateKeyPrefix + attribute;
+			var contextKey = node.getAttribute(templateAttribute);
+
+			node.setAttribute(attribute, context[contextKey]);
+			node.removeAttribute(templateAttribute);
+		}
+		for (var i in Object.keys(node.children)) {
+			this._updateRecursively(node.children[i], context);
+		}
+	})
+};
 
 var nanoInk = {
 //general
-	tool: {},//dummy tool
-	toolList: {},
+	tool: null,
+	toolList: [],
 	activeObject: null,
 
 //events
@@ -31,8 +71,8 @@ var nanoInk = {
 	fill: "transparent",
 	stroke: "#000",
 
-//methods
 	init: (function() {
+		templateEngine.init();
 		this.toolbar = document.getElementById("toolbar");
 		this.canvas = document.getElementById("canvas");
 		this.draw = document.getElementById("drawDiv");
@@ -50,12 +90,23 @@ var nanoInk = {
 		});
 		nanoInk.stroke = inputNode.value;
 
-		this.canvas.addEventListener('mouseup', function(e) {nanoInk._mouseUp(e)});
-		this.canvas.addEventListener('mousedown', function(e) {nanoInk._mouseDown(e)});
-		this.canvas.addEventListener('mousemove', function(e) {nanoInk._mouseMove(e)});
+		this.canvas.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
+		this.canvas.addEventListener("mousedown", function(e) {nanoInk._mouseDown(e)});
+		this.canvas.addEventListener("mousemove", function(e) {nanoInk._mouseMove(e)});
 
-		window.addEventListener('keypress', function(e) {nanoInk._keyDown(e)});
-		window.addEventListener('keyrelease', function(e) {nanoInk._keyUp(e)});
+		window.addEventListener("keypress", function(e) {nanoInk._keyDown(e)});
+		window.addEventListener("keyrelease", function(e) {nanoInk._keyUp(e)});
+
+		for(var i in this.toolList) {
+			this._addToolButton(this.toolList[i]);
+		}
+	}),
+	_addToolButton: (function(tool) {
+		var newToolNode = templateEngine.createNodesFromTemplate(this.toolbar, tool.meta);
+		newToolNode.addEventListener("click", function() {
+			nanoInk._changeTool(tool);
+		});
+		tool.meta.button = newToolNode;
 	}),
 	newElem: (function(tag, attr, beforeNode) {
 		var elem = document.createElementNS(SVG_NS, tag);
@@ -82,20 +133,22 @@ var nanoInk = {
 		this.activeObject = node;
 		this.emit("setActiveNode", old, node);
 	}),
-	addTool: (function(toolName, toolObj) {
-		this.toolList[toolName] = toolObj;
-		toolObj.mainInit();
-		if (toolName == "select") this.tool = toolObj;
+	addTool: (function(tool) {
+		this.toolList.push(tool);
+		tool.mainInit();
+
+		// initialize active tool to the first tool
+		if (!this.tool) this.tool = tool;
 	}),
-	changeTool: (function(toolName) {
-		if(this.toolList.length == 0) return;
-		this.tool.uninit();
-		for(var i=0; i < this.toolbar.getElementsByTagName("button").length; i++) {
-			this.toolbar.getElementsByTagName("button")[i].className = " tools";
+	_changeTool: (function(tool) {
+		if (this.tool) this.tool.uninit();
+
+		for(var i in this.toolList) {
+			this.toolList[i].meta.button.classList.remove("tool-active");
 		}
-		document.getElementById("tool_"+toolName).className += " toolActive";
+		tool.meta.button.classList.add("tool-active");
 		
-		this.tool = this.toolList[toolName];
+		this.tool = tool;
 		this.tool.init();
 		this.setActiveNode(null, nanoInk.activeNode);
 	}),
@@ -156,6 +209,7 @@ var nanoInk = {
 		this.emit("keyUp", key);
 	}),
 	emit: (function(name) {
+		if (!this.tool) return;
 		var handler = this.tool[name];
 
 		var args = new Array(arguments.length - 1);
@@ -173,7 +227,19 @@ window.addEventListener('load', function(e) {
 	nanoInk.init();
 });
 
-nanoInk.addTool("select", {
+//nanoInk.addTool({
+//	meta: {
+//		name: "text",
+//		icon: "../icons/inkscape/text.png",
+//	}
+//});
+
+nanoInk.addTool({
+	meta: {
+		name: "select",
+		icon: "../icons/inkscape/select.png",
+	},
+
 	isInMovingMode: false,
 	boxSelection: false,
 	oldX: 0,

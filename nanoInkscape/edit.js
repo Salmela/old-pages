@@ -1,6 +1,11 @@
 "use strict";
 
-nanoInk.addTool("edit", {
+nanoInk.addTool({
+	meta: {
+		name: "edit",
+		icon: "../icons/inkscape/edit.png",
+	},
+
 	draggingElem: null,
 	controlNodes: [],
 

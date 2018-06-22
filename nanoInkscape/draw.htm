@@ -32,12 +32,12 @@
   .tools:hover {
     background: rgba(255, 255, 255, 0.5);
   }
-  .toolActive {
+  .tool-active {
     border: 1px solid #000;
     background: rgba(255, 255, 255, 0.9);
     margin: 0;
   }
-  .toolActive:hover {
+  .tool-active:hover {
     background: #fff;
   }
   #drawDiv {
@@ -102,6 +102,9 @@
     stroke: #000;
     fill: #f00;
   }
+  .template {
+    display: none;
+  }
   </style>
   <script type="text/javascript" src="core.js"></script>
   <script type="text/javascript" src="edit.js"></script>
@@ -110,10 +113,7 @@
 </head>
 <body>
 <div id="toolbar">
-  <button class="tools toolActive" id="tool_select" onClick="nanoInk.changeTool('select')"><img src="../icons/inkscape/select.png" />
-  </button><button class="tools" id="tool_edit" onClick="nanoInk.changeTool('edit')"><img src="../icons/inkscape/edit.png" />
-  </button><button class="tools" id="tool_bezier" onClick="nanoInk.changeTool('bezier')"><img src="../icons/inkscape/bezier.png" />
-  </button><button class="tools" id="tool3" onClick="nanoInk.changeTool(3)"><img src="../icons/inkscape/text.png" /></button>
+  <button class="template tools"  data-template-title="name"><img class="tool-icon" data-template-src="icon" /></button>
 </div><div id="drawDiv">
   <svg height="600px" width="600px" id="canvas" style="border: 1px solid #000;">
     <desc>Selaimesi ei tue svg:tä</desc>

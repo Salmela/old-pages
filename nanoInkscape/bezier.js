@@ -1,5 +1,10 @@
 "use strict";
-nanoInk.addTool("bezier", {
+nanoInk.addTool({
+	meta: {
+		name: "bezier",
+		icon: "../icons/inkscape/bezier.png",
+	},
+
 	oldControlPoint: null,
 	tempCurve: "",
 	doPathClosing: true,
