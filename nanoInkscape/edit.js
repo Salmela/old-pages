@@ -111,6 +111,7 @@ nanoInk.addTool({
 				ctrP2.nanoInkscapeNode.y1 = py;
 			}
 		}
+		nanoInk.invalidateBoundingBox();
 	}),
 
 	_getNodeTranslation: (function(node) {

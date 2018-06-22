@@ -145,6 +145,8 @@ var nanoInk = {
 	setActiveNode: (function(node) {
 		var old = this.activeObject;
 		this.activeObject = node;
+
+		this.invalidateBoundingBox();
 		this.emit("setActiveNode", old, node);
 	}),
 	addTool: (function(tool) {
@@ -234,6 +236,28 @@ var nanoInk = {
 		if (handler) {
 			handler.apply(this.tool, args);
 		}
+	}),
+	invalidateBoundingBox: (function() {
+		if (this.activeObject) {
+			if (!this.nodeBoundingBox) {
+				this.nodeBoundingBox = nanoInk.newElem("rect", {"class": "active-object"});
+				this.canvas.insertBefore(this.nodeBoundingBox, this.activeObject);
+			}
+			this.newAttr(this.nodeBoundingBox, this._getBoundingBox(this.activeObject));
+		} else {
+			this.remElem(this.nodeBoundingBox);
+			this.nodeBoundingBox = null;
+		}
+	}),
+	_getBoundingBox: (function(node) {
+		var area = nanoInk.canvas.getBoundingClientRect();
+		var box = node.getBoundingClientRect();
+		return {
+			"x": box.x + 0.5 - area.x,
+			"y": box.y + 0.5 - area.y,
+			"height": box.height,
+			"width": box.width,
+		};
 	})
 };
 
@@ -282,7 +306,7 @@ nanoInk.addTool({
 				"transform": "translate("+ (this.oldX + nanoInk.pointerEndX - nanoInk.pointerStartX) +
 				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
 			});
-			nanoInk.newAttr(this.nodeBoundingBox, this._getBoundingBox(nanoInk.activeObject));
+			nanoInk.invalidateBoundingBox();
 		} else if (this.boxSelection) {
 			var minX = Math.floor(Math.min(nanoInk.pointerEndX, nanoInk.pointerStartX));
 			var minY = Math.floor(Math.min(nanoInk.pointerEndY, nanoInk.pointerStartY));
@@ -299,7 +323,7 @@ nanoInk.addTool({
 		}
 	}),
 	mouseDown: (function() {
-		if (this.nodeBoundingBox != nanoInk.eTarget && nanoInk.eTarget.tagName != "svg") {
+		if (nanoInk.nodeBoundingBox != nanoInk.eTarget && nanoInk.eTarget.tagName != "svg") {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
 			if (nanoInk.activeObject != nanoInk.eTarget) {
@@ -338,22 +362,6 @@ nanoInk.addTool({
 		}
 	}),
 	setActiveNode: (function(oldValue, newValue) {
-		nanoInk.remElem(this.nodeBoundingBox);
-		this.nodeBoundingBox = null;
 		if (!newValue) return;
-
-		this.nodeBoundingBox = nanoInk.newElem("rect", Object.assign({},
-			this._getBoundingBox(newValue), {"class": "active-object"}));
-		nanoInk.canvas.insertBefore(this.nodeBoundingBox, newValue);
-	}),
-	_getBoundingBox: (function(node) {
-		var area = nanoInk.canvas.getBoundingClientRect();
-		var box = node.getBoundingClientRect();
-		return {
-			"x": box.x + 0.5 - area.x,
-			"y": box.y + 0.5 - area.y,
-			"height": box.height,
-			"width": box.width,
-		};
 	})
 });

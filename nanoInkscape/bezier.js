@@ -152,5 +152,6 @@ nanoInk.addTool({
 		this.tempCurve = "";
 		this.oldControlPoint = null;
 		this.doPathClosing = true;
+		nanoInk.invalidateBoundingBox();
 	})
 });
