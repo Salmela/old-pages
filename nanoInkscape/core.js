@@ -17,6 +17,10 @@ Vector.prototype.mul = function(factor) {
 	return new Vector(factor * this.x, factor * this.y);
 };
 
+Vector.prototype.join = function(separator) {
+	return "" + this.x + separator + this.y;
+};
+
 Vector.prototype.swap = function(another) {
 	var tempX = this.x;
 	var tempY = this.y;
@@ -74,6 +78,9 @@ var Util = {
 			return new Vector(0, 0);
 		}
 		return new Vector(translate[1], translate[2]);
+	}),
+	svgTranslate: (function(vector) {
+		return "translate(" + vector.x + ", " + vector.y + ")";
 	})
 };
 
@@ -198,7 +205,7 @@ var nanoInk = {
 		if(this.toolList.length == 0) return;
 		var position = this._getPointerPosition(e);
 
-		this.statusbar.textContent = position.x +", "+ position.y;
+		this.statusbar.textContent = position.join(", ");
 
 		if(this.pointerStart) {
 			this.pointerEnd = position;
@@ -308,9 +315,10 @@ nanoInk.addTool({
 	}),
 	mouseDrag: (function() {
 		if (this.isInMovingMode) {
+			var translation = new Vector(this.old.x + nanoInk.pointerEnd.x - nanoInk.pointerStart.x,
+			     this.old.y + nanoInk.pointerEnd.y - nanoInk.pointerStart.y);
 			nanoInk.newAttr(nanoInk.activeObject, {
-				"transform": "translate("+ (this.old.x + nanoInk.pointerEnd.x - nanoInk.pointerStart.x) +
-				             ", "+ (this.old.y + nanoInk.pointerEnd.y - nanoInk.pointerStart.y) +")"
+				"transform": Util.svgTranslate(translation)
 			});
 			nanoInk.invalidateBoundingBox();
 		} else if (this.boxSelection) {

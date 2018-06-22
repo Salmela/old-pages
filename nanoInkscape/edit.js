@@ -29,7 +29,7 @@ nanoInk.addTool({
 		var ptr = absPointer.sub(translate);
 
 		if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {
-			
+			return;
 		}
 		if(/controlPoint/.test(this.draggingElem.nanoInkscapeType)) {
 			var translate = Util.getNodeTranslation(this.draggingElem.nanoInkscapeONode);
@@ -44,7 +44,7 @@ nanoInk.addTool({
 
 			function moveVisualHandle(control, tangent, newPosition, isBefore) {
 				control.setAttributeNS(null, "transform",
-					"translate(" + newPosition.x + ", " + newPosition.y + ")");
+					Util.svgTranslate(newPosition));
 				if (tangent) {
 					tangent.setAttributeNS(null, "x2", newPosition.x);
 					tangent.setAttributeNS(null, "y2", newPosition.y);
@@ -58,8 +58,7 @@ nanoInk.addTool({
 			if(ctrP2) moveVisualHandle(ctrP2, tang2, n, false);
 		}
 		if(this.draggingElem.nanoInkscapeType == undefined) {
-			this.draggingElem.setAttributeNS(null, "transform", "translate("+ ptr.x +
-				", "+ ptr.y +")");
+			this.draggingElem.setAttributeNS(null, "transform", Util.svgTranslate(ptr));
 			var positionDelta = ptr.sub(this.draggingElem.nanoInkscapeNode);
 			this.draggingElem.nanoInkscapeNode.x = ptr.x;
 			this.draggingElem.nanoInkscapeNode.y = ptr.y;
@@ -73,7 +72,7 @@ nanoInk.addTool({
 				if (tangent) {
 					var endPoint = Util.getNodeTranslation(control).add(positionDelta);
 					control.setAttributeNS(null, "transform",
-						"translate("+ endPoint.x +", "+ endPoint.y +")");
+						Util.svgTranslate(endPoint));
 					tangent.setAttributeNS(null, "x1", ptr.x);
 					tangent.setAttributeNS(null, "y1", ptr.y);
 					tangent.setAttributeNS(null, "x2", endPoint.x);
@@ -141,10 +140,10 @@ nanoInk.addTool({
 		var last = controlPoints.length-1;
 
 		this.decorations = nanoInk.newElem("g", {
-			"transform": "translate("+ translation.x + ", "+ translation.y +")"
+			"transform": Util.svgTranslate(translation)
 		});
 		this.interactingNodes = nanoInk.newElem("g", {
-			"transform": "translate("+ translation.x + ", "+ translation.y +")"
+			"transform": Util.svgTranslate(translation)
 		});
 
 		for(var i = last; i >= 0; i--) {
@@ -247,7 +246,7 @@ nanoInk.addTool({
 				"x": 0, "y": 0,
 				"height": 0, "width": 0,
 				"class": "node control-node",
-				"transform": "translate("+ point.x + ", "+ point.y +")"
+				"transform": Util.svgTranslate(point)
 			}, this.interactingNodes);
 		} else {
 			return nanoInk.newElem("circle", {
@@ -255,7 +254,7 @@ nanoInk.addTool({
 				"x": -2.5,
 				"y": -2.5,
 				"class": "node control-node",
-				"transform": "translate("+ point.x + ", "+ point.y +")"
+				"transform": Util.svgTranslate(point)
 			}, this.interactingNodes);
 		}
 	}),
@@ -265,7 +264,7 @@ nanoInk.addTool({
 			"y": -3.5,
 			"height": 6, "width": 6,
 			"class": "node " + type,
-			"transform": "translate("+ point.x + ", "+ point.y +") rotate(45)"
+			"transform": Util.svgTranslate(point) + " rotate(45)"
 		}, this.interactingNodes);
 	})
 });
