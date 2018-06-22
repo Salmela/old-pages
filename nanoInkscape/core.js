@@ -150,7 +150,7 @@ var nanoInk = {
 		
 		this.tool = tool;
 		this.tool.init();
-		this.setActiveNode(null, nanoInk.activeNode);
+		this.setActiveNode(nanoInk.activeObject);
 	}),
 
 	_mouseDown: (function(e) {
@@ -288,7 +288,9 @@ nanoInk.addTool({
 		if (this.nodeBoundingBox != nanoInk.eTarget && nanoInk.eTarget.tagName != "svg") {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
-			nanoInk.setActiveNode(nanoInk.eTarget);
+			if (nanoInk.activeObject != nanoInk.eTarget) {
+				nanoInk.setActiveNode(nanoInk.eTarget);
+			}
 			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
 				var oldValues = /translate\(([^,]*), ([^)]*)\)/.exec(nanoInk.activeObject.getAttributeNS(null, "transform"));
 				//alert(nanoInk.activeObject.getAttributeNS(null, "transform"));
@@ -311,6 +313,7 @@ nanoInk.addTool({
 	mouseUp: (function() {
 		if (this.selectionBox) {
 			nanoInk.remElem(this.selectionBox);
+			this.selectionBox = null;
 		}
 		this.isInMovingMode = this.boxSelection = false;
 	}),
@@ -321,6 +324,7 @@ nanoInk.addTool({
 		}
 	}),
 	setActiveNode: (function(oldValue, newValue) {
+		nanoInk.remElem(this.nodeBoundingBox);
 		if (!newValue) {
 			nanoInk.remElem(this.nodeBoundingBox);
 			return;
