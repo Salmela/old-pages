@@ -1,16 +1,29 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 function Vector(x, y) {
-	this.x = x;
-	this.y = y;
+	this.x = +x;
+	this.y = +y;
 }
 
 Vector.prototype.add = function(another) {
-	return Vector(this.x + another.x, this.y + another.y);
+	return new Vector(this.x + (+another.x), this.y + (+another.y));
 };
 
 Vector.prototype.sub = function(another) {
-	return Vector(this.x - another.x, this.y - another.y);
+	return new Vector(this.x - another.x, this.y - another.y);
+};
+
+Vector.prototype.mul = function(factor) {
+	return new Vector(factor * this.x, factor * this.y);
+};
+
+Vector.prototype.swap = function(another) {
+	var tempX = this.x;
+	var tempY = this.y;
+	this.x = another.x;
+	this.y = another.y;
+	another.x = tempX;
+	another.y = tempY;
 };
 
 var templateEngine = {

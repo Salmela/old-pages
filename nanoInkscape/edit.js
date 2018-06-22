@@ -25,95 +25,73 @@ nanoInk.addTool({
 	mouseDrag: (function() {
 		if(!this.draggingElem) return;
 		var translate = this._getNodeTranslation(nanoInk.activeObject);
-		var px = nanoInk.pointerEndX - translate.x;
-		var py = nanoInk.pointerEndY - translate.y;
+		var absPointer = new Vector(nanoInk.pointerEndX, nanoInk.pointerEndY);
+		var ptr = absPointer.sub(translate);
 
 		if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {
 			
 		}
 		if(/controlPoint/.test(this.draggingElem.nanoInkscapeType)) {
 			var translate = this._getNodeTranslation(this.draggingElem.nanoInkscapeONode);
-			var cX = translate.x, cY = translate.y;
-			var nX = cX-(px-cX), nY = cY-(py-cY);
+			var n = translate.mul(2).sub(ptr);
 			if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
-				var i = [nX, nY];
-				nX = px; nY = py;
-				px = i[0]; py = i[1];
+				n.swap(ptr);
 			}
 			var ctrP1 = this.draggingElem.nanoInkscapeONode.controlPoint;
 			var ctrP2 = this.draggingElem.nanoInkscapeONode.controlPoint2;
 			var tang1 = this.draggingElem.nanoInkscapeONode.tangent;
 			var tang2 = this.draggingElem.nanoInkscapeONode.tangent2;
 
-			function moveVisualHandle(control, tangent, newPosition) {
+			function moveVisualHandle(control, tangent, newPosition, isBefore) {
 				control.setAttributeNS(null, "transform",
 					"translate(" + newPosition.x + ", " + newPosition.y + ")");
 				if (tangent) {
 					tangent.setAttributeNS(null, "x2", newPosition.x);
 					tangent.setAttributeNS(null, "y2", newPosition.y);
 				}
+				var handle = control.nanoInkscapeNode;
+				var parameterIndex = isBefore ? "2" : "1";
+				handle["x" + parameterIndex] = newPosition.x;
+				handle["y" + parameterIndex] = newPosition.y;
 			}
-			if(ctrP1) {
-				moveVisualHandle(ctrP1, tang1, new Vector(px, py));
-				ctrP1.nanoInkscapeNode.x2 = px;
-				ctrP1.nanoInkscapeNode.y2 = py;
-			}
-			if(ctrP2) {
-				moveVisualHandle(ctrP2, tang2, new Vector(nX, nY));
-				ctrP2.nanoInkscapeNode.x1 = nX;
-				ctrP2.nanoInkscapeNode.y1 = nY;
-			}
+			if(ctrP1) moveVisualHandle(ctrP1, tang1, ptr, true);
+			if(ctrP2) moveVisualHandle(ctrP2, tang2, n, false);
 		}
 		if(this.draggingElem.nanoInkscapeType == undefined) {
-			this.draggingElem.setAttributeNS(null, "transform", "translate("+ px +
-				", "+ py +")");
-			var dx = px - this.draggingElem.nanoInkscapeNode.x,
-			    dy = py - this.draggingElem.nanoInkscapeNode.y;
-			this.draggingElem.nanoInkscapeNode.x = px;
-			this.draggingElem.nanoInkscapeNode.y = py;
+			this.draggingElem.setAttributeNS(null, "transform", "translate("+ ptr.x +
+				", "+ ptr.y +")");
+			var positionDelta = ptr.sub(this.draggingElem.nanoInkscapeNode);
+			this.draggingElem.nanoInkscapeNode.x = ptr.x;
+			this.draggingElem.nanoInkscapeNode.y = ptr.y;
 			if (this.draggingElem.nanoInkscapeNode2) {
-				this.draggingElem.nanoInkscapeNode2.x = this.draggingElem.nanoInkscapeNode.x;
-				this.draggingElem.nanoInkscapeNode2.y = this.draggingElem.nanoInkscapeNode.y;
+				this.draggingElem.nanoInkscapeNode2.x = ptr.x;
+				this.draggingElem.nanoInkscapeNode2.y = ptr.y;
 			}
 
-			var ctrP1 = this.draggingElem.controlPoint;
-			var ctrP2 = this.draggingElem.controlPoint2;
-			var tang1 = this.draggingElem.tangent;
-			var tang2 = this.draggingElem.tangent2;
-
-			if (tang1) {
-				var t = this._getNodeTranslation(ctrP1);
-				var x = parseFloat(t.x) + dx,
-				    y = parseFloat(t.y) + dy;
-				ctrP1.setAttributeNS(null, "transform",
-					"translate("+ x +", "+ y +")");
-				tang1.setAttributeNS(null, "x1", px);
-				tang1.setAttributeNS(null, "y1", py);
-				tang1.setAttributeNS(null, "x2", x);
-				tang1.setAttributeNS(null, "y2", y);
-				ctrP1.nanoInkscapeNode.x2 = x;
-				ctrP1.nanoInkscapeNode.y2 = y;
-			} else if (ctrP1) {
-				ctrP1.nanoInkscapeNode.x2 = px;
-				ctrP1.nanoInkscapeNode.y2 = py;
+			var that = this;
+			function moveHandle(control, tangent, isBefore) {
+				var svgHandle = ptr;
+				if (tangent) {
+					var endPoint = that._getNodeTranslation(control).add(positionDelta);
+					control.setAttributeNS(null, "transform",
+						"translate("+ endPoint.x +", "+ endPoint.y +")");
+					tangent.setAttributeNS(null, "x1", ptr.x);
+					tangent.setAttributeNS(null, "y1", ptr.y);
+					tangent.setAttributeNS(null, "x2", endPoint.x);
+					tangent.setAttributeNS(null, "y2", endPoint.y);
+					svgHandle = endPoint;
+				}
+				if (control) {
+					var handle = control.nanoInkscapeNode;
+					var parameterIndex = isBefore ? "2" : "1";
+					handle["x" + parameterIndex] = svgHandle.x;
+					handle["y" + parameterIndex] = svgHandle.y;
+				}
 			}
 
-			if (tang2) {
-				var t = this._getNodeTranslation(ctrP2);
-				var x = parseFloat(t.x) + dx,
-				    y = parseFloat(t.y) + dy;
-				ctrP2.setAttributeNS(null, "transform",
-					"translate("+ x +", "+ y +")");
-				tang2.setAttributeNS(null, "x1", px);
-				tang2.setAttributeNS(null, "y1", py);
-				tang2.setAttributeNS(null, "x2", x);
-				tang2.setAttributeNS(null, "y2", y);
-				ctrP2.nanoInkscapeNode.x1 = x;
-				ctrP2.nanoInkscapeNode.y1 = y;
-			} else if (ctrP2) {
-				ctrP2.nanoInkscapeNode.x1 = px;
-				ctrP2.nanoInkscapeNode.y1 = py;
-			}
+			var active = this.draggingElem;
+			moveHandle(active.controlPoint, active.tangent, true);
+			moveHandle(active.controlPoint2, active.tangent2, false);
 		}
 		nanoInk.invalidateBoundingBox();
 	}),
