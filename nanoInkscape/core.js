@@ -57,12 +57,16 @@ var nanoInk = {
 		window.addEventListener('keypress', function(e) {nanoInk._keyDown(e)});
 		window.addEventListener('keyrelease', function(e) {nanoInk._keyUp(e)});
 	}),
-	newElem: (function(tag, attr) {
+	newElem: (function(tag, attr, beforeNode) {
 		var elem = document.createElementNS(SVG_NS, tag);
 		for(i in attr) {
 			elem.setAttributeNS(null, i, attr[i]);
 		}
-		return this.canvas.appendChild(elem);
+		if (beforeNode) {
+			return this.canvas.insertBefore(elem, beforeNode);
+		} else {
+			return this.canvas.appendChild(elem);
+		}
 	}),
 	remElem: (function(elem) {
 		if (!elem) return;

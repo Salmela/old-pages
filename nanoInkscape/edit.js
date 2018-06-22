@@ -175,7 +175,7 @@ nanoInk.addTool("edit", {
 							"y1": point.y,
 							"x2": nextPoint.x1,
 							"y2": nextPoint.y1
-						});
+						}, this.firstHandleNode);
 						var position = new Vector(nextPoint.x1, nextPoint.y1);
 						tmpElem.controlPoint2 = this._createControlPoint(position);
 
@@ -191,14 +191,7 @@ nanoInk.addTool("edit", {
 					break;
 				case "C":
 					if(i == 0 && controlPoints[last].pathSegTypeAsLetter == "z") break;
-					tmpElem = nanoInk.newElem("rect", {
-						"x": -3.5,
-						"y": -3.5,
-						"height": 6, "width": 6,
-						"class": "node nodeSmooth",
-						"transform": "translate("+ point.x +
-							", "+ point.y +")"
-					});
+					tmpElem = this._createNodeHandle(point, "nodeSmooth");
 
 					if (point.x != point.x2 || point.y != point.y2) {
 						tmpElem.tangent = nanoInk.newElem("line", {
@@ -208,7 +201,7 @@ nanoInk.addTool("edit", {
 							"y1": point.y,
 							"x2": point.x2,
 							"y2": point.y2
-						});
+						}, this.firstHandleNode);
 						tmpElem.tangent.nanoInkscapeType = "tangent1";
 						tmpElem.tangent.nanoInkscapeONode = tmpElem;
 						var position = new Vector(point.x2, point.y2);
@@ -232,7 +225,7 @@ nanoInk.addTool("edit", {
 								"y1": point.y,
 								"x2": nextPoint.x1,
 								"y2": nextPoint.y1
-							});
+							}, this.firstHandleNode);
 							tmpElem.tangent2.nanoInkscapeType = "tangent2";
 							tmpElem.tangent2.nanoInkscapeONode = tmpElem;
 							var position = new Vector(nextPoint.x1, nextPoint.y1);
@@ -254,15 +247,16 @@ nanoInk.addTool("edit", {
 		}
 	}),
 	_createControlPoint: (function(point, hidden) {
+		var node;
 		if (hidden) {
-			return nanoInk.newElem("rect", {
+			node = nanoInk.newElem("rect", {
 				"x": 0, "y": 0,
 				"height": 0, "width": 0,
 				"class": "node control-node",
 				"transform": "translate("+ point.x + ", "+ point.y +")"
 			});
 		} else {
-			return nanoInk.newElem("circle", {
+			node = nanoInk.newElem("circle", {
 				"r": 4,
 				"x": -2.5,
 				"y": -2.5,
@@ -270,14 +264,25 @@ nanoInk.addTool("edit", {
 				"transform": "translate("+ point.x + ", "+ point.y +")"
 			});
 		}
+		return this._updateFirstHandleNode(node);
 	}),
 	_createNodeHandle: (function(point, type) {
-		return nanoInk.newElem("rect", {
+		return this._updateFirstHandleNode(nanoInk.newElem("rect", {
 			"x": -3.5,
 			"y": -3.5,
 			"height": 6, "width": 6,
 			"class": "node " + type,
 			"transform": "translate("+ point.x + ", "+ point.y +") rotate(45)"
-		});
+		}));
+	}),
+	_updateFirstHandleNode: (function(node) {
+		// We have to keep track of the first handle node because in svg
+		// the order of elements specifies the drawing order.
+		// We want put all user interactable nodes after the decoration nodes.
+		// TODO use svg node groups for this
+		if (!this.firstHandleNode) {
+			this.firstHandleNode = node;
+		}
+		return node;
 	})
 });
