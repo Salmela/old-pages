@@ -81,12 +81,18 @@ var nanoInk = {
 		var inputNode = document.getElementById("fill_color");
 		inputNode.addEventListener("change", function() {
 			nanoInk.fill = this.value;
+			if (nanoInk.activeObject) {
+				nanoInk.activeObject.setAttributeNS(null, "fill", this.value);
+			}
 		});
 		nanoInk.fill = inputNode.value;
 
 		var inputNode = document.getElementById("stroke_color");
 		inputNode.addEventListener("change", function() {
 			nanoInk.stroke = this.value;
+			if (nanoInk.activeObject) {
+				nanoInk.activeObject.setAttributeNS(null, "stroke", this.value);
+			}
 		});
 		nanoInk.stroke = inputNode.value;
 
