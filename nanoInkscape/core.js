@@ -209,15 +209,13 @@ var nanoInk = {
 	}),
 	_mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
-		var position = this._getPointerPosition(e);
-
-		this.statusbar.textContent = position.join(", ");
+		this.pointer = this._getPointerPosition(e);
+		this.statusbar.textContent = this.pointer.join(", ");
 
 		if(this.pointerStart) {
-			this.pointerEnd = position;
+			this.pointerEnd = this.pointer;
 			this.emit("mouseDrag");
 		} else {
-			this.pointer = position;
 			this.emit("mouseMove", e);
 		}
 	}),
@@ -225,11 +223,9 @@ var nanoInk = {
 		if(this.toolList.length == 0) return;
 		this.eTarget = e.target;
 		this.pointer = this._getPointerPosition(e);
-		if(this.pointerStart) {
-			this.pointerEnd = this.pointer;
-		}
+		this.pointerEnd = this.pointer;
 		this.emit("mouseUp");
-		this.pointerStart = null;
+		this.pointerStart = this.pointerEnd = null;
 	}),
 	_getPointerPosition: (function(e) {
 		var canvasPosition = this.canvas.getBoundingClientRect();

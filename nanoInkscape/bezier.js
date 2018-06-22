@@ -119,7 +119,7 @@ nanoInk.addTool({
 
 		} else if(this.tempCurve == "") {
 			this.tempCurve += "M";
-			this.tempCurve += nanoInk.pointer.join(",");
+			this.tempCurve += nanoInk.pointerStart.join(",");
 
 		} else if(!this.oldControlPoint) {
 			this.tempCurve += " L";
