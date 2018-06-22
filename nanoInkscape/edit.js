@@ -45,17 +45,21 @@ nanoInk.addTool({
 			var tang1 = this.draggingElem.nanoInkscapeONode.tangent;
 			var tang2 = this.draggingElem.nanoInkscapeONode.tangent2;
 
+			function moveVisualHandle(control, tangent, newPosition) {
+				control.setAttributeNS(null, "transform",
+					"translate(" + newPosition.x + ", " + newPosition.y + ")");
+				if (tangent) {
+					tangent.setAttributeNS(null, "x2", newPosition.x);
+					tangent.setAttributeNS(null, "y2", newPosition.y);
+				}
+			}
 			if(ctrP1) {
-				ctrP1.setAttributeNS(null, "transform", "translate("+ px +", "+ py +")");
-				tang1.setAttributeNS(null, "x2", px);
-				tang1.setAttributeNS(null, "y2", py);
+				moveVisualHandle(ctrP1, tang1, new Vector(px, py));
 				ctrP1.nanoInkscapeNode.x2 = px;
 				ctrP1.nanoInkscapeNode.y2 = py;
 			}
 			if(ctrP2) {
-				ctrP2.setAttributeNS(null, "transform", "translate("+ nX +", "+ nY +")");
-				tang2.setAttributeNS(null, "x2", nX);
-				tang2.setAttributeNS(null, "y2", nY);
+				moveVisualHandle(ctrP2, tang2, new Vector(nX, nY));
 				ctrP2.nanoInkscapeNode.x1 = nX;
 				ctrP2.nanoInkscapeNode.y1 = nY;
 			}
@@ -198,9 +202,10 @@ nanoInk.addTool({
 							"x2": nextPoint.x1,
 							"y2": nextPoint.y1
 						}, this.decorations);
+						tmpElem.tangent2.nanoInkscapeType = "tangent2";
+
 						var position = new Vector(nextPoint.x1, nextPoint.y1);
 						tmpElem.controlPoint2 = this._createControlPoint(position);
-
 						tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 						tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 						tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
