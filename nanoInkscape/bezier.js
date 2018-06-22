@@ -78,15 +78,16 @@ nanoInk.addTool({
 
 		if(nanoInk.eTarget == this.tailHandleNode) {
 			this.doPathClosing = true;
-			// bit ugly
-			nanoInk.pointerStartX = +this.tailHandleNode.getAttributeNS(null, "x") + 3.5;
-			nanoInk.pointerStartY = +this.tailHandleNode.getAttributeNS(null, "y") + 3.5;
+			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
+			nanoInk.pointerStartX = endPoint.x;
+			nanoInk.pointerStartY = endPoint.y;
 		} else if(this.doPathClosing) {
 			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
 			this.tailHandleNode = nanoInk.newElem("rect", {
-				"x": nanoInk.pointerStartX-3.5,
-				"y": nanoInk.pointerStartY-3.5,
+				"x": -3.5,
+				"y": -3.5,
 				"height": 6, "width": 6,
+				"transform": "translate("+ nanoInk.pointerStartX + ", "+ nanoInk.pointerStartY +")",
 				"id": "helperClosepath"
 			});
 			this.doPathClosing = false;
@@ -96,8 +97,9 @@ nanoInk.addTool({
 		if(!nanoInk.activeObject) return;
 
 		if(this.doPathClosing) {
-			nanoInk.pointerStartX = parseFloat(this.tailHandleNode.getAttributeNS(null, "x"))+3.5;
-			nanoInk.pointerStartY = parseFloat(this.tailHandleNode.getAttributeNS(null, "y"))+3.5;
+			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
+			nanoInk.pointerStartX = endPoint.x;
+			nanoInk.pointerStartY = endPoint.y;
 		}
 		// ignore drag if it had very small movement
 		if (Math.sqrt(Math.pow(nanoInk.pointerEndX - nanoInk.pointerStartX, 2) + Math.pow(nanoInk.pointerEndY - nanoInk.pointerStartY, 2)) < 3) {
