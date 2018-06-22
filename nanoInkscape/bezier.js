@@ -124,11 +124,11 @@ nanoInk.addTool({
 			this.tempCurve += " L";
 			this.tempCurve += nanoInk.pointerEnd.x +","+ nanoInk.pointerEnd.y;
 		} else {
-			this.oldControlPoint = undefined;
+			this.oldControlPoint = null;
 		}
 		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
-		if(nanoInk.pointerDrag) {
+		if(nanoInk.pointerEnd) {
 			this.oldControlPoint = nanoInk.pointerEnd.x +","+ nanoInk.pointerEnd.y;
 		}
 	}),

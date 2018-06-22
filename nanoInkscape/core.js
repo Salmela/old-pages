@@ -84,10 +84,10 @@ var nanoInk = {
 	activeObject: null,
 
 //events
-	pointer: new Vector(0, 0),
-	pointerDrag: new Vector(0, 0),
+	pointer: null,
+	pointerStart: null,
+	pointerEnd: null,
 	pointerDown: false,
-	pointerDrag: false,
 
 //styles
 	fill: "transparent",
@@ -132,9 +132,6 @@ var nanoInk = {
 		nanoInk.newElem("path", {
 			"stroke": "#000000",
 			"fill": "#008000",
-			"x": nanoInk.pointer.x,
-			"y": nanoInk.pointer.y,
-			"height": 1, "width": 1,
 			"d": "M 100.5,100.5 L 200.5,100.5 L 200.5,200.5 L 100.5,200.5 z"
 		});
 	}),
@@ -192,10 +189,8 @@ var nanoInk = {
 	}),
 
 	_mouseDown: (function(e) {
-		this.pointerStart = this._getPointerPosition(e);
+		this.pointer = this.pointerStart = this._getPointerPosition(e);
 		this.eTarget = e.target;
-		this.pointerDown = true;
-		this.pointerDrag = false;
 
 		this.emit("mouseDown");
 	}),
@@ -205,30 +200,23 @@ var nanoInk = {
 
 		this.statusbar.textContent = position.x +", "+ position.y;
 
-		if(this.pointerDown == true) {
-			this.pointerDrag = true;
-
+		if(this.pointerStart) {
 			this.pointerEnd = position;
-
 			this.emit("mouseDrag");
 		} else {
 			this.pointer = position;
-
 			this.emit("mouseMove", e);
 		}
 	}),
 	_mouseUp: (function(e) {
 		if(this.toolList.length == 0) return;
 		this.eTarget = e.target;
-		this.pointerDown = false;
-		if(this.pointerDrag = true) {
-			this.pointerEnd = this._getPointerPosition(e);
-
-		} else {
-			this.pointerEnd = null;
+		this.pointer = this._getPointerPosition(e);
+		if(this.pointerStart) {
+			this.pointerEnd = this.pointer;
 		}
-
 		this.emit("mouseUp");
+		this.pointerStart = null;
 	}),
 	_getPointerPosition: (function(e) {
 		var canvasPosition = this.canvas.getBoundingClientRect();
@@ -301,7 +289,7 @@ nanoInk.addTool({
 
 	isInMovingMode: false,
 	boxSelection: false,
-	old: new Vector(0, 0),
+	old: null,
 
 	mainInit: (function() {
 
