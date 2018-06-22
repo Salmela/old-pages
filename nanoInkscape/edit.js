@@ -158,6 +158,7 @@ nanoInk.addTool({
 		var controlPoints = nanoInk.activeObject.pathSegList;
 		var tmpElem;
 		var last = controlPoints.length-1;
+		this.firstHandleNode = null;
 
 		for(i = last; i >= 0; i--) {
 			var point = controlPoints[i];
