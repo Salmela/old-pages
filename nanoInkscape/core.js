@@ -66,6 +66,17 @@ var templateEngine = {
 	})
 };
 
+var Util = {
+	getNodeTranslation: (function(node) {
+		var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
+		var translate = re.exec(node.getAttributeNS(null, "transform"));
+		if (!translate) {
+			return new Vector(0, 0);
+		}
+		return new Vector(translate[1], translate[2]);
+	})
+};
+
 var nanoInk = {
 //general
 	tool: null,
@@ -343,10 +354,9 @@ nanoInk.addTool({
 				nanoInk.setActiveNode(nanoInk.eTarget);
 			}
 			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
-				var oldValues = /translate\(([^,]*), ([^)]*)\)/.exec(nanoInk.activeObject.getAttributeNS(null, "transform"));
-				//alert(nanoInk.activeObject.getAttributeNS(null, "transform"));
-				this.oldX = parseFloat(oldValues[1]);
-				this.oldY = parseFloat(oldValues[2]);
+				var oldValues = Util.getNodeTranslation(nanoInk.activeObject);
+				this.oldX = oldValues.x;
+				this.oldY = oldValues.y;
 			} else {
 				this.oldX = this.oldY = 0;
 			}	

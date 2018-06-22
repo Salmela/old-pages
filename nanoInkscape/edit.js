@@ -24,7 +24,7 @@ nanoInk.addTool({
 
 	mouseDrag: (function() {
 		if(!this.draggingElem) return;
-		var translate = this._getNodeTranslation(nanoInk.activeObject);
+		var translate = Util.getNodeTranslation(nanoInk.activeObject);
 		var absPointer = new Vector(nanoInk.pointerEndX, nanoInk.pointerEndY);
 		var ptr = absPointer.sub(translate);
 
@@ -32,7 +32,7 @@ nanoInk.addTool({
 			
 		}
 		if(/controlPoint/.test(this.draggingElem.nanoInkscapeType)) {
-			var translate = this._getNodeTranslation(this.draggingElem.nanoInkscapeONode);
+			var translate = Util.getNodeTranslation(this.draggingElem.nanoInkscapeONode);
 			var n = translate.mul(2).sub(ptr);
 			if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
 				n.swap(ptr);
@@ -68,11 +68,10 @@ nanoInk.addTool({
 				this.draggingElem.nanoInkscapeNode2.y = ptr.y;
 			}
 
-			var that = this;
 			function moveHandle(control, tangent, isBefore) {
 				var svgHandle = ptr;
 				if (tangent) {
-					var endPoint = that._getNodeTranslation(control).add(positionDelta);
+					var endPoint = Util.getNodeTranslation(control).add(positionDelta);
 					control.setAttributeNS(null, "transform",
 						"translate("+ endPoint.x +", "+ endPoint.y +")");
 					tangent.setAttributeNS(null, "x1", ptr.x);
@@ -94,15 +93,6 @@ nanoInk.addTool({
 			moveHandle(active.controlPoint2, active.tangent2, false);
 		}
 		nanoInk.invalidateBoundingBox();
-	}),
-
-	_getNodeTranslation: (function(node) {
-		var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
-		var translate = re.exec(node.getAttributeNS(null, "transform"));
-		if (!translate) {
-			return new Vector(0, 0);
-		}
-		return new Vector(translate[1], translate[2]);
 	}),
 
 	mouseDown: (function() {
@@ -147,7 +137,7 @@ nanoInk.addTool({
 
 	_generateNodes: (function() {
 		var controlPoints = nanoInk.activeObject.pathSegList;
-		var translation = this._getNodeTranslation(nanoInk.activeObject);
+		var translation = Util.getNodeTranslation(nanoInk.activeObject);
 		var last = controlPoints.length-1;
 
 		this.decorations = nanoInk.newElem("g", {
