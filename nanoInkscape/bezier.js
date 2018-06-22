@@ -76,11 +76,14 @@ nanoInk.addTool({
 		nanoInk.newAttr(this.curveHelper, {"style": "visibility: hidden"});
 		nanoInk.newAttr(this.curveHelper2, {"style": "visibility: hidden"});
 
-		if(nanoInk.eTarget === this.TailHandleNode) {
+		if(nanoInk.eTarget == this.tailHandleNode) {
 			this.doPathClosing = true;
+			// bit ugly
+			nanoInk.pointerStartX = +this.tailHandleNode.getAttributeNS(null, "x") + 3.5;
+			nanoInk.pointerStartY = +this.tailHandleNode.getAttributeNS(null, "y") + 3.5;
 		} else if(this.doPathClosing) {
 			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
-			this.TailHandleNode = nanoInk.newElem("rect", {
+			this.tailHandleNode = nanoInk.newElem("rect", {
 				"x": nanoInk.pointerStartX-3.5,
 				"y": nanoInk.pointerStartY-3.5,
 				"height": 6, "width": 6,
@@ -93,8 +96,8 @@ nanoInk.addTool({
 		if(!nanoInk.activeObject) return;
 
 		if(this.doPathClosing) {
-			nanoInk.pointerStartX = parseFloat(this.TailHandleNode.getAttributeNS(null, "x"))+3.5;
-			nanoInk.pointerStartY = parseFloat(this.TailHandleNode.getAttributeNS(null, "y"))+3.5;
+			nanoInk.pointerStartX = parseFloat(this.tailHandleNode.getAttributeNS(null, "x"))+3.5;
+			nanoInk.pointerStartY = parseFloat(this.tailHandleNode.getAttributeNS(null, "y"))+3.5;
 		}
 		// ignore drag if it had very small movement
 		if (Math.sqrt(Math.pow(nanoInk.pointerEndX - nanoInk.pointerStartX, 2) + Math.pow(nanoInk.pointerEndY - nanoInk.pointerStartY, 2)) < 3) {
@@ -147,8 +150,8 @@ nanoInk.addTool({
 			"d": makeClosed ? this.tempCurve + " z" : this.tempCurve
 		});
 
-		nanoInk.remElem(this.TailHandleNode);
-		this.TailHandleNode = null;
+		nanoInk.remElem(this.tailHandleNode);
+		this.tailHandleNode = null;
 		this.tempCurve = "";
 		this.oldControlPoint = null;
 		this.doPathClosing = true;
