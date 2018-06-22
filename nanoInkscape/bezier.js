@@ -143,7 +143,7 @@ nanoInk.addTool({
 		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
 		this.oldPoint = nanoInk.pointerStart;
-		if(nanoInk.pointerEnd) {
+		if(nanoInk.pointerEnd && !nanoInk.pointerEnd.equals(this.oldPoint)) {
 			this.oldControlPoint = nanoInk.pointerEnd;
 		}
 	}),

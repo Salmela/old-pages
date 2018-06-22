@@ -1,6 +1,14 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 function Vector(x, y) {
+	// We assume that the first argument is vector if
+	// this constructor is given only one argument
+	if (y === undefined) {
+		var vector = x;
+		this.x = +vector.x;
+		this.y = +vector.y;
+		return;
+	}
 	this.x = +x;
 	this.y = +y;
 }
@@ -17,6 +25,11 @@ Vector.prototype.mul = function(factor) {
 	return new Vector(factor * this.x, factor * this.y);
 };
 
+Vector.prototype.equals = function(other) {
+	if (Math.abs(this.x - other.x) > 0.001) return false;
+	return (Math.abs(this.y - other.y) < 0.001)
+};
+
 Vector.prototype.distance = function(other) {
 	var xDiff = this.x - other.x;
 	var yDiff = this.y - other.y;
@@ -30,8 +43,8 @@ Vector.prototype.join = function(separator) {
 Vector.prototype.swap = function(another) {
 	var tempX = this.x;
 	var tempY = this.y;
-	this.x = another.x;
-	this.y = another.y;
+	this.x = +another.x;
+	this.y = +another.y;
 	another.x = tempX;
 	another.y = tempY;
 };

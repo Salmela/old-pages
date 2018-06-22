@@ -137,10 +137,25 @@ nanoInk.addTool({
 		this.controlPoint = [];
 	}),
 
+	_mergeLastNode: (function(controlPoints) {
+		if (controlPoints.length <= 2) return false;
+		// check if this is not closed loop
+		if (controlPoints[controlPoints.length - 1].pathSegTypeAsLetter != "z") {
+			return false;
+		}
+		var secondLast = controlPoints[controlPoints.length - 2];
+		// check if the second last node was curve
+		if (secondLast.pathSegTypeAsLetter != "C") {
+			return false;
+		}
+		var lastPoint = new Vector(secondLast);
+		return lastPoint.equals(controlPoints[0]);
+	}),
+
 	_generateNodes: (function() {
 		var controlPoints = nanoInk.activeObject.pathSegList;
 		var translation = Util.getNodeTranslation(nanoInk.activeObject);
-		var last = controlPoints.length-1;
+		var last = controlPoints.length - 1;
 
 		this.decorations = nanoInk.newElem("g", {
 			"transform": Util.svgTranslate(translation)
@@ -155,11 +170,11 @@ nanoInk.addTool({
 			var nextPoint = controlPoints[i + 1];
 			switch(point.pathSegTypeAsLetter) {
 				case "M":
-					if(i == 0 && controlPoints[last].pathSegTypeAsLetter == "z") {
+					if(i == 0 && this._mergeLastNode(controlPoints)) {
 						tmpElem = this.controlNodes[0];
 						tmpElem.nanoInkscapeNode2 = point;
 					} else {
-						tmpElem = this._createNodeHandle(point, "nodeSmooth");
+						tmpElem = this._createNodeHandle(point, "nodeCorner");
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 					}
@@ -187,8 +202,7 @@ nanoInk.addTool({
 					this.controlNodes.push(tmpElem);
 					break;
 				case "C":
-					if(i == 0 && controlPoints[last].pathSegTypeAsLetter == "z") break;
-					tmpElem = this._createNodeHandle(point, "nodeSmooth");
+					tmpElem = this._createNodeHandle(point, "nodeCorner");
 
 					if (point.x != point.x2 || point.y != point.y2) {
 						tmpElem.tangent = nanoInk.newElem("line", {
