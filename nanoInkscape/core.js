@@ -218,7 +218,7 @@ var nanoInk = {
 		this.pointer = this.pointerStart = this._getPointerPosition(e);
 		this.eTarget = e.target;
 
-		this.emit("mouseDown");
+		this.emit("mouseDown", e);
 	}),
 	_mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
@@ -227,7 +227,7 @@ var nanoInk = {
 
 		if(this.pointerStart) {
 			this.pointerEnd = this.pointer;
-			this.emit("mouseDrag");
+			this.emit("mouseDrag", e);
 		} else {
 			this.emit("mouseMove", e);
 		}
@@ -237,7 +237,7 @@ var nanoInk = {
 		this.eTarget = e.target;
 		this.pointer = this._getPointerPosition(e);
 		this.pointerEnd = this.pointer;
-		this.emit("mouseUp");
+		this.emit("mouseUp", e);
 		this.pointerStart = this.pointerEnd = null;
 	}),
 	_getPointerPosition: (function(e) {

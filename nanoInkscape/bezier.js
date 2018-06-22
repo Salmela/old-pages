@@ -7,6 +7,7 @@ nanoInk.addTool({
 
 	oldPoint: null,
 	oldControlPoint: null,
+	currentControlPoint: null,
 	tempCurve: "",
 	doPathClosing: true,
 
@@ -56,7 +57,7 @@ nanoInk.addTool({
 			this.curveHelper3.setAttributeNS(null, "d", data);
 		}
 	}),
-	mouseDrag: (function(initialize) {
+	mouseDrag: (function(event) {
 		nanoInk.newAttr(this.curveHelper, {
 			"style": "visibility: visible",
 			"x1": nanoInk.pointerStart.x,
@@ -69,14 +70,17 @@ nanoInk.addTool({
 			"cx": nanoInk.pointerEnd.x,
 			"cy": nanoInk.pointerEnd.y
 		});
+		if (event.shiftKey) {
+			return;
+		}
+		this.currentControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 		if (this.oldPoint) {
 			var data = "M";
 			data += this.oldPoint.join(",");
 			if(this.oldControlPoint) {
-				var previousControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 				data += "C";
 				data += this.oldControlPoint.join(",") + " ";
-				data += previousControlPoint.join(",") + " ";
+				data += this.currentControlPoint.join(",") + " ";
 				data += nanoInk.pointerStart.join(",");
 			} else {
 				data += " L";
@@ -85,17 +89,18 @@ nanoInk.addTool({
 			this.curveHelper3.setAttributeNS(null, "d", data);
 		}
 	}),
-	mouseDown: (function() {
+	mouseDown: (function(e) {
 		nanoInk.newAttr(this.curveHelper3, {
 			"style": "visibility: visible"
 		});
 
+		this.currentControlPoint = nanoInk.pointerStart;
 		if(nanoInk.eTarget == this.tailHandleNode) {
 			this.doPathClosing = true;
 			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
-			nanoInk.pointerStart.x = endPoint.x;
-			nanoInk.pointerStart.y = endPoint.y;
+			nanoInk.pointerStart = endPoint;
 		} else if(this.doPathClosing) {
+			// there is no active bezier, lets create one
 			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
 			this.tailHandleNode = nanoInk.newElem("rect", {
 				"x": -3.5,
@@ -119,10 +124,9 @@ nanoInk.addTool({
 			nanoInk.pointerEnd = nanoInk.pointerStart;
 		}
 		if(this.oldControlPoint) {
-			var previousControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 			this.tempCurve += " C";
 			this.tempCurve += this.oldControlPoint.join(",") + " ";
-			this.tempCurve += previousControlPoint.join(",") + " ";
+			this.tempCurve += this.currentControlPoint.join(",") + " ";
 			this.tempCurve += nanoInk.pointerStart.join(",");
 		}
 		if(this.doPathClosing) {
@@ -137,11 +141,11 @@ nanoInk.addTool({
 		} else if(!this.oldControlPoint) {
 			this.tempCurve += " L";
 			this.tempCurve += nanoInk.pointerEnd.join(",");
-		} else {
-			this.oldControlPoint = null;
 		}
 		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
+		this.currentControlPoint = null;
+		this.oldControlPoint = null;
 		this.oldPoint = nanoInk.pointerStart;
 		if(nanoInk.pointerEnd && !nanoInk.pointerEnd.equals(this.oldPoint)) {
 			this.oldControlPoint = nanoInk.pointerEnd;
