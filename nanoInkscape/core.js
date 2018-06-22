@@ -106,6 +106,15 @@ var nanoInk = {
 		for(var i in this.toolList) {
 			this._addToolButton(this.toolList[i]);
 		}
+
+		nanoInk.newElem("path", {
+			"stroke": "#000000",
+			"fill": "#008000",
+			"x": nanoInk.pointerX,
+			"y": nanoInk.pointerY,
+			"height": 1, "width": 1,
+			"d": "M 100.5,100.5 L 200.5,100.5 L 200.5,200.5 L 100.5,200.5 z"
+		});
 	}),
 	_addToolButton: (function(tool) {
 		var newToolNode = templateEngine.createNodesFromTemplate(this.toolbar, tool.meta);
