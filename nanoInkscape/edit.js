@@ -163,14 +163,7 @@ nanoInk.addTool("edit", {
 						tmpElem = this.controlNodes[0];
 						tmpElem.nanoInkscapeNode2 = point;
 					} else {
-						tmpElem = nanoInk.newElem("rect", {
-							"x": -3.5,
-							"y": -3.5,
-							"height": 6, "width": 6,
-							"class": "node nodeCorner",
-							"transform": "translate("+ point.x +
-								", "+ point.y +") rotate(45)"
-						});
+						tmpElem = this._createNodeHandle(point, "nodeSmooth");
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 					}
@@ -183,28 +176,16 @@ nanoInk.addTool("edit", {
 							"x2": nextPoint.x1,
 							"y2": nextPoint.y1
 						});
-						tmpElem.controlPoint2 = nanoInk.newElem("circle", {
-							"r": 4,
-							"x": -2.5,
-							"y": -2.5,
-							"class": "node control-node",
-							"transform": "translate("+ nextPoint.x1 +
-								", "+ nextPoint.y1 +")"
-						});
+						var position = new Vector(nextPoint.x1, nextPoint.y1);
+						tmpElem.controlPoint2 = this._createControlPoint(position);
+
 						tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 						tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 						tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
 					}
 					break;
 				case "L":
-					nanoInk.newElem("rect", {
-						"x": point.x-3.5,
-						"y": point.y-3.5,
-						"height": 6, "width": 6,
-						"class": "nodeCorner",
-						"transform": "translate("+ point.x +
-							", "+ point.y +") rotate(45)"
-					});
+					tmpElem = this._createNodeHandle(point, "nodeCorner");
 					tmpElem.nanoInkscapeNode = point;
 					this.controlNodes.push(tmpElem);
 					break;
@@ -230,23 +211,13 @@ nanoInk.addTool("edit", {
 						});
 						tmpElem.tangent.nanoInkscapeType = "tangent1";
 						tmpElem.tangent.nanoInkscapeONode = tmpElem;
-						tmpElem.controlPoint = nanoInk.newElem("circle", {
-							"r": 4,
-							"x": -2.5,
-							"y": -2.5,
-							"class": "node control-node",
-							"transform": "translate("+ point.x2 +
-								", "+ point.y2 +")"
-						});
+						var position = new Vector(point.x2, point.y2);
+						tmpElem.controlPoint = this._createControlPoint(position);
 					} else {
 						tmpElem.setAttributeNS(null, "class", "nodeCorner")
-						tmpElem.controlPoint = nanoInk.newElem("rect", {
-							"x": 0, "y": 0,
-							"height": 0, "width": 0,
-							"class": "node control-node",
-							"transform": "translate("+ point.x2 +
-								", "+ point.y2 +")"
-						});
+						var position = new Vector(point.x2, point.y2);
+						var hidden = true;
+						tmpElem.controlPoint = this._createControlPoint(position, hidden);
 					}
 					tmpElem.controlPoint.nanoInkscapeType = "controlPoint1";
 					tmpElem.controlPoint.nanoInkscapeONode = tmpElem;
@@ -264,23 +235,13 @@ nanoInk.addTool("edit", {
 							});
 							tmpElem.tangent2.nanoInkscapeType = "tangent2";
 							tmpElem.tangent2.nanoInkscapeONode = tmpElem;
-							tmpElem.controlPoint2 = nanoInk.newElem("circle", {
-								"r": 4,
-								"x": -2.5,
-								"y": -2.5,
-								"class": "node control-node",
-								"transform": "translate("+ nextPoint.x1 +
-									", "+ nextPoint.y1 +")"
-							});
+							var position = new Vector(nextPoint.x1, nextPoint.y1);
+							tmpElem.controlPoint2 = this._createControlPoint(position);
 						} else {
 							tmpElem.setAttributeNS(null, "class", "nodeCorner")
-							tmpElem.controlPoint2 = nanoInk.newElem("rect", {
-								"x": 0, "y": 0,
-								"height": 0, "width": 0,
-								"class": "node",
-								"transform": "translate("+ nextPoint.x1 +
-									", "+ nextPoint.y1 +")"
-							});
+							var position = new Vector(nextPoint.x1, nextPoint.y1);
+							var hidden = true;
+							tmpElem.controlPoint2 = this._createControlPoint(position, hidden);
 						}
 						tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 						tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
@@ -292,4 +253,31 @@ nanoInk.addTool("edit", {
 			}
 		}
 	}),
+	_createControlPoint: (function(point, hidden) {
+		if (hidden) {
+			return nanoInk.newElem("rect", {
+				"x": 0, "y": 0,
+				"height": 0, "width": 0,
+				"class": "node control-node",
+				"transform": "translate("+ point.x + ", "+ point.y +")"
+			});
+		} else {
+			return nanoInk.newElem("circle", {
+				"r": 4,
+				"x": -2.5,
+				"y": -2.5,
+				"class": "node control-node",
+				"transform": "translate("+ point.x + ", "+ point.y +")"
+			});
+		}
+	}),
+	_createNodeHandle: (function(point, type) {
+		return nanoInk.newElem("rect", {
+			"x": -3.5,
+			"y": -3.5,
+			"height": 6, "width": 6,
+			"class": "node " + type,
+			"transform": "translate("+ point.x + ", "+ point.y +") rotate(45)"
+		});
+	})
 });

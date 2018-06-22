@@ -1,5 +1,18 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+function Vector(x, y) {
+	this.x = x;
+	this.y = y;
+}
+
+Vector.prototype.add = function(another) {
+	return Vector(this.x + another.x, this.y + another.y);
+}
+
+Vector.prototype.sub = function(another) {
+	return Vector(this.x - another.x, this.y - another.y);
+}
+
 var nanoInk = {
 //general
 	tool: {},//dummy tool
