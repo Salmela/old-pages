@@ -42,10 +42,10 @@ nanoInk.addTool("edit", {
 								"y2": nextPoint.y1
 							});
 							tmpElem.controlPoint2 = nanoInk.newElem("circle", {
-								"stroke": "#000",
-								"fill": "transparent", "r": 4,
+								"r": 4,
 								"x": -2.5,
 								"y": -2.5,
+								"class": "node control-node",
 								"transform": "translate("+ nextPoint.x1 +
 									", "+ nextPoint.y1 +")"
 							});
@@ -89,11 +89,10 @@ nanoInk.addTool("edit", {
 							tmpElem.tangent.nanoInkscapeType = "tangent1";
 							tmpElem.tangent.nanoInkscapeONode = tmpElem;
 							tmpElem.controlPoint = nanoInk.newElem("circle", {
-								"stroke": "#000",
-								"fill": "transparent", "r": 4,
+								"r": 4,
 								"x": -2.5,
 								"y": -2.5,
-								"class": "node",
+								"class": "node control-node",
 								"transform": "translate("+ point.x2 +
 									", "+ point.y2 +")"
 							});
@@ -102,7 +101,7 @@ nanoInk.addTool("edit", {
 							tmpElem.controlPoint = nanoInk.newElem("rect", {
 								"x": 0, "y": 0,
 								"height": 0, "width": 0,
-								"class": "node",
+								"class": "node control-node",
 								"transform": "translate("+ point.x2 +
 									", "+ point.y2 +")"
 							});
@@ -123,11 +122,10 @@ nanoInk.addTool("edit", {
 								tmpElem.tangent2.nanoInkscapeType = "tangent2";
 								tmpElem.tangent2.nanoInkscapeONode = tmpElem;
 								tmpElem.controlPoint2 = nanoInk.newElem("circle", {
-									"stroke": "#000",
-									"fill": "transparent", "r": 4,
+									"r": 4,
 									"x": -2.5,
 									"y": -2.5,
-									"class": "node",
+									"class": "node control-node",
 									"transform": "translate("+ nextPoint.x1 +
 										", "+ nextPoint.y1 +")"
 								});
@@ -185,7 +183,7 @@ nanoInk.addTool("edit", {
 
 				var cX = translate[1], cY = translate[2];
 				var nX = cX-(px-cX), nY = cY-(py-cY);
-				if(this.draggingElem.nanoInkscapeType.substr(-1) == "2") {
+				if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
 					var i = [nX, nY];
 					nX = px; nY = py;
 					px = i[0]; py = i[1];
