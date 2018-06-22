@@ -80,6 +80,7 @@ var nanoInk = {
 		
 		this.tool = this.toolList[toolName];
 		this.tool.init();
+		this.setActiveNode(null, nanoInk.activeNode);
 	}),
 
 	_mouseDown: (function(e) {
@@ -165,7 +166,6 @@ nanoInk.addTool("select", {
 
 	}),
 	init: (function() {
-		this.setActiveNode(null, nanoInk.activeNode);
 	}),
 	uninit: (function() {
 

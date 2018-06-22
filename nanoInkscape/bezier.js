@@ -8,7 +8,6 @@ nanoInk.addTool("bezier", {
 		
 	}),
 	init: (function() {
-		nanoInk.setActiveNode(null);
 		this.curveHelper = nanoInk.newElem("line", {"stroke": "#000", "style": "visibility: hidden"});
 		this.curveHelper2 = nanoInk.newElem("circle", {"stroke": "#000", "fill": "transparent", "r": 4, "style": "visibility: hidden"});
 	}),
