@@ -99,16 +99,17 @@ nanoInk.addTool({
 		if(this.doPathClosing) {
 			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
 			nanoInk.pointerStart = endPoint;
-		}
-		// ignore drag if it had very small movement
-		if (Math.sqrt(Math.pow(nanoInk.pointerEnd.x - nanoInk.pointerStart.x, 2) + Math.pow(nanoInk.pointerEnd.y - nanoInk.pointerStart.y, 2)) < 3) {
-			nanoInk.pointerEnd = nanoInk.pointerStart;
+
+			// ignore drag if it had very small movement
+			if (nanoInk.pointerEnd.distance(nanoInk.pointerStart.x) < 3) {
+				nanoInk.pointerEnd = nanoInk.pointerStart;
+			}
 		}
 		if(this.oldControlPoint) {
+			var previousControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 			this.tempCurve += " C";
 			this.tempCurve += this.oldControlPoint.join(",") + " ";
-			this.tempCurve += nanoInk.pointerStart.x - (nanoInk.pointerEnd.x - nanoInk.pointerStart.x) + ",";
-			this.tempCurve += nanoInk.pointerStart.y - (nanoInk.pointerEnd.y - nanoInk.pointerStart.y) + " ";
+			this.tempCurve += previousControlPoint.join(",") + " ";
 			this.tempCurve += nanoInk.pointerStart.join(",");
 		}
 		if(this.doPathClosing) {

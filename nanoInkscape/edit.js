@@ -33,14 +33,12 @@ nanoInk.addTool({
 		}
 		if(/controlPoint/.test(this.draggingElem.nanoInkscapeType)) {
 			var translate = Util.getNodeTranslation(this.draggingElem.nanoInkscapeONode);
-			var n = translate.mul(2).sub(ptr);
+			var currentControlPoint = ptr;
+			var previousControlPoint = translate.mul(2).sub(ptr);
+
 			if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
-				n.swap(ptr);
+				previousControlPoint.swap(currentControlPoint);
 			}
-			var ctrP1 = this.draggingElem.nanoInkscapeONode.controlPoint;
-			var ctrP2 = this.draggingElem.nanoInkscapeONode.controlPoint2;
-			var tang1 = this.draggingElem.nanoInkscapeONode.tangent;
-			var tang2 = this.draggingElem.nanoInkscapeONode.tangent2;
 
 			function moveVisualHandle(control, tangent, newPosition, isBefore) {
 				control.setAttributeNS(null, "transform",
@@ -54,8 +52,13 @@ nanoInk.addTool({
 				handle["x" + parameterIndex] = newPosition.x;
 				handle["y" + parameterIndex] = newPosition.y;
 			}
-			if(ctrP1) moveVisualHandle(ctrP1, tang1, ptr, true);
-			if(ctrP2) moveVisualHandle(ctrP2, tang2, n, false);
+			var active = this.draggingElem.nanoInkscapeONode;
+			if (active.controlPoint) {
+				moveVisualHandle(active.controlPoint, active.tangent, currentControlPoint, true);
+			}
+			if (active.controlPoint2) {
+				moveVisualHandle(active.controlPoint2, active.tangent2, previousControlPoint, false);
+			}
 		}
 		if(this.draggingElem.nanoInkscapeType == undefined) {
 			this.draggingElem.setAttributeNS(null, "transform", Util.svgTranslate(ptr));

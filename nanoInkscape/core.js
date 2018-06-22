@@ -17,6 +17,12 @@ Vector.prototype.mul = function(factor) {
 	return new Vector(factor * this.x, factor * this.y);
 };
 
+Vector.prototype.distance = function(other) {
+	var xDiff = this.x - other.x;
+	var yDiff = this.y - other.y;
+	return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+};
+
 Vector.prototype.join = function(separator) {
 	return "" + this.x + separator + this.y;
 };
@@ -315,8 +321,7 @@ nanoInk.addTool({
 	}),
 	mouseDrag: (function() {
 		if (this.isInMovingMode) {
-			var translation = new Vector(this.old.x + nanoInk.pointerEnd.x - nanoInk.pointerStart.x,
-			     this.old.y + nanoInk.pointerEnd.y - nanoInk.pointerStart.y);
+			var translation = this.old.add(nanoInk.pointerEnd).sub(nanoInk.pointerStart);
 			nanoInk.newAttr(nanoInk.activeObject, {
 				"transform": Util.svgTranslate(translation)
 			});
