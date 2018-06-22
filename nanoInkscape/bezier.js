@@ -31,11 +31,11 @@ nanoInk.addTool({
 			if(this.oldControlPoint) {
 				data += " C";
 				data += this.oldControlPoint + " ";
-				data += nanoInk.pointerX +","+ nanoInk.pointerY + " ";
-				data += nanoInk.pointerX +","+ nanoInk.pointerY;
+				data += nanoInk.pointer.x +","+ nanoInk.pointer.y + " ";
+				data += nanoInk.pointer.x +","+ nanoInk.pointer.y;
 			} else {
 				data += " L";
-				data += nanoInk.pointerX +","+ nanoInk.pointerY;
+				data += nanoInk.pointer.x +","+ nanoInk.pointer.y;
 			}
 			nanoInk.activeObject.setAttributeNS(null, "d", data);
 		}
@@ -43,32 +43,32 @@ nanoInk.addTool({
 	mouseDrag: (function(initialize) {
 		nanoInk.newAttr(this.curveHelper, {
 			"style": "visibility: visible",
-			"x1": nanoInk.pointerStartX,
-			"y1": nanoInk.pointerStartY,
-			"x2": nanoInk.pointerEndX,
-			"y2": nanoInk.pointerEndY
+			"x1": nanoInk.pointerStart.x,
+			"y1": nanoInk.pointerStart.y,
+			"x2": nanoInk.pointerEnd.x,
+			"y2": nanoInk.pointerEnd.y
 		});
 		nanoInk.newAttr(this.curveHelper2, {
 			"style": "visibility: visible",
-			"cx": nanoInk.pointerEndX,
-			"cy": nanoInk.pointerEndY
+			"cx": nanoInk.pointerEnd.x,
+			"cy": nanoInk.pointerEnd.y
 		});
 		var data = this.tempCurve;
 		if(this.oldControlPoint) {
 			data += " C";
 			data += this.oldControlPoint + " ";
-			data += nanoInk.pointerStartX - (nanoInk.pointerEndX - nanoInk.pointerStartX) + ",";
-			data += nanoInk.pointerStartY - (nanoInk.pointerEndY - nanoInk.pointerStartY) + " ";
-			data += nanoInk.pointerStartX +","+ nanoInk.pointerStartY;
+			data += nanoInk.pointerStart.x - (nanoInk.pointerEnd.x - nanoInk.pointerStart.x) + ",";
+			data += nanoInk.pointerStart.y - (nanoInk.pointerEnd.y - nanoInk.pointerStart.y) + " ";
+			data += nanoInk.pointerStart.x +","+ nanoInk.pointerStart.y;
 		} else if(this.tempCurve == "") {
 			data += "M";
-			data += nanoInk.pointerStartX +","+ nanoInk.pointerStartY;
+			data += nanoInk.pointerStart.x +","+ nanoInk.pointerStart.y;
 			data += " L";
-			data += nanoInk.pointerX +","+ nanoInk.pointerY;
+			data += nanoInk.pointer.x +","+ nanoInk.pointer.y;
 
 		} else {
 			data += " L";
-			data += nanoInk.pointerX +","+ nanoInk.pointerY;
+			data += nanoInk.pointer.x +","+ nanoInk.pointer.y;
 		}
 		nanoInk.activeObject.setAttributeNS(null, "d", data);
 	}),
@@ -79,15 +79,15 @@ nanoInk.addTool({
 		if(nanoInk.eTarget == this.tailHandleNode) {
 			this.doPathClosing = true;
 			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
-			nanoInk.pointerStartX = endPoint.x;
-			nanoInk.pointerStartY = endPoint.y;
+			nanoInk.pointerStart.x = endPoint.x;
+			nanoInk.pointerStart.y = endPoint.y;
 		} else if(this.doPathClosing) {
 			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
 			this.tailHandleNode = nanoInk.newElem("rect", {
 				"x": -3.5,
 				"y": -3.5,
 				"height": 6, "width": 6,
-				"transform": "translate("+ nanoInk.pointerStartX + ", "+ nanoInk.pointerStartY +")",
+				"transform": "translate("+ nanoInk.pointerStart.x + ", "+ nanoInk.pointerStart.y +")",
 				"id": "helperClosepath"
 			});
 			this.doPathClosing = false;
@@ -98,20 +98,18 @@ nanoInk.addTool({
 
 		if(this.doPathClosing) {
 			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
-			nanoInk.pointerStartX = endPoint.x;
-			nanoInk.pointerStartY = endPoint.y;
+			nanoInk.pointerStart = endPoint;
 		}
 		// ignore drag if it had very small movement
-		if (Math.sqrt(Math.pow(nanoInk.pointerEndX - nanoInk.pointerStartX, 2) + Math.pow(nanoInk.pointerEndY - nanoInk.pointerStartY, 2)) < 3) {
-			nanoInk.pointerEndX = nanoInk.pointerStartX;
-			nanoInk.pointerEndY = nanoInk.pointerStartY;
+		if (Math.sqrt(Math.pow(nanoInk.pointerEnd.x - nanoInk.pointerStart.x, 2) + Math.pow(nanoInk.pointerEnd.y - nanoInk.pointerStart.y, 2)) < 3) {
+			nanoInk.pointerEnd = nanoInk.pointerStart;
 		}
 		if(this.oldControlPoint) {
 			this.tempCurve += " C";
 			this.tempCurve += this.oldControlPoint + " ";
-			this.tempCurve += nanoInk.pointerStartX - (nanoInk.pointerEndX - nanoInk.pointerStartX) + ",";
-			this.tempCurve += nanoInk.pointerStartY - (nanoInk.pointerEndY - nanoInk.pointerStartY) + " ";
-			this.tempCurve += nanoInk.pointerStartX +","+ nanoInk.pointerStartY;
+			this.tempCurve += nanoInk.pointerStart.x - (nanoInk.pointerEnd.x - nanoInk.pointerStart.x) + ",";
+			this.tempCurve += nanoInk.pointerStart.y - (nanoInk.pointerEnd.y - nanoInk.pointerStart.y) + " ";
+			this.tempCurve += nanoInk.pointerStart.x + "," + nanoInk.pointerStart.y;
 		}
 		if(this.doPathClosing) {
 			var makeClosed = true;
@@ -120,18 +118,18 @@ nanoInk.addTool({
 
 		} else if(this.tempCurve == "") {
 			this.tempCurve += "M";
-			this.tempCurve += nanoInk.pointerX +","+ nanoInk.pointerY;
+			this.tempCurve += nanoInk.pointer.x +","+ nanoInk.pointer.y;
 
 		} else if(!this.oldControlPoint) {
 			this.tempCurve += " L";
-			this.tempCurve += nanoInk.pointerEndX +","+ nanoInk.pointerEndY;
+			this.tempCurve += nanoInk.pointerEnd.x +","+ nanoInk.pointerEnd.y;
 		} else {
 			this.oldControlPoint = undefined;
 		}
 		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
 		if(nanoInk.pointerDrag) {
-			this.oldControlPoint = nanoInk.pointerEndX +","+ nanoInk.pointerEndY;
+			this.oldControlPoint = nanoInk.pointerEnd.x +","+ nanoInk.pointerEnd.y;
 		}
 	}),
 	keyDown: (function(key) {

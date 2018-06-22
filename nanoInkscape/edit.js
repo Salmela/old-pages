@@ -25,7 +25,7 @@ nanoInk.addTool({
 	mouseDrag: (function() {
 		if(!this.draggingElem) return;
 		var translate = Util.getNodeTranslation(nanoInk.activeObject);
-		var absPointer = new Vector(nanoInk.pointerEndX, nanoInk.pointerEndY);
+		var absPointer = nanoInk.pointerEnd;
 		var ptr = absPointer.sub(translate);
 
 		if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {

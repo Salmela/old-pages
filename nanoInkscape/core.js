@@ -84,10 +84,8 @@ var nanoInk = {
 	activeObject: null,
 
 //events
-	pointerX: 0,
-	pointerY: 0,
-	pointerDragX: 0,
-	pointerDragY: 0,
+	pointer: new Vector(0, 0),
+	pointerDrag: new Vector(0, 0),
 	pointerDown: false,
 	pointerDrag: false,
 
@@ -134,8 +132,8 @@ var nanoInk = {
 		nanoInk.newElem("path", {
 			"stroke": "#000000",
 			"fill": "#008000",
-			"x": nanoInk.pointerX,
-			"y": nanoInk.pointerY,
+			"x": nanoInk.pointer.x,
+			"y": nanoInk.pointer.y,
 			"height": 1, "width": 1,
 			"d": "M 100.5,100.5 L 200.5,100.5 L 200.5,200.5 L 100.5,200.5 z"
 		});
@@ -194,9 +192,7 @@ var nanoInk = {
 	}),
 
 	_mouseDown: (function(e) {
-		var position = this._getPointerPosition(e);
-		this.pointerStartX = position.x;
-		this.pointerStartY = position.y;
+		this.pointerStart = this._getPointerPosition(e);
 		this.eTarget = e.target;
 		this.pointerDown = true;
 		this.pointerDrag = false;
@@ -206,16 +202,17 @@ var nanoInk = {
 	_mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
 		var position = this._getPointerPosition(e);
+
+		this.statusbar.textContent = position.x +", "+ position.y;
+
 		if(this.pointerDown == true) {
 			this.pointerDrag = true;
 
-			this.pointerEndX = position.x;
-			this.pointerEndY = position.y;
+			this.pointerEnd = position;
 
 			this.emit("mouseDrag");
 		} else {
-			this.pointerX = position.x;
-			this.pointerY = position.y;
+			this.pointer = position;
 
 			this.emit("mouseMove", e);
 		}
@@ -225,20 +222,20 @@ var nanoInk = {
 		this.eTarget = e.target;
 		this.pointerDown = false;
 		if(this.pointerDrag = true) {
-			var position = this._getPointerPosition(e);
-			this.pointerEndX = position.x;
-			this.pointerEndY = position.y;
+			this.pointerEnd = this._getPointerPosition(e);
 
-		} else { this.pointerEndX = this.pointerEndY = undefined; }
+		} else {
+			this.pointerEnd = null;
+		}
 
 		this.emit("mouseUp");
 	}),
 	_getPointerPosition: (function(e) {
 		var canvasPosition = this.canvas.getBoundingClientRect();
-		return {
-			x: e.clientX - canvasPosition.left,
-			y: e.clientY - canvasPosition.top
-		};
+		return new Vector(
+			e.clientX - canvasPosition.left,
+			e.clientY - canvasPosition.top
+		);
 	}),
 	_keyDown: (function(event) {
 		var key = event.key || event.keyCode;
@@ -304,8 +301,7 @@ nanoInk.addTool({
 
 	isInMovingMode: false,
 	boxSelection: false,
-	oldX: 0,
-	oldY: 0,
+	old: new Vector(0, 0),
 
 	mainInit: (function() {
 
@@ -316,7 +312,7 @@ nanoInk.addTool({
 
 	}),
 	mouseMove: (function(e) {
-		if(e.target.tagName != "svg") {
+		if(this._isNodeNormal(e.target)) {
 			nanoInk.canvas.classList.add("select-mode");
 		} else {
 			nanoInk.canvas.classList.remove("select-mode");
@@ -324,18 +320,16 @@ nanoInk.addTool({
 	}),
 	mouseDrag: (function() {
 		if (this.isInMovingMode) {
-			nanoInk.statusbar.textContent = (nanoInk.pointerEndX - nanoInk.pointerStartX) +", "+ (nanoInk.pointerEndY - nanoInk.pointerStartY);
-
 			nanoInk.newAttr(nanoInk.activeObject, {
-				"transform": "translate("+ (this.oldX + nanoInk.pointerEndX - nanoInk.pointerStartX) +
-				             ", "+ (this.oldY + nanoInk.pointerEndY - nanoInk.pointerStartY) +")"
+				"transform": "translate("+ (this.old.x + nanoInk.pointerEnd.x - nanoInk.pointerStart.x) +
+				             ", "+ (this.old.y + nanoInk.pointerEnd.y - nanoInk.pointerStart.y) +")"
 			});
 			nanoInk.invalidateBoundingBox();
 		} else if (this.boxSelection) {
-			var minX = Math.floor(Math.min(nanoInk.pointerEndX, nanoInk.pointerStartX));
-			var minY = Math.floor(Math.min(nanoInk.pointerEndY, nanoInk.pointerStartY));
-			var maxX = Math.floor(Math.max(nanoInk.pointerEndX, nanoInk.pointerStartX));
-			var maxY = Math.floor(Math.max(nanoInk.pointerEndY, nanoInk.pointerStartY));
+			var minX = Math.floor(Math.min(nanoInk.pointerEnd.x, nanoInk.pointerStart.x));
+			var minY = Math.floor(Math.min(nanoInk.pointerEnd.y, nanoInk.pointerStart.y));
+			var maxX = Math.floor(Math.max(nanoInk.pointerEnd.x, nanoInk.pointerStart.x));
+			var maxY = Math.floor(Math.max(nanoInk.pointerEnd.y, nanoInk.pointerStart.y));
 
 			nanoInk.newAttr(this.selectionBox, {
 				"width": maxX - minX,
@@ -347,34 +341,36 @@ nanoInk.addTool({
 		}
 	}),
 	mouseDown: (function() {
-		if (nanoInk.nodeBoundingBox != nanoInk.eTarget && nanoInk.eTarget.tagName != "svg") {
+		if (this._isNodeNormal(nanoInk.eTarget)) {
 			this.isInMovingMode = true;
 			this.boxSelection = false;
 			if (nanoInk.activeObject != nanoInk.eTarget) {
 				nanoInk.setActiveNode(nanoInk.eTarget);
 			}
 			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
-				var oldValues = Util.getNodeTranslation(nanoInk.activeObject);
-				this.oldX = oldValues.x;
-				this.oldY = oldValues.y;
+				this.old = Util.getNodeTranslation(nanoInk.activeObject);
 			} else {
-				this.oldX = this.oldY = 0;
+				this.old.y = this.old.y = 0;
 			}	
 		} else {//select
 			this.isInMovingMode = false;
 			this.boxSelection = true;
 			this.selectionBox = nanoInk.newElem("rect", {
-				"x": nanoInk.pointerX,
-				"y": nanoInk.pointerY,
+				"x": nanoInk.pointer.x,
+				"y": nanoInk.pointer.y,
 				"height": 1, "width": 1,
 				"id": "selection-box"
 			});
 		}
 	}),
+	_isNodeNormal: (function(node) {
+		return nanoInk.nodeBoundingBox != node && node.tagName != "svg";
+	}),
 	mouseUp: (function() {
 		if (this.selectionBox) {
 			nanoInk.remElem(this.selectionBox);
 			this.selectionBox = null;
+			nanoInk.setActiveNode(null);
 		}
 		this.isInMovingMode = this.boxSelection = false;
 	}),
