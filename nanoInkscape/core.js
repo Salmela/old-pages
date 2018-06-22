@@ -334,10 +334,11 @@ nanoInk.addTool({
 		nanoInk.canvas.insertBefore(this.nodeBoundingBox, newValue);
 	}),
 	_getBoundingBox: (function(node) {
-		var box = node.getBBox();
+		var area = nanoInk.canvas.getBoundingClientRect();
+		var box = node.getBoundingClientRect();
 		return {
-			"x": box.x,
-			"y": box.y,
+			"x": box.x + 0.5 - area.x,
+			"y": box.y + 0.5 - area.y,
 			"height": box.height,
 			"width": box.width,
 		};
