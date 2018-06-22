@@ -1,6 +1,6 @@
 "use strict";
 nanoInk.addTool("bezier", {
-	oldControlPoint: undefined,
+	oldControlPoint: null,
 	tempCurve: "",
 	doPathClosing: true,
 
@@ -24,7 +24,7 @@ nanoInk.addTool("bezier", {
 	mouseMove: (function() {
 		if(this.tempCurve != "") {
 			var data = this.tempCurve;
-			if(this.oldControlPoint != undefined) {
+			if(this.oldControlPoint) {
 				data += " C";
 				data += this.oldControlPoint + " ";
 				data += nanoInk.pointerX +","+ nanoInk.pointerY + " ";
@@ -50,7 +50,7 @@ nanoInk.addTool("bezier", {
 			"cy": nanoInk.pointerEndY
 		});
 		var data = this.tempCurve;
-		if(this.oldControlPoint != undefined) {
+		if(this.oldControlPoint) {
 			data += " C";
 			data += this.oldControlPoint + " ";
 			data += nanoInk.pointerStartX - (nanoInk.pointerEndX - nanoInk.pointerStartX) + ",";
@@ -88,12 +88,16 @@ nanoInk.addTool("bezier", {
 	mouseUp: (function() {
 		if(!nanoInk.activeObject) return;
 
-		//data = nanoInk.activeObject.getAttributeNS(null, "d");
 		if(this.doPathClosing) {
 			nanoInk.pointerStartX = parseFloat(this.TailHandleNode.getAttributeNS(null, "x"))+3.5;
 			nanoInk.pointerStartY = parseFloat(this.TailHandleNode.getAttributeNS(null, "y"))+3.5;
 		}
-		if(this.oldControlPoint != undefined) {
+		// ignore drag if it had very small movement
+		if (Math.sqrt(Math.pow(nanoInk.pointerEndX - nanoInk.pointerStartX, 2) + Math.pow(nanoInk.pointerEndY - nanoInk.pointerStartY, 2)) < 3) {
+			nanoInk.pointerEndX = nanoInk.pointerStartX;
+			nanoInk.pointerEndY = nanoInk.pointerStartY;
+		}
+		if(this.oldControlPoint) {
 			this.tempCurve += " C";
 			this.tempCurve += this.oldControlPoint + " ";
 			this.tempCurve += nanoInk.pointerStartX - (nanoInk.pointerEndX - nanoInk.pointerStartX) + ",";
@@ -109,7 +113,7 @@ nanoInk.addTool("bezier", {
 			this.tempCurve += "M";
 			this.tempCurve += nanoInk.pointerX +","+ nanoInk.pointerY;
 
-		} else if(this.oldControlPoint == undefined) {
+		} else if(!this.oldControlPoint) {
 			this.tempCurve += " L";
 			this.tempCurve += nanoInk.pointerEndX +","+ nanoInk.pointerEndY;
 		} else {
@@ -142,7 +146,7 @@ nanoInk.addTool("bezier", {
 		nanoInk.remElem(this.TailHandleNode);
 		this.TailHandleNode = null;
 		this.tempCurve = "";
-		this.oldControlPoint = undefined;
+		this.oldControlPoint = null;
 		this.doPathClosing = true;
 	})
 });
