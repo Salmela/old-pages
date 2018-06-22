@@ -21,19 +21,17 @@ nanoInk.addTool({
 	mouseMove: (function() {
 		
 	}),
+
 	mouseDrag: (function() {
 		if(this.draggingElem != null) {
 			var px = nanoInk.pointerEndX, py = nanoInk.pointerEndY;
-			var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
 
 			if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {
 				
 			}
 			if(/controlPoint/.test(this.draggingElem.nanoInkscapeType)) {
-				var translate = re.exec(this.draggingElem.nanoInkscapeONode.getAttributeNS(null,
-				                        "transform"));
-
-				var cX = translate[1], cY = translate[2];
+				var translate = this._getNodeTranslation(this.draggingElem.nanoInkscapeONode);
+				var cX = translate.x, cY = translate.y;
 				var nX = cX-(px-cX), nY = cY-(py-cY);
 				if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
 					var i = [nX, nY];
@@ -78,9 +76,9 @@ nanoInk.addTool({
 				var tang2 = this.draggingElem.tangent2;
 
 				if (tang1) {
-					var t = re.exec(ctrP1.getAttributeNS(null, "transform"));
-					var x = parseFloat(t[1])+dx,
-					    y = parseFloat(t[2])+dy;
+					var t = this._getNodeTranslation(ctrP1);
+					var x = parseFloat(t.x) + dx,
+					    y = parseFloat(t.y) + dy;
 					ctrP1.setAttributeNS(null, "transform",
 						"translate("+ x +", "+ y +")");
 					tang1.setAttributeNS(null, "x1", px);
@@ -95,9 +93,9 @@ nanoInk.addTool({
 				}
 
 				if (tang2) {
-					var t = re.exec(ctrP2.getAttributeNS(null, "transform"));
-					var x = parseFloat(t[1])+dx,
-					    y = parseFloat(t[2])+dy;
+					var t = this._getNodeTranslation(ctrP2);
+					var x = parseFloat(t.x) + dx,
+					    y = parseFloat(t.y) + dy;
 					ctrP2.setAttributeNS(null, "transform",
 						"translate("+ x +", "+ y +")");
 					tang2.setAttributeNS(null, "x1", px);
@@ -113,6 +111,13 @@ nanoInk.addTool({
 			}
 		}
 	}),
+
+	_getNodeTranslation: (function(node) {
+		var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
+		var translate = re.exec(node.getAttributeNS(null, "transform"));
+		return new Vector(translate[1], translate[2]);
+	}),
+
 	mouseDown: (function() {
 		if(nanoInk.eTarget.nanoInkscapeNode !== undefined || nanoInk.eTarget.nanoInkscapeONode !== undefined) {
 			this.draggingElem = nanoInk.eTarget;
