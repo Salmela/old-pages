@@ -331,10 +331,9 @@ nanoInk.addTool({
 	}),
 	setActiveNode: (function(oldValue, newValue) {
 		nanoInk.remElem(this.nodeBoundingBox);
-		if (!newValue) {
-			nanoInk.remElem(this.nodeBoundingBox);
-			return;
-		}
+		this.nodeBoundingBox = null;
+		if (!newValue) return;
+
 		this.nodeBoundingBox = nanoInk.newElem("rect", Object.assign({},
 			this._getBoundingBox(newValue), {"class": "active-object"}));
 		nanoInk.canvas.insertBefore(this.nodeBoundingBox, newValue);
