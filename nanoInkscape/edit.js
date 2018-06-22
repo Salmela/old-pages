@@ -19,7 +19,7 @@ nanoInk.addTool("edit", {
 	mouseDrag: (function() {
 		if(this.draggingElem != null) {
 			var px = nanoInk.pointerEndX, py = nanoInk.pointerEndY;
-			var re = /translate\(([0-9.]+),\s*([0-9.]+)\)/;
+			var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
 
 			if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {
 				
