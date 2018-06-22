@@ -123,20 +123,19 @@ var nanoInk = {
 		});
 		tool.meta.button = newToolNode;
 	}),
-	newElem: (function(tag, attr, beforeNode) {
+	newElem: (function(tag, attr, parentNode) {
 		var elem = document.createElementNS(SVG_NS, tag);
 		for(i in attr) {
 			elem.setAttributeNS(null, i, attr[i]);
 		}
-		if (beforeNode) {
-			return this.canvas.insertBefore(elem, beforeNode);
-		} else {
-			return this.canvas.appendChild(elem);
+		if (!parentNode) {
+			parentNode = this.canvas;
 		}
+		return parentNode.appendChild(elem);
 	}),
 	remElem: (function(elem) {
 		if (!elem) return;
-		this.canvas.removeChild(elem);
+		elem.parentNode.removeChild(elem);
 	}),
 	newAttr: (function(elem, attr) {
 		for(i in attr) {

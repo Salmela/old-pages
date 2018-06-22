@@ -24,7 +24,9 @@ nanoInk.addTool({
 
 	mouseDrag: (function() {
 		if(!this.draggingElem) return;
-		var px = nanoInk.pointerEndX, py = nanoInk.pointerEndY;
+		var translate = this._getNodeTranslation(nanoInk.activeObject);
+		var px = nanoInk.pointerEndX - translate.x;
+		var py = nanoInk.pointerEndY - translate.y;
 
 		if(/tangent/.test(this.draggingElem.nanoInkscapeType)) {
 			
@@ -114,6 +116,9 @@ nanoInk.addTool({
 	_getNodeTranslation: (function(node) {
 		var re = /translate\((-?[0-9.]+),\s*(-?[0-9.]+)\)/;
 		var translate = re.exec(node.getAttributeNS(null, "transform"));
+		if (!translate) {
+			return new Vector(0, 0);
+		}
 		return new Vector(translate[1], translate[2]);
 	}),
 
@@ -158,13 +163,19 @@ nanoInk.addTool({
 	}),
 
 	_generateNodes: (function() {
-		var i;
 		var controlPoints = nanoInk.activeObject.pathSegList;
-		var tmpElem;
+		var translation = this._getNodeTranslation(nanoInk.activeObject);
 		var last = controlPoints.length-1;
-		this.firstHandleNode = null;
 
-		for(i = last; i >= 0; i--) {
+		this.decorations = nanoInk.newElem("g", {
+			"transform": "translate("+ translation.x + ", "+ translation.y +")"
+		});
+		this.interactingNodes = nanoInk.newElem("g", {
+			"transform": "translate("+ translation.x + ", "+ translation.y +")"
+		});
+
+		for(var i = last; i >= 0; i--) {
+			var tmpElem;
 			var point = controlPoints[i];
 			var nextPoint = controlPoints[i + 1];
 			switch(point.pathSegTypeAsLetter) {
@@ -185,7 +196,7 @@ nanoInk.addTool({
 							"y1": point.y,
 							"x2": nextPoint.x1,
 							"y2": nextPoint.y1
-						}, this.firstHandleNode);
+						}, this.decorations);
 						var position = new Vector(nextPoint.x1, nextPoint.y1);
 						tmpElem.controlPoint2 = this._createControlPoint(position);
 
@@ -211,7 +222,7 @@ nanoInk.addTool({
 							"y1": point.y,
 							"x2": point.x2,
 							"y2": point.y2
-						}, this.firstHandleNode);
+						}, this.decorations);
 						tmpElem.tangent.nanoInkscapeType = "tangent1";
 						tmpElem.tangent.nanoInkscapeONode = tmpElem;
 						var position = new Vector(point.x2, point.y2);
@@ -235,7 +246,7 @@ nanoInk.addTool({
 								"y1": point.y,
 								"x2": nextPoint.x1,
 								"y2": nextPoint.y1
-							}, this.firstHandleNode);
+							}, this.decorations);
 							tmpElem.tangent2.nanoInkscapeType = "tangent2";
 							tmpElem.tangent2.nanoInkscapeONode = tmpElem;
 							var position = new Vector(nextPoint.x1, nextPoint.y1);
@@ -257,42 +268,30 @@ nanoInk.addTool({
 		}
 	}),
 	_createControlPoint: (function(point, hidden) {
-		var node;
 		if (hidden) {
-			node = nanoInk.newElem("rect", {
+			return nanoInk.newElem("rect", {
 				"x": 0, "y": 0,
 				"height": 0, "width": 0,
 				"class": "node control-node",
 				"transform": "translate("+ point.x + ", "+ point.y +")"
-			});
+			}, this.interactingNodes);
 		} else {
-			node = nanoInk.newElem("circle", {
+			return nanoInk.newElem("circle", {
 				"r": 4,
 				"x": -2.5,
 				"y": -2.5,
 				"class": "node control-node",
 				"transform": "translate("+ point.x + ", "+ point.y +")"
-			});
+			}, this.interactingNodes);
 		}
-		return this._updateFirstHandleNode(node);
 	}),
 	_createNodeHandle: (function(point, type) {
-		return this._updateFirstHandleNode(nanoInk.newElem("rect", {
+		return nanoInk.newElem("rect", {
 			"x": -3.5,
 			"y": -3.5,
 			"height": 6, "width": 6,
 			"class": "node " + type,
 			"transform": "translate("+ point.x + ", "+ point.y +") rotate(45)"
-		}));
-	}),
-	_updateFirstHandleNode: (function(node) {
-		// We have to keep track of the first handle node because in svg
-		// the order of elements specifies the drawing order.
-		// We want put all user interactable nodes after the decoration nodes.
-		// TODO use svg node groups for this
-		if (!this.firstHandleNode) {
-			this.firstHandleNode = node;
-		}
-		return node;
+		}, this.interactingNodes);
 	})
 });
