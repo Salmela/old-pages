@@ -6,6 +6,8 @@ nanoInk.addTool({
 		icon: "../icons/inkscape/edit.png",
 	},
 
+	cuspNodeTransform: " rotate(45)",
+
 	draggingElem: null,
 	controlNodes: [],
 
@@ -174,35 +176,41 @@ nanoInk.addTool({
 						tmpElem = this.controlNodes[0];
 						tmpElem.nanoInkscapeNode2 = point;
 					} else {
-						tmpElem = this._createNodeHandle(point, "nodeCorner");
+						tmpElem = this._createNodeHandle(point);
 						tmpElem.nanoInkscapeNode = point;
 						this.controlNodes.push(tmpElem);
 					}
-					if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
-						tmpElem.tangent2 = nanoInk.newElem("line", {
-							"stroke": "#000",
-							"class": "tangent",
-							"x1": point.x,
-							"y1": point.y,
-							"x2": nextPoint.x1,
-							"y2": nextPoint.y1
-						}, this.decorations);
-						tmpElem.tangent2.nanoInkscapeType = "tangent2";
+					if(nextPoint && nextPoint.pathSegTypeAsLetter == "C") {
+						if (point.x != nextPoint.x1 || point.y != nextPoint.y1) {
+							tmpElem.tangent2 = nanoInk.newElem("line", {
+								"stroke": "#000",
+								"class": "tangent",
+								"x1": point.x,
+								"y1": point.y,
+								"x2": nextPoint.x1,
+								"y2": nextPoint.y1
+							}, this.decorations);
+							tmpElem.tangent2.nanoInkscapeType = "tangent2";
 
-						var position = new Vector(nextPoint.x1, nextPoint.y1);
-						tmpElem.controlPoint2 = this._createControlPoint(position);
+							var position = new Vector(nextPoint.x1, nextPoint.y1);
+							tmpElem.controlPoint2 = this._createControlPoint(position);
+						} else {
+							var position = new Vector(nextPoint.x1, nextPoint.y1);
+							var hidden = true;
+							tmpElem.controlPoint2 = this._createControlPoint(position, hidden);
+						}
 						tmpElem.controlPoint2.nanoInkscapeType = "controlPoint2";
 						tmpElem.controlPoint2.nanoInkscapeONode = tmpElem;
 						tmpElem.controlPoint2.nanoInkscapeNode = nextPoint;
 					}
 					break;
 				case "L":
-					tmpElem = this._createNodeHandle(point, "nodeCorner");
+					tmpElem = this._createNodeHandle(point);
 					tmpElem.nanoInkscapeNode = point;
 					this.controlNodes.push(tmpElem);
 					break;
 				case "C":
-					tmpElem = this._createNodeHandle(point, "nodeCorner");
+					tmpElem = this._createNodeHandle(point);
 
 					if (point.x != point.x2 || point.y != point.y2) {
 						tmpElem.tangent = nanoInk.newElem("line", {
@@ -218,7 +226,6 @@ nanoInk.addTool({
 						var position = new Vector(point.x2, point.y2);
 						tmpElem.controlPoint = this._createControlPoint(position);
 					} else {
-						tmpElem.setAttributeNS(null, "class", "nodeCorner")
 						var position = new Vector(point.x2, point.y2);
 						var hidden = true;
 						tmpElem.controlPoint = this._createControlPoint(position, hidden);
@@ -227,7 +234,7 @@ nanoInk.addTool({
 					tmpElem.controlPoint.nanoInkscapeONode = tmpElem;
 					tmpElem.controlPoint.nanoInkscapeNode = point;
 
-					if(nextPoint != undefined && nextPoint.pathSegTypeAsLetter == "C") {
+					if(nextPoint && nextPoint.pathSegTypeAsLetter == "C") {
 						if (point.x != nextPoint.x1 || point.y != nextPoint.y1) {
 							tmpElem.tangent2 = nanoInk.newElem("line", {
 								"stroke": "#000",
@@ -242,7 +249,6 @@ nanoInk.addTool({
 							var position = new Vector(nextPoint.x1, nextPoint.y1);
 							tmpElem.controlPoint2 = this._createControlPoint(position);
 						} else {
-							tmpElem.setAttributeNS(null, "class", "nodeCorner")
 							var position = new Vector(nextPoint.x1, nextPoint.y1);
 							var hidden = true;
 							tmpElem.controlPoint2 = this._createControlPoint(position, hidden);
@@ -256,7 +262,40 @@ nanoInk.addTool({
 					break;
 			}
 		}
+
+		/* set the types */
+		for(var i in this.controlNodes) {
+			var node = this.controlNodes[i];
+			var className = "cusp-node";
+			if (node.tangent && node.tangent2) {
+				var tangent1 = this._fetchTangentVector(node.tangent);
+				var tangent2 = this._fetchTangentVector(node.tangent2);
+				// rotate 90 degrees
+				var normal = new Vector(tangent1.y, -tangent1.x);
+				// check if the tangents are inline
+				if (Math.abs(tangent2.dot(normal)) < 0.001) {
+					if (tangent1.equals(tangent2.negation())) {
+						className = "symmetric-node";
+					} else {
+						className = "smooth-node";
+					}
+					// hack to remove the 45 degree rotation
+					node.setAttributeNS(null, "transform", Util.svgTranslate(Util.getNodeTranslation(node)));
+				}
+			}
+			node.nanoInkscapeNodeType = className;
+			node.classList.add(className);
+		}
 	}),
+
+	_fetchTangentVector: (function(tangent) {
+		var x1 = tangent.getAttributeNS(null, "x1");
+		var x2 = tangent.getAttributeNS(null, "x2");
+		var y1 = tangent.getAttributeNS(null, "y1");
+		var y2 = tangent.getAttributeNS(null, "y2");
+		return new Vector(x2 - x1, y2 - y1);
+	}),
+
 	_createControlPoint: (function(point, hidden) {
 		if (hidden) {
 			return nanoInk.newElem("rect", {
@@ -275,13 +314,13 @@ nanoInk.addTool({
 			}, this.interactingNodes);
 		}
 	}),
-	_createNodeHandle: (function(point, type) {
+	_createNodeHandle: (function(point) {
 		return nanoInk.newElem("rect", {
 			"x": -3.5,
 			"y": -3.5,
 			"height": 6, "width": 6,
-			"class": "node " + type,
-			"transform": Util.svgTranslate(point) + " rotate(45)"
+			"class": "node",
+			"transform": Util.svgTranslate(point) + this.cuspNodeTransform
 		}, this.interactingNodes);
 	})
 });
