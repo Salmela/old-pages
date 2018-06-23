@@ -100,6 +100,7 @@ function color_wheel(node, func) {
 	var select_circle = document.createElement("canvas");
 	node.appendChild(hue_select);
 	node.appendChild(wheel);
+	node.style["position"] = "relative";
 	wheel.appendChild(triangle_select);
 	wheel.appendChild(select_circle);
 
