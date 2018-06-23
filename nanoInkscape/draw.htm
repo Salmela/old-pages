@@ -16,30 +16,29 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  #toolbar {
-    display: inline-block;
-    vertical-align: top;
-    background: #eee;
-    border-right: 1px solid #d3d7cf;
-  }
   #toolbar, #draw-div, #divider, #sidepanel {
     /* the height of the status bar is 2em + 1px */
     height: -moz-calc(100% - 2em - 1px);
     height: -webkit-calc(100% - 2em - 1px);
     height: calc(100% - 2em - 1px);
-    float: left;
   }
-  #canvas {
-    height: 100%;
+  #toolbar {
+    background: #eee;
+    border-right: 1px solid #d3d7cf;
+    float: left;
   }
   #draw-div {
     margin: 0px;
-    vertical-align: top;
-    display: inline-block;
     background: #fff;
+    overflow: auto;
+    float: none;
+  }
+  #canvas {
+    height: 100%;
+    width: -moz-available;
   }
   #sidepanel {
-    float: none;
+    float: right;
     overflow: auto;
   }
   #statusbar {
@@ -59,6 +58,7 @@
     border: 1px solid #d3d7cf;
     border-width: 0 1px;
     cursor: ew-resize;
+    float: right;
   }
   #divider-rest {
     float: left;
@@ -182,12 +182,6 @@
 <div id="toolbar">
 	<button class="template tool"  data-template-title="name"><img class="tool-icon" data-template-src="icon" /></button>
 </div>
-<div id="draw-div">
-	<svg width="600px" id="canvas">
-		<desc>Selaimesi ei tue svg:tä</desc>
-	</svg>
-</div>
-<div id="divider"></div>
 <div id="sidepanel">
 	<div class="panel-header">
 		<div class="tab tab-active" id="fill-tab">Fill</div>
@@ -198,6 +192,12 @@
 			<div id="color-wheel"></div>
 		</div>
 	</div>
+</div>
+<div id="divider"></div>
+<div id="draw-div">
+	<svg id="canvas">
+		<desc>Selaimesi ei tue svg:tä</desc>
+	</svg>
 </div>
 <div id="statusbar"></div>
 </body>
