@@ -142,23 +142,11 @@ var nanoInk = {
 		this.canvas = document.getElementById("canvas");
 		this.statusbar = document.getElementById("statusbar");
 
-		var inputNode = document.getElementById("fill_color");
-		inputNode.addEventListener("change", function() {
-			nanoInk.fill = this.value;
+		color_wheel(document.getElementById("color-wheel"), function(c) {
 			if (nanoInk.activeObject) {
-				nanoInk.activeObject.setAttributeNS(null, "fill", this.value);
+				nanoInk.activeObject.setAttributeNS(null, "fill", "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")");
 			}
 		});
-		nanoInk.fill = inputNode.value;
-
-		var inputNode = document.getElementById("stroke_color");
-		inputNode.addEventListener("change", function() {
-			nanoInk.stroke = this.value;
-			if (nanoInk.activeObject) {
-				nanoInk.activeObject.setAttributeNS(null, "stroke", this.value);
-			}
-		});
-		nanoInk.stroke = inputNode.value;
 
 		document.body.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
 		this.canvas.addEventListener("mousedown", function(e) {nanoInk._mouseDown(e)});

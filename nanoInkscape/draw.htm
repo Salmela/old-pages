@@ -8,6 +8,8 @@
   html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
+    font-family: sans;
   }
   div, svg {
     -moz-user-select: none;
@@ -17,33 +19,99 @@
   #toolbar {
     display: inline-block;
     vertical-align: top;
-    background: #e9b96e;
-    width:40px;
-    padding: 5px;
+    background: #eee;
+    border-right: 1px solid #d3d7cf;
   }
-  .tools {
+  #toolbar, #draw-div, #divider, #sidepanel {
+    /* the height of the status bar is 2em + 1px */
+    height: -moz-calc(100% - 2em - 1px);
+    height: -webkit-calc(100% - 2em - 1px);
+    height: calc(100% - 2em - 1px);
+    float: left;
+  }
+  #canvas {
+    height: 100%;
+  }
+  #draw-div {
+    margin: 0px;
+    vertical-align: top;
+    display: inline-block;
+    background: #fff;
+  }
+  #sidepanel {
+    float: none;
+    overflow: auto;
+  }
+  #statusbar {
+    padding: 0.5em;
+    height: 2em;
+    border-top: 1px solid #d3d7cf;
+    box-sizing: border-box;
+    overflow: hidden;
+    clear: both;
+    background: #f8f8f8;
+    color: #555753;
+  }
+
+  #divider {
+    width: 6px;
+    background: #eee;
+    border: 1px solid #d3d7cf;
+    border-width: 0 1px;
+    cursor: ew-resize;
+  }
+  #divider-rest {
+    float: left;
+  }
+  .panel-content {
+    margin: 10px;
+  }
+  .panel-header {
+    border-bottom: 1px solid #d3d7cf;
+    background: #f8f8f8;
+  }
+  .tab {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 5px 5px 0;
+    cursor: default;
+  }
+  .tab-active {
+    border: 1px solid #d3d7cf;
+    border-bottom: 0;
+    background: #fff;
+    margin: 4px 4px 0;
+    /* hide the parent's bottom border */
+    position: relative;
+    top: 1px;
+  }
+  #color-wheel-container {
+    text-align: center;
+  }
+  #color-wheel {
+    display: inline-block;
+  }
+
+  .tool {
     display: block;
     border: 0;
     background: transparent;
     border-radius: 5px;
-    margin: 1px;
+    margin: 5px;
     padding: 0;
   }
-  .tools:hover {
+  .tool:hover {
     background: rgba(255, 255, 255, 0.5);
+    border: 1px solid #000;
+    margin: 4px;
   }
   .tool-active {
     border: 1px solid #000;
     background: rgba(255, 255, 255, 0.9);
-    margin: 0;
+    margin: 4px;
   }
   .tool-active:hover {
     background: #fff;
-  }
-  #drawDiv {
-    margin: 0px;
-    vertical-align: top;
-    display: inline-block;
   }
 
   /* select tool */
@@ -104,6 +172,7 @@
     display: none;
   }
   </style>
+  <script type="text/javascript" src="../demoes/color_wheel.js"></script>
   <script type="text/javascript" src="core.js"></script>
   <script type="text/javascript" src="edit.js"></script>
   <script type="text/javascript" src="bezier.js"></script>
@@ -111,14 +180,25 @@
 </head>
 <body>
 <div id="toolbar">
-  <button class="template tools"  data-template-title="name"><img class="tool-icon" data-template-src="icon" /></button>
-</div><div id="drawDiv">
-  <svg height="600px" width="600px" id="canvas" style="border: 1px solid #000;">
-    <desc>Selaimesi ei tue svg:tä</desc>
-  </svg>
+	<button class="template tool"  data-template-title="name"><img class="tool-icon" data-template-src="icon" /></button>
 </div>
-Täyttö:<input id="fill_color" type="text" value="transparent">
-Reuna:<input id="stroke_color" type="text" value="#00f">
+<div id="draw-div">
+	<svg width="600px" id="canvas">
+		<desc>Selaimesi ei tue svg:tä</desc>
+	</svg>
+</div>
+<div id="divider"></div>
+<div id="sidepanel">
+	<div class="panel-header">
+		<div class="tab tab-active" id="fill-tab">Fill</div>
+		<div class="tab" id="stroke-tab">Stroke</div>
+	</div>
+	<div class="panel-content">
+		<div id="color-wheel-container">
+			<div id="color-wheel"></div>
+		</div>
+	</div>
+</div>
 <div id="statusbar"></div>
 </body>
 </html>
