@@ -41,8 +41,20 @@ nanoInk.addTool({
 			if(this.draggingElem.nanoInkscapeType == "controlPoint2") {
 				previousControlPoint.swap(currentControlPoint);
 			}
+			var dragged = this.draggingElem;
+			var active = dragged.nanoInkscapeONode;
 
-			function moveVisualHandle(control, tangent, newPosition, isBefore) {
+			function moveHandle(control, tangent, newPosition, isBefore) {
+				if (!control) return;
+				//TODO we should use polymorphism here to get rid of these ifs
+				if (active.nanoInkscapeNodeType == "cusp-node") {
+					if (dragged != control) return;
+				}
+				//if (active.nanoInkscapeNodeType != "symmetric-node") {
+				//	if (dragged != control) {
+				//		newPosition = ;
+				//	}
+				//}
 				control.setAttributeNS(null, "transform",
 					Util.svgTranslate(newPosition));
 				if (tangent) {
@@ -54,16 +66,15 @@ nanoInk.addTool({
 				handle["x" + parameterIndex] = newPosition.x;
 				handle["y" + parameterIndex] = newPosition.y;
 			}
-			var active = this.draggingElem.nanoInkscapeONode;
-			if (active.controlPoint) {
-				moveVisualHandle(active.controlPoint, active.tangent, currentControlPoint, true);
-			}
-			if (active.controlPoint2) {
-				moveVisualHandle(active.controlPoint2, active.tangent2, previousControlPoint, false);
-			}
+			moveHandle(active.controlPoint, active.tangent, currentControlPoint, true);
+			moveHandle(active.controlPoint2, active.tangent2, previousControlPoint, false);
 		}
-		if(this.draggingElem.nanoInkscapeType == undefined) {
-			this.draggingElem.setAttributeNS(null, "transform", Util.svgTranslate(ptr));
+		if (!this.draggingElem.nanoInkscapeType) {
+			var suffix = "";
+			if (this.draggingElem.nanoInkscapeNodeType == "cusp-node") {
+				suffix = this.cuspNodeTransform;
+			}
+			this.draggingElem.setAttributeNS(null, "transform", Util.svgTranslate(ptr) + suffix);
 			var positionDelta = ptr.sub(this.draggingElem.nanoInkscapeNode);
 			this.draggingElem.nanoInkscapeNode.x = ptr.x;
 			this.draggingElem.nanoInkscapeNode.y = ptr.y;
