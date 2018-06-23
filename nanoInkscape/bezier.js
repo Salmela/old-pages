@@ -73,19 +73,19 @@ nanoInk.addTool({
 		if (event.shiftKey) {
 			return;
 		}
-		this.currentControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 		if (this.oldPoint) {
+			this.currentControlPoint = nanoInk.pointerStart.mul(2).sub(nanoInk.pointerEnd);
 			var data = "M";
 			data += this.oldPoint.join(",");
+
+			data += "C";
 			if(this.oldControlPoint) {
-				data += "C";
 				data += this.oldControlPoint.join(",") + " ";
-				data += this.currentControlPoint.join(",") + " ";
-				data += nanoInk.pointerStart.join(",");
 			} else {
-				data += " L";
-				data += nanoInk.pointer.join(",");
+				data += this.oldPoint.join(",") + " ";
 			}
+			data += this.currentControlPoint.join(",") + " ";
+			data += nanoInk.pointerStart.join(",");
 			this.curveHelper3.setAttributeNS(null, "d", data);
 		}
 	}),
@@ -94,7 +94,6 @@ nanoInk.addTool({
 			"style": "visibility: visible"
 		});
 
-		this.currentControlPoint = nanoInk.pointerStart;
 		if(nanoInk.eTarget == this.tailHandleNode) {
 			this.doPathClosing = true;
 			var endPoint = Util.getNodeTranslation(this.tailHandleNode);
@@ -110,6 +109,7 @@ nanoInk.addTool({
 				"id": "helperClosepath"
 			});
 			this.doPathClosing = false;
+			this.currentControlPoint = null;
 		}
 	}),
 	mouseUp: (function() {
@@ -123,7 +123,13 @@ nanoInk.addTool({
 		if (nanoInk.pointerEnd.distance(nanoInk.pointerStart.x) < 3) {
 			nanoInk.pointerEnd = nanoInk.pointerStart;
 		}
-		if(this.oldControlPoint) {
+		if(this.oldControlPoint || this.currentControlPoint) {
+			if (!this.oldControlPoint) {
+				this.oldControlPoint = this.oldPoint;
+			}
+			if (!this.currentControlPoint) {
+				this.currentControlPoint = nanoInk.pointerStart;
+			}
 			this.tempCurve += " C";
 			this.tempCurve += this.oldControlPoint.join(",") + " ";
 			this.tempCurve += this.currentControlPoint.join(",") + " ";
@@ -140,7 +146,7 @@ nanoInk.addTool({
 
 		} else if(!this.oldControlPoint) {
 			this.tempCurve += " L";
-			this.tempCurve += nanoInk.pointerEnd.join(",");
+			this.tempCurve += nanoInk.pointerStart.join(",");
 		}
 		nanoInk.activeObject.setAttributeNS(null, "d", this.tempCurve);
 
