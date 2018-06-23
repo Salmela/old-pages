@@ -140,7 +140,6 @@ var nanoInk = {
 		templateEngine.init();
 		this.toolbar = document.getElementById("toolbar");
 		this.canvas = document.getElementById("canvas");
-		this.draw = document.getElementById("drawDiv");
 		this.statusbar = document.getElementById("statusbar");
 
 		var inputNode = document.getElementById("fill_color");
@@ -161,9 +160,9 @@ var nanoInk = {
 		});
 		nanoInk.stroke = inputNode.value;
 
-		this.canvas.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
+		document.body.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
 		this.canvas.addEventListener("mousedown", function(e) {nanoInk._mouseDown(e)});
-		this.canvas.addEventListener("mousemove", function(e) {nanoInk._mouseMove(e)});
+		document.body.addEventListener("mousemove", function(e) {nanoInk._mouseMove(e)});
 
 		window.addEventListener("keypress", function(e) {nanoInk._keyDown(e)});
 		window.addEventListener("keyrelease", function(e) {nanoInk._keyUp(e)});
@@ -238,14 +237,30 @@ var nanoInk = {
 	_mouseMove: (function(e) {
 		if(this.toolList.length == 0) return;
 		this.pointer = this._getPointerPosition(e);
-		this.statusbar.textContent = this.pointer.join(", ");
+		var inDragMode = this.pointerStart;
 
-		if(this.pointerStart) {
+		if (inDragMode || this._isSvgElement(e.target)) {
+			this.statusbar.textContent = "X: " + this.pointer.x + ", Y: " + this.pointer.y;
+		} else {
+			this.statusbar.textContent = "";
+		}
+
+		if(inDragMode) {
 			this.pointerEnd = this.pointer;
 			this.emit("mouseDrag", e);
 		} else {
 			this.emit("mouseMove", e);
 		}
+	}),
+	_isSvgElement: (function(element) {
+		var parent = element;
+		do {
+			if (parent == this.canvas) {
+				return true;
+			}
+			parent = parent.parentNode;
+		} while (parent);
+		return false;
 	}),
 	_mouseUp: (function(e) {
 		if(this.toolList.length == 0) return;
