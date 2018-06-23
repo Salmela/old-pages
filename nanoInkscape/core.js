@@ -45,6 +45,14 @@ Vector.prototype.distance = function(other) {
 	return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 };
 
+Vector.prototype.isParellel = function(other) {
+	// rotate 90 degrees
+	var normal = new Vector(tangent1.y, -tangent1.x);
+	// dot product gives zero if the two vectors are perpendicular
+	var cos = tangent2.dot(normal);
+	return Math.abs(cos) < 0.001;
+}
+
 Vector.prototype.join = function(separator) {
 	return "" + this.x + separator + this.y;
 };

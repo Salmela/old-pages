@@ -274,17 +274,21 @@ nanoInk.addTool({
 			}
 		}
 
-		/* set the types */
+		this._updateNodeTypes();
+	}),
+
+	/**
+	 * Svg does not encode the node types so we have to guess them
+	 */
+	_updateNodeTypes: (function() {
 		for(var i in this.controlNodes) {
 			var node = this.controlNodes[i];
 			var className = "cusp-node";
 			if (node.tangent && node.tangent2) {
 				var tangent1 = this._fetchTangentVector(node.tangent);
 				var tangent2 = this._fetchTangentVector(node.tangent2);
-				// rotate 90 degrees
-				var normal = new Vector(tangent1.y, -tangent1.x);
-				// check if the tangents are inline
-				if (Math.abs(tangent2.dot(normal)) < 0.001) {
+
+				if (tangent1.isParellel(tangent2)) {
 					if (tangent1.equals(tangent2.negation())) {
 						className = "symmetric-node";
 					} else {
