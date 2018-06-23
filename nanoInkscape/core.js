@@ -334,15 +334,20 @@ nanoInk.addTool({
 	init: (function() {
 	}),
 	uninit: (function() {
-
+		this._setSelectMode(false);
 	}),
 	mouseMove: (function(e) {
-		if(this._isNodeNormal(e.target)) {
+		this._setSelectMode(this._isNodeNormal(e.target));
+	}),
+
+	_setSelectMode: (function(enabled) {
+		if(enabled) {
 			nanoInk.canvas.classList.add("select-mode");
 		} else {
 			nanoInk.canvas.classList.remove("select-mode");
 		}
 	}),
+
 	mouseDrag: (function() {
 		if (this.isInMovingMode) {
 			var translation = this.old.add(nanoInk.pointerEnd).sub(nanoInk.pointerStart);
