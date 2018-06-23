@@ -13,21 +13,30 @@ function Vector(x, y) {
 	this.y = +y;
 }
 
-Vector.prototype.add = function(another) {
-	return new Vector(this.x + (+another.x), this.y + (+another.y));
+Vector.prototype.add = function(other) {
+	return new Vector(this.x + (+other.x), this.y + (+other.y));
 };
 
-Vector.prototype.sub = function(another) {
-	return new Vector(this.x - another.x, this.y - another.y);
+Vector.prototype.sub = function(other) {
+	return new Vector(this.x - other.x, this.y - other.y);
+};
+
+Vector.prototype.dot = function(other) {
+	return this.x * other.x + this.y * other.y;
 };
 
 Vector.prototype.mul = function(factor) {
 	return new Vector(factor * this.x, factor * this.y);
 };
 
-Vector.prototype.equals = function(other) {
-	if (Math.abs(this.x - other.x) > 0.001) return false;
-	return (Math.abs(this.y - other.y) < 0.001)
+Vector.prototype.equals = function(other, tolerance) {
+	if (tolerance === undefined) tolerance = 0.001;
+	if (Math.abs(this.x - other.x) > tolerance) return false;
+	return (Math.abs(this.y - other.y) < tolerance)
+};
+
+Vector.prototype.negation = function() {
+	return new Vector(-this.x, -this.y);
 };
 
 Vector.prototype.distance = function(other) {
@@ -40,13 +49,13 @@ Vector.prototype.join = function(separator) {
 	return "" + this.x + separator + this.y;
 };
 
-Vector.prototype.swap = function(another) {
+Vector.prototype.swap = function(other) {
 	var tempX = this.x;
 	var tempY = this.y;
-	this.x = +another.x;
-	this.y = +another.y;
-	another.x = tempX;
-	another.y = tempY;
+	this.x = +other.x;
+	this.y = +other.y;
+	other.x = tempX;
+	other.y = tempY;
 };
 
 var templateEngine = {
@@ -357,11 +366,7 @@ nanoInk.addTool({
 			if (nanoInk.activeObject != nanoInk.eTarget) {
 				nanoInk.setActiveNode(nanoInk.eTarget);
 			}
-			if(nanoInk.activeObject.hasAttributeNS(null, "transform")) {
-				this.old = Util.getNodeTranslation(nanoInk.activeObject);
-			} else {
-				this.old.y = this.old.y = 0;
-			}	
+			this.old = Util.getNodeTranslation(nanoInk.activeObject);
 		} else {//select
 			this.isInMovingMode = false;
 			this.boxSelection = true;
