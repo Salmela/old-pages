@@ -177,6 +177,7 @@ var nanoInk = {
 			"fill": "#008000",
 			"d": "M 100.5,100.5 L 200.5,100.5 L 200.5,200.5 L 100.5,200.5 z"
 		});
+		nanoInk._changeTool(this.toolList[0]);
 	}),
 	_addToolButton: (function(tool) {
 		var newToolNode = templateEngine.createNodesFromTemplate(this.toolbar, tool.meta);
@@ -214,9 +215,6 @@ var nanoInk = {
 	addTool: (function(tool) {
 		this.toolList.push(tool);
 		tool.mainInit();
-
-		// initialize active tool to the first tool
-		if (!this.tool) this.tool = tool;
 	}),
 	_changeTool: (function(tool) {
 		if (this.tool) this.tool.uninit();
