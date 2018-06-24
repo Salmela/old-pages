@@ -72,18 +72,26 @@
   }
   .tab {
     display: inline-block;
-    padding: 4px 8px;
+    padding: 4px 12px;
     margin: 5px 5px 0;
     cursor: default;
+  }
+  .tab:hover {
+    color: #000;
   }
   .tab-active {
     border: 1px solid #d3d7cf;
     border-bottom: 0;
     background: #fff;
+    padding: 4px 12px 5px;
     margin: 4px 4px 0;
     /* hide the parent's bottom border */
     position: relative;
     top: 1px;
+    color: #000;
+  }
+  .tab-active:hover {
+    color: #000;
   }
   #color-wheel-container {
     text-align: center;
@@ -184,8 +192,8 @@
 </div>
 <div id="sidepanel">
 	<div class="panel-header">
-		<div class="tab tab-active" id="fill-tab">Fill</div>
-		<div class="tab" id="stroke-tab">Stroke</div>
+		<div class="tab tab-active" id="fill-tab">Fill
+		</div><div class="tab" id="stroke-tab">Stroke</div>
 	</div>
 	<div class="panel-content">
 		<div id="color-wheel-container">
