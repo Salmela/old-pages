@@ -161,7 +161,7 @@ function color_wheel(node, func) {
 	wheel.style.display          = "inline-block";
 	select_circle.style.position = "absolute";
 	hue_select.style.position    = "absolute";
-	select_circle.width          =  select_circle.height = 8;
+	select_circle.width          =  select_circle.height = 9;
 	node.style.MozUserSelect     = "none";
 
 	var hue_ctx = hue_select.getContext("2d");
@@ -171,8 +171,9 @@ function color_wheel(node, func) {
 	var drag = null;
 	var rotation = 0;
 	var tri_spot = new vec2(0,0);
-	var radius = 127, innerRadius = radius * 0.75;
+	var radius, innerRadius;
 	var rot = 0;
+	var rotationCos, rotationSin;
 
 	var hueColor = [255, 0, 0];
 
@@ -190,7 +191,7 @@ function color_wheel(node, func) {
 			circle_ctx.strokeStyle = "black";
 		}
 		circle_ctx.beginPath();
-		circle_ctx.arc(4, 4, 3.5, 0, 2 * Math.PI, true);
+		circle_ctx.arc(4.5, 4.5, 4, 0, 2 * Math.PI, true);
 		circle_ctx.stroke();
 	}
 
@@ -246,6 +247,16 @@ function color_wheel(node, func) {
 			x = Math.cos(angle);
 			y = -Math.sin(angle);
 		}
+	}
+	function rotate(x, y) {
+		var newX = rotationCos * x - rotationSin * y;
+		var newY = rotationSin * x + rotationCos * y;
+		return new vec2(newX, newY);
+	}
+	function reverseRotate(x, y) {
+		var newX = -rotationCos * x - rotationSin * y;
+		var newY = rotationSin * x - rotationCos * y;
+		return new vec2(newX, newY);
 	}
 	function redraw_tri(rot) {
 		hueColor = hueToRGB(-rot / (2 * Math.PI));
@@ -313,16 +324,11 @@ function color_wheel(node, func) {
 		wheel.style.WebkitTransform = transform;
 		wheel.style.transform = transform;
 
-		rotation = rot - Math.PI / 2;
-		var cosi = Math.cos(rotation),
-		    sini = Math.sin(rotation);
+		var rotation = rot - Math.PI / 2;
+		rotationCos = Math.cos(rotation);
+		rotationSin = Math.sin(rotation);
 
 		// compute some helper values for picking the exact color from the triangle
-		function rotate(x, y) {
-			var newX = cosi * x - sini * y;
-			var newY = sini * x + cosi * y;
-			return new vec2(newX, newY);
-		}
 		triangle.a = rotate(0, innerRadius);
 		triangle.b = rotate(-triangleHalfWidth, -triangleHeightInteger + innerRadius);
 		triangle.c = rotate(triangleHalfWidth, -triangleHeightInteger + innerRadius);
@@ -330,21 +336,25 @@ function color_wheel(node, func) {
 	function selectColor(u, v){
 		var triangleB = triangle.b.sub(triangle.a);
 		var triangleC = triangle.c.sub(triangle.a);
+
+		// transform the point from fixed triangle space to coordinate at parent node
 		var point = triangleC.mulS(v);
 		point = point.add(triangleB.mulS(u));
 		point = point.add(triangle.a);
 
-		var cosi = Math.cos(rotation);// - Math.PI),
-		    sini = Math.sin(rotation);// - Math.PI);
+		// then parent node rotates so we have to counter act it
+		tri_spot = reverseRotate(point.x, point.y);
 
-		tri_spot.x = cosi * point.x - sini * point.y;
-		tri_spot.y = sini * point.x + cosi * point.y;
-		
 		select_circle.style.left = radius + tri_spot.x - (select_circle.width/2) +"px";
 		select_circle.style.top  = radius + tri_spot.y - (select_circle.width/2) +"px";
 
+		// compute point at the cartesian triangle space
 		tri_spot.x2 = u + v;
-		tri_spot.y2 = 1 - v / tri_spot.x2;
+		if (tri_spot.x2 != 0) {
+			tri_spot.y2 = 1 - v / tri_spot.x2;
+		} else {
+			tri_spot.y2 = 0.5;
+		}
 
 		pixel = getFinalColor();
 	}
@@ -367,9 +377,12 @@ function color_wheel(node, func) {
 		if(isMouseDownEvent && onHue) drag = "hue";
 
 		if(drag != "hue") {
+			// transform the pixel from coordinate system in middle of the parent node to the fixed triangle space
+
 			// Compute vectors (source: http://www.blackpawn.com/texts/pointinpoly/default.html)
 			var pointer = new vec2(x, y);
 			pointer = pointer.sub(triangle.a);
+
 
 			// move the coordinates relative to the a point
 			var triangleB = triangle.b.sub(triangle.a);
@@ -430,6 +443,7 @@ function color_wheel(node, func) {
 			triangle_select.height = hue_select.height = size;
 			radius = size / 2;
 			innerRadius = radius * 0.75;
+			wheel.style["transform-origin"] = radius + "px " + radius + "px";
 
 			draw_circle(0);
 			redraw_hue();
@@ -443,6 +457,7 @@ function color_wheel(node, func) {
 			var hsl = rgbToHsl(color.r, color.g, color.b);
 			redraw_tri(-hsl[0] * 2 * Math.PI);
 			var factor;
+			// compute point at the cartesian triangle space
 			if (hsl[2] < 0.5) {
 				factor = hsl[2] * 2;
 			} else {
@@ -451,13 +466,14 @@ function color_wheel(node, func) {
 			var y = 1 - (hsl[1] * factor);
 			var x = (hsl[2] - 0.5) * 2;
 
+			// compute the coordinate at fixed triangle space
 			var u = y / 2 + x / 2;
 			var v = y / 2 - x / 2;
 			selectColor(u, v);
 			pixel = getFinalColor();
 		}
 	};
-	obj.resize(radius * 2);
+	obj.resize(256);
 	selectColor(0, 0);
 	func(pixel);
 
