@@ -223,17 +223,16 @@ var nanoInk = {
 		this.emit("mouseDown", e);
 	}),
 	_mouseMove: (function(e) {
-		if(this.toolList.length == 0) return;
+		if (!this.tool) return;
 		this.pointer = this._getPointerPosition(e);
-		var inDragMode = this.pointerStart;
 
-		if (inDragMode || this._isSvgElement(e.target)) {
-			this.statusbar.textContent = "X: " + this.pointer.x + ", Y: " + this.pointer.y;
-		} else {
+		if (!this._mouseEventsAreActive(e)) {
 			this.statusbar.textContent = "";
+			return;
 		}
+		this.statusbar.textContent = "X: " + this.pointer.x + ", Y: " + this.pointer.y;
 
-		if(inDragMode) {
+		if(this._inDragMode()) {
 			this.pointerEnd = this.pointer;
 			this.emit("mouseDrag", e);
 		} else {
@@ -251,13 +250,22 @@ var nanoInk = {
 		return false;
 	}),
 	_mouseUp: (function(e) {
-		if(this.toolList.length == 0) return;
+		if (!this.tool) return;
+		if (!this._mouseEventsAreActive(e)) return;
 		this.eTarget = e.target;
 		this.pointer = this._getPointerPosition(e);
 		this.pointerEnd = this.pointer;
 		this.emit("mouseUp", e);
 		this.pointerStart = this.pointerEnd = null;
 	}),
+	_mouseEventsAreActive: (function(e) {
+		return this._inDragMode() || this._isSvgElement(e.target);
+	}),
+
+	_inDragMode: (function() {
+		return !!this.pointerStart;
+	}),
+
 	_getPointerPosition: (function(e) {
 		var canvasPosition = this.canvas.getBoundingClientRect();
 		return new Vector(
