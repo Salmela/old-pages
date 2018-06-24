@@ -393,10 +393,12 @@ var nanoInk = {
 		);
 	}),
 	_keyDown: (function(event) {
+		if (document.activeElement != document.body) return;
 		var key = event.key || event.keyCode;
 		this.emit("keyDown", key);
 	}),
 	_keyUp: (function(event) {
+		if (document.activeElement != document.body) return;
 		var key = event.key || event.keyCode;
 		this.emit("keyUp", key);
 	}),
