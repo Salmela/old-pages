@@ -333,7 +333,7 @@ function color_wheel(node, func) {
 		triangle.b = rotate(-triangleHalfWidth, -triangleHeightInteger + innerRadius);
 		triangle.c = rotate(triangleHalfWidth, -triangleHeightInteger + innerRadius);
 	}
-	function selectColor(u, v){
+	function updateSelectionCircle(u, v) {
 		var triangleB = triangle.b.sub(triangle.a);
 		var triangleC = triangle.c.sub(triangle.a);
 
@@ -347,6 +347,9 @@ function color_wheel(node, func) {
 
 		select_circle.style.left = radius + tri_spot.x - (select_circle.width/2) +"px";
 		select_circle.style.top  = radius + tri_spot.y - (select_circle.width/2) +"px";
+	}
+	function selectColor(u, v) {
+		updateSelectionCircle(u, v);
 
 		// compute point at the cartesian triangle space
 		tri_spot.x2 = u + v;
@@ -465,11 +468,13 @@ function color_wheel(node, func) {
 			}
 			var y = 1 - (hsl[1] * factor);
 			var x = (hsl[2] - 0.5) * 2;
+			tri_spot.x2 = x;
+			tri_spot.y2 = y;
 
 			// compute the coordinate at fixed triangle space
 			var u = y / 2 + x / 2;
 			var v = y / 2 - x / 2;
-			selectColor(u, v);
+			updateSelectionCircle(u, v);
 			pixel = getFinalColor();
 		}
 	};
