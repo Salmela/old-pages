@@ -59,6 +59,10 @@ function lerp(a, b, i) {
 	return a + (b - a) * i;
 }
 
+function lerp3(a, b, i) {
+	return [lerp(a[0], b[0], i), lerp(a[1], b[1], i), lerp(a[2], b[2], i)];
+}
+
 function vec2(x, y) {
 	this.x = x;
 	this.y = y;
@@ -117,8 +121,8 @@ function color_wheel(node, func) {
 
 	var drag = false;
 	var rotation = 0;
-	var tri_width_int = 0,
-	    tri_line_half = 0,
+	var triangleHeightInteger = 0,
+	    triangleHalfWidth = 0,
 	    delta = 0;
 	var tri_spot = new vec2(0,0);
 	var radius = 127, innerRadius = radius * 0.75,
@@ -198,53 +202,53 @@ function color_wheel(node, func) {
 			y = -Math.sin(angle);
 		}
 	}
-	function redraw_tri(hue, rot) {
+	function redraw_tri(hueColor, rot) {
 		tri_ctx.save();
 
-		var tri_line = (innerRadius * 2) * Math.sin(Math.PI / 3);
-		var tri_width = tri_line * Math.cos(Math.PI / 6);
+		var triangleWidth = (innerRadius * 2) * Math.sin(Math.PI / 3);
+		var triangleHeight = triangleWidth * Math.cos(Math.PI / 6);
 		var offset = 0;
 
-		delta = (tri_line / 2) / tri_width;
-		tri_line_half = Math.ceil(tri_line / 2);
-		tri_width_int = Math.ceil(tri_width);
+		delta = (triangleWidth / 2) / triangleHeight;
+		triangleHalfWidth = Math.ceil(triangleWidth / 2);
+		triangleHeightInteger = Math.ceil(triangleHeight);
 		// create new buffer for the new coloring
-		var imageData = tri_ctx.createImageData(2 * tri_line_half, tri_width_int),
+		var imageData = tri_ctx.createImageData(2 * triangleHalfWidth, triangleHeightInteger),
 		    data = imageData.data;
 
 		var i, j;
-		for(i = 0; i < tri_width_int; i++) {
-			offset += 2 * tri_line_half;
-			var scalar = (tri_width_int - i) / tri_width_int;
-			var scalar2 = i / tri_width_int;
-			start = [hue[0] * scalar, hue[1] * scalar, hue[2] * scalar];
-			end = [lerp(hue[0], 255, scalar2), lerp(hue[1], 255, scalar2), lerp(hue[2], 255, scalar2)];
+		for(i = 0; i < triangleHeightInteger; i++) {
+			offset += 2 * triangleHalfWidth;
+			var endLerpValue = i / triangleHeightInteger;
+			startColor = lerp3(hueColor, [0, 0, 0], endLerpValue);
+			endColor = lerp3(hueColor, [255, 255, 255], endLerpValue);
 
-			for(j = 0; j <= Math.ceil(i*delta); j++) {
-				var index = Math.ceil(i*delta);
+			var halfLineWidth = Math.ceil(i*delta);
+			// draw pixel of single line in the triangle
+			for(j = 0; j <= halfLineWidth; j++) {
 				// draw pixel on the left side of triangle
-				var pixelIndex = (offset + tri_line_half - j)*4;
-				var lerpFactor = 0.5 - j / (2*index);
-				data[pixelIndex + 0] = lerp(start[0], end[0], lerpFactor);
-				data[pixelIndex + 1] = lerp(start[1], end[1], lerpFactor);
-				data[pixelIndex + 2] = lerp(start[2], end[2], lerpFactor);
+				var pixelIndex = (offset + triangleHalfWidth - j) * 4;
+				var lerpFactor = 0.5 - j / (2 * halfLineWidth);
+				data[pixelIndex + 0] = lerp(startColor[0], endColor[0], lerpFactor);
+				data[pixelIndex + 1] = lerp(startColor[1], endColor[1], lerpFactor);
+				data[pixelIndex + 2] = lerp(startColor[2], endColor[2], lerpFactor);
 				data[pixelIndex + 3] = 255;
 
 				// draw pixel on the right side of triangle
-				var pixelIndex = (offset + tri_line_half + j)*4;
-				var lerpFactor = 0.5 + j / (2*index);
-				data[pixelIndex + 0] = lerp(start[0], end[0], lerpFactor);
-				data[pixelIndex + 1] = lerp(start[1], end[1], lerpFactor);
-				data[pixelIndex + 2] = lerp(start[2], end[2], lerpFactor);
+				var pixelIndex = (offset + triangleHalfWidth + j) * 4;
+				var lerpFactor = 0.5 + j / (2 * halfLineWidth);
+				data[pixelIndex + 0] = lerp(startColor[0], endColor[0], lerpFactor);
+				data[pixelIndex + 1] = lerp(startColor[1], endColor[1], lerpFactor);
+				data[pixelIndex + 2] = lerp(startColor[2], endColor[2], lerpFactor);
 				data[pixelIndex + 3] = 255;
 			}
 			//antialiasing
 			var opacity = i*delta - Math.floor(i*delta);
-			data[(offset + tri_line_half-j + 1)*4 + 3] = opacity * 255;
-			data[(offset + tri_line_half+j - 1)*4 + 3] = opacity * 255;
+			data[(offset + triangleHalfWidth-j + 1)*4 + 3] = opacity * 255;
+			data[(offset + triangleHalfWidth+j - 1)*4 + 3] = opacity * 255;
 		}
 		// make the top most pixel completely opaque
-		data[(tri_line_half*3)*4 + 3] = 255;
+		data[(triangleHalfWidth*3)*4 + 3] = 255;
 
 		tri_ctx.putImageData(imageData, radius - imageData.width/ 2 - 1, (radius - innerRadius) - 1);
 
@@ -267,11 +271,11 @@ function color_wheel(node, func) {
 		triangle.a.x =  sini * innerRadius;
 		triangle.a.y = -cosi * innerRadius;
 
-		triangle.b.x =  cosi * tri_line_half - sini * (tri_width_int - innerRadius) - triangle.a.x;
-		triangle.b.y =  sini * tri_line_half + cosi * (tri_width_int - innerRadius) - triangle.a.y;
+		triangle.b.x =  cosi * triangleHalfWidth - sini * (triangleHeightInteger - innerRadius) - triangle.a.x;
+		triangle.b.y =  sini * triangleHalfWidth + cosi * (triangleHeightInteger - innerRadius) - triangle.a.y;
 
-		triangle.c.x = -cosi * tri_line_half - sini * (tri_width_int - innerRadius) - triangle.a.x;
-		triangle.c.y = -sini * tri_line_half + cosi * (tri_width_int - innerRadius) - triangle.a.y;
+		triangle.c.x = -cosi * triangleHalfWidth - sini * (triangleHeightInteger - innerRadius) - triangle.a.x;
+		triangle.c.y = -sini * triangleHalfWidth + cosi * (triangleHeightInteger - innerRadius) - triangle.a.y;
 	}
 	function selectColor(u, v){
 		var point = triangle.c.mulS(v);
@@ -292,7 +296,7 @@ function color_wheel(node, func) {
 
 		rotateWheel();
 
-		//pixel = SVtoRGB(hue, 1-u, 1-v);
+		//pixel = SVtoRGB(hueColor, 1-u, 1-v);
 		func(pixel);
 	}
 	function rotateWheel() {
