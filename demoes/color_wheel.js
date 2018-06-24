@@ -344,8 +344,8 @@ function color_wheel(node, func) {
 		select_circle.style.left = radius + tri_spot.x - (select_circle.width/2) +"px";
 		select_circle.style.top  = radius + tri_spot.y - (select_circle.width/2) +"px";
 
-		tri_spot.x2 = u+v;
-		tri_spot.y2 = 0.5 + tri_spot.x / ((tri_spot.y+radius) * delta);
+		tri_spot.x2 = u + v;
+		tri_spot.y2 = 1 - v / tri_spot.x2;
 
 		pixel = getFinalColor();
 	}
