@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <title>Nano Inkscape</title>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  div, svg {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #toolbar {
+    display: inline-block;
+    vertical-align: top;
+    background: #e9b96e;
+    width:40px;
+    padding: 5px;
+  }
+  .tools {
+    display: block;
+    border: 0;
+    background: transparent;
+    border-radius: 5px;
+    margin: 1px;
+    padding: 0;
+  }
+  .tools:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .toolActive {
+    border: 1px solid #000;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 0;
+  }
+  .toolActive:hover {
+    background: #fff;
+  }
+  #drawDiv {
+    margin: 0px;
+    vertical-align: top;
+    display: inline-block;
+  }
+  /* bezier tool */
+  .bezier {
+    stroke: #00f;
+    fill: transparent;
+  }
+  #helperClosepath {
+    stroke: #000;
+    fill: transparent;
+  }
+  #helperClosepath:hover {
+    fill: #f00;
+  }
+  /* edit tool */
+  #nodeCorner {
+    stroke: #000;
+    fill: #aaa;
+    transform: rotate(45deg);
+  }
+  #nodeCorner:hover {
+    stroke: #000;
+    fill: #f00;
+  }
+  #nodeSmooth {
+    stroke: #000;
+    fill: #aaa;
+  }
+  #nodeSmooth:hover {
+    stroke: #000;
+    fill: #f00;
+  }
+  </style>
+  <script type="text/javascript" src="core.js"></script>
+  <script type="text/javascript" src="edit.js"></script>
+  <script type="text/javascript" src="bezier.js"></script>
+  <!--<script type="text/javascript" src="text.js"></script>-->
+</head>
+<body onload="nanoInk.init();">
+<div id="toolbar">
+  <button class="tools toolActive" id="tool_select" onClick="nanoInk.changeTool('select')"><img src="../icons/inkscape/select.png" />
+  </button><button class="tools" id="tool_edit" onClick="nanoInk.changeTool('edit')"><img src="../icons/inkscape/edit.png" />
+  </button><button class="tools" id="tool_bezier" onClick="nanoInk.changeTool('bezier')"><img src="../icons/inkscape/bezier.png" />
+  </button><button class="tools" id="tool3" onClick="nanoInk.changeTool(3)"><img src="../icons/inkscape/text.png" /></button>
+</div><div onMouseUp="nanoInk.mouseUp(event)" onMouseDown="nanoInk.mouseDown(event)" onMouseMove="nanoInk.mouseMove(event)"  id="drawDiv">
+  <svg height="600px" width="600px" id="canvas" style="border: 1px solid #000;">
+    <desc>Selaimesi ei tue svg:tä</desc>
+  </svg>
+</div>
+Täyttö:<input id="fill_color" type="text" value="transparent">
+Reuna:<input id="stroke_color" type="text" value="#00f">
+<div id="statusbar"></div>
+</body>
+</html>
