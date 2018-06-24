@@ -120,6 +120,50 @@ var Util = {
 	})
 };
 
+var ColorPanel = {
+	init: (function() {
+		var panel = document.getElementById("sidepanel");
+		this._initTabs();
+		this._initPanelResize(panel);
+	}),
+	_initTabs: (function(panel) {
+		var tabs = document.querySelectorAll("tab");
+		tabs.forEach(function(tab) {
+			tab.addEventListener("click", function(e) {
+				var oldActiveTab = tabs.querySelector(".tab-active");
+				if (oldActiveTab) {
+					oldActiveTab.classList.remove("tab-active");
+				}
+				e.target.classList.add("tab-active");
+			});
+		});
+	}),
+	_initPanelResize: (function(panel) {
+		var divider = document.getElementById("divider");
+		var startX = 0;
+		var panelWidth = panelMinWidth = panel.clientWidth;
+		function mouseMoveListener(e) {
+			var deltaX = e.clientX - startX;
+			var width = Math.floor(panelWidth - deltaX);
+			var clampedWidth = Math.max(panelMinWidth, Math.min(width, 600));
+			if (width < panelMinWidth * 0.75) {
+				clampedWidth = 0;
+			}
+			panel.style["width"] = clampedWidth + "px";
+		}
+		function mouseUpListener(e) {
+			window.removeEventListener("mousemove", mouseMoveListener);
+			window.removeEventListener("mouseup", mouseUpListener);
+		}
+		divider.addEventListener("mousedown", function(e) {
+			panelWidth = panel.clientWidth;
+			startX = e.clientX;
+			window.addEventListener("mousemove", mouseMoveListener);
+			window.addEventListener("mouseup", mouseUpListener);
+		});
+	})
+};
+
 var nanoInk = {
 //general
 	tool: null,
@@ -147,6 +191,7 @@ var nanoInk = {
 				nanoInk.activeObject.setAttributeNS(null, "fill", "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")");
 			}
 		});
+		ColorPanel.init();
 
 		document.body.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
 		this.canvas.addEventListener("mousedown", function(e) {nanoInk._mouseDown(e)});
