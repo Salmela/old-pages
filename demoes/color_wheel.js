@@ -170,13 +170,9 @@ function color_wheel(node, func) {
 
 	var drag = null;
 	var rotation = 0;
-	var triangleHeightInteger = 0,
-	    triangleHalfWidth = 0,
-	    delta = 0;
 	var tri_spot = new vec2(0,0);
-	var radius = 127, innerRadius = radius * 0.75,
-	    rot = 0,
-	    u = 0, v = 0;
+	var radius = 127, innerRadius = radius * 0.75;
+	var rot = 0;
 
 	var hueColor = [255, 0, 0];
 
@@ -200,7 +196,7 @@ function color_wheel(node, func) {
 
 	function redraw_hue() {
 		var x = 1, y = 0, angle = 0;
-		var delta = ( 1.5 / (radius * Math.PI));
+		var delta = (1.5 / (radius * Math.PI));
 
 		hue_ctx.translate(radius, radius);
 		// generate the hue selection area from huge number of line segments
@@ -259,9 +255,9 @@ function color_wheel(node, func) {
 		var triangleHeight = triangleWidth * Math.cos(Math.PI / 6);
 		var offset = 0;
 
-		delta = (triangleWidth / 2) / triangleHeight;
-		triangleHalfWidth = Math.ceil(triangleWidth / 2);
-		triangleHeightInteger = Math.ceil(triangleHeight);
+		var delta = (triangleWidth / 2) / triangleHeight;
+		var triangleHalfWidth = Math.ceil(triangleWidth / 2);
+		var triangleHeightInteger = Math.ceil(triangleHeight);
 		// create new buffer for the new coloring
 		var imageData = tri_ctx.createImageData(2 * triangleHalfWidth, triangleHeightInteger),
 		    data = imageData.data;
@@ -279,17 +275,19 @@ function color_wheel(node, func) {
 				// draw pixel on the left side of triangle
 				var pixelIndex = (offset + triangleHalfWidth - j) * 4;
 				var lerpFactor = 0.5 - j / (2 * halfLineWidth);
-				data[pixelIndex + 0] = lerp(startColor[0], endColor[0], lerpFactor);
-				data[pixelIndex + 1] = lerp(startColor[1], endColor[1], lerpFactor);
-				data[pixelIndex + 2] = lerp(startColor[2], endColor[2], lerpFactor);
+				var pixelColor = lerp3(startColor, endColor, lerpFactor);
+				data[pixelIndex + 0] = pixelColor[0];
+				data[pixelIndex + 1] = pixelColor[1];
+				data[pixelIndex + 2] = pixelColor[2];
 				data[pixelIndex + 3] = 255;
 
 				// draw pixel on the right side of triangle
 				var pixelIndex = (offset + triangleHalfWidth + j) * 4;
 				var lerpFactor = 0.5 + j / (2 * halfLineWidth);
-				data[pixelIndex + 0] = lerp(startColor[0], endColor[0], lerpFactor);
-				data[pixelIndex + 1] = lerp(startColor[1], endColor[1], lerpFactor);
-				data[pixelIndex + 2] = lerp(startColor[2], endColor[2], lerpFactor);
+				var pixelColor = lerp3(startColor, endColor, lerpFactor);
+				data[pixelIndex + 0] = pixelColor[0];
+				data[pixelIndex + 1] = pixelColor[1];
+				data[pixelIndex + 2] = pixelColor[2];
 				data[pixelIndex + 3] = 255;
 			}
 			//antialiasing
@@ -309,14 +307,15 @@ function color_wheel(node, func) {
 		tri_ctx.lineTo(-0.5, -innerRadius);
 		tri_ctx.stroke();
 		tri_ctx.restore();
-		rotation = rot * 180 / Math.PI;
-		var transform = "rotate("+ Math.round(90+rotation) +"deg)";
+		var cssRotation = 90 + rot * 180 / Math.PI;
+		var transform = "rotate("+ Math.round(cssRotation) +"deg)";
 		wheel.style.MozTransform = transform;
 		wheel.style.WebkitTransform = transform;
 		wheel.style.transform = transform;
 
-		var cosi = Math.cos(rot + Math.PI / 2),
-		    sini = Math.sin(rot + Math.PI / 2);
+		rotation = rot - Math.PI / 2;
+		var cosi = Math.cos(rotation),
+		    sini = Math.sin(rotation);
 
 		// compute some helper values for picking the exact color from the triangle
 		function rotate(x, y) {
@@ -324,9 +323,9 @@ function color_wheel(node, func) {
 			var newY = sini * x + cosi * y;
 			return new vec2(newX, newY);
 		}
-		triangle.a = rotate(0, -innerRadius);
-		triangle.b = rotate(triangleHalfWidth, triangleHeightInteger - innerRadius);
-		triangle.c = rotate(-triangleHalfWidth, triangleHeightInteger - innerRadius);
+		triangle.a = rotate(0, innerRadius);
+		triangle.b = rotate(-triangleHalfWidth, -triangleHeightInteger + innerRadius);
+		triangle.c = rotate(triangleHalfWidth, -triangleHeightInteger + innerRadius);
 	}
 	function selectColor(u, v){
 		var triangleB = triangle.b.sub(triangle.a);
@@ -335,8 +334,8 @@ function color_wheel(node, func) {
 		point = point.add(triangleB.mulS(u));
 		point = point.add(triangle.a);
 
-		var cosi = Math.cos(-rotation / 180 * Math.PI - Math.PI / 2),
-		    sini = Math.sin(-rotation / 180 * Math.PI - Math.PI / 2);
+		var cosi = Math.cos(rotation);// - Math.PI),
+		    sini = Math.sin(rotation);// - Math.PI);
 
 		tri_spot.x = cosi * point.x - sini * point.y;
 		tri_spot.y = sini * point.x + cosi * point.y;
@@ -363,15 +362,14 @@ function color_wheel(node, func) {
 		var dist = Math.sqrt(x*x + y*y);
 
 		if(!isMouseDownEvent && !drag) return;
-
 		var onHue = innerRadius < dist && dist < radius;
 
 		if(isMouseDownEvent && onHue) drag = "hue";
 
 		if(drag != "hue") {
 			// Compute vectors (source: http://www.blackpawn.com/texts/pointinpoly/default.html)
-			var v = new vec2(x, y);
-			v = v.sub(triangle.a);
+			var pointer = new vec2(x, y);
+			pointer = pointer.sub(triangle.a);
 
 			// move the coordinates relative to the a point
 			var triangleB = triangle.b.sub(triangle.a);
@@ -380,9 +378,9 @@ function color_wheel(node, func) {
 			// Compute dot products
 			var dot00 = triangleB.dot(triangleB);
 			var dot01 = triangleB.dot(triangleC);
-			var dot02 = triangleB.dot(v);
+			var dot02 = triangleB.dot(pointer);
 			var dot11 = triangleC.dot(triangleC);
-			var dot12 = triangleC.dot(v);
+			var dot12 = triangleC.dot(pointer);
 
 			// Compute barycentric coordinates
 			var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
@@ -410,7 +408,7 @@ function color_wheel(node, func) {
 		x *= (radius-2) / dist;
 		y *= (radius-2) / dist;
 
-		var rot = Math.atan2(y, x);
+		rot = Math.atan2(y, x);
 		redraw_tri(rot);
 
 		pixel = getFinalColor();
@@ -450,8 +448,12 @@ function color_wheel(node, func) {
 			} else {
 				factor = (1 - hsl[2]) * 2;
 			}
-			var v = 1 - (hsl[1] * factor);
-			selectColor(v * hsl[2], v);
+			var y = 1 - (hsl[1] * factor);
+			var x = (hsl[2] - 0.5) * 2;
+
+			var u = y / 2 + x / 2;
+			var v = y / 2 - x / 2;
+			selectColor(u, v);
 			pixel = getFinalColor();
 		}
 	};
