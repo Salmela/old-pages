@@ -122,13 +122,46 @@ var Util = {
 
 var ColorPanel = {
 	init: (function() {
-		var panel = document.getElementById("sidepanel");
+		this.panel = document.getElementById("sidepanel");
+		this.content = this.panel.querySelector(".panel-content");
+		this.attribute = "fill";
 		this._initTabs();
-		this._initPanelResize(panel);
+		this._initPanelResize(this.panel);
 		this._initColorWidgets();
 	}),
+	setActive: (function(node) {
+		if (node) {
+			this.content.classList.remove("disabled");
+			var color;
+			var result = window.getComputedStyle(nanoInk.activeObject)[this.attribute];
+			this.rgbaInput.text = this._colorToHex(this._parseColor(result));
+			this._updateColor("hex", this.rgbaInput.text);
+		} else {
+			this.content.classList.add("disabled");
+		}
+	}),
+	_parseColor: (function(colorText) {
+		if (colorText == "transparent") {
+			return {"r": 0, "g": 0, "b": 0, "a": 0};
+		}
+		var matched = /rgb\(([^,]+), *([^,]+), *([^,]+)\)/.exec(colorText);
+		if (matched) {
+			return {"r": +matched[1], "g": +matched[2], "b": +matched[3], "a": 255};
+		}
+		matched = /rgba\(([^,]+), *([^,]+), *([^,]+), *([^,]+)\)/.exec(colorText);
+		if (matched) {
+			return {
+				"r": +matched[1], "g": +matched[2], "b": +matched[3],
+				"a": Math.floor(+matched[4] * 255)
+			};
+		}
+		// use some random color
+		return {"r": 256, "g": 0, "b": 0, "a": 0};
+	}),
+
 	_initTabs: (function(panel) {
 		var tabs = document.querySelectorAll(".tab");
+		var that = this;
 		tabs.forEach(function(tab) {
 			tab.addEventListener("click", function(e) {
 				var oldActiveTab = document.querySelector(".tab-active");
@@ -136,6 +169,11 @@ var ColorPanel = {
 					oldActiveTab.classList.remove("tab-active");
 				}
 				e.target.classList.add("tab-active");
+				that.attribute = e.target.attributes["data-attribute"].value;
+
+				var result = window.getComputedStyle(nanoInk.activeObject)[that.attribute];
+				that.rgbaInput.text = that._colorToHex(that._parseColor(result));
+				that._updateColor("hex", that.rgbaInput.text);
 			});
 		});
 	}),
@@ -213,21 +251,25 @@ var ColorPanel = {
 		});
 	}),
 
+	_toHex: (function(value) {
+		var str = value.toString(16);
+		if (str.length == 1) return "0" + str;
+		return str;
+	}),
+
+	_colorToHex: (function(color) {
+		var hex = this._toHex(color.r) + this._toHex(color.g) + this._toHex(color.b) +
+			this._toHex(color.a);
+		return "#" + hex;
+	}),
+
 	_updateColor: (function(source, value) {
 		if (!nanoInk.activeObject) return;
-
-		function toHex(value) {
-			var str = value.toString(16);
-			if (str.length == 1) return "0" + str;
-			return str;
-		}
 
 		if (source != "hex") {
 			var color = this.wheel.getValue();
 			color.a = +this.opacityInput.value;
-			var hex = toHex(color.r) + toHex(color.g) + toHex(color.b) +
-				toHex(color.a);
-			this.rgbaInput.value = "#" + hex;
+			this.rgbaInput.value = this._colorToHex(color);
 		} else {
 			var color = {}
 			var rgba = value;
@@ -238,8 +280,13 @@ var ColorPanel = {
 			this.opacityInput.value = color.a;
 			this.wheel.setValue(color);
 		}
-		nanoInk.activeObject.setAttributeNS(null, "fill",
-			"rgba("+ color.r +", "+ color.g +", "+ color.b +", " + (color.a / 256) + ")");
+		if (this.attribute == "fill") {
+			nanoInk.fill = this.rgbaInput.value;
+		} else {
+			nanoInk.stroke = this.rgbaInput.value;
+		}
+		nanoInk.activeObject.setAttributeNS(null, this.attribute,
+			"rgba("+ color.r +", "+ color.g +", "+ color.b +", " + (color.a / 255) + ")");
 	})
 };
 
@@ -302,6 +349,7 @@ var nanoInk = {
 		}
 		return parentNode.appendChild(elem);
 	}),
+
 	remElem: (function(elem) {
 		if (!elem) return;
 		elem.parentNode.removeChild(elem);
@@ -317,6 +365,7 @@ var nanoInk = {
 
 		this.invalidateBoundingBox();
 		this.emit("setActiveNode", old, node);
+		ColorPanel.setActive(node);
 	}),
 	addTool: (function(tool) {
 		this.toolList.push(tool);

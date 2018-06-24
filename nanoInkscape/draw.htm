@@ -71,6 +71,10 @@
     border-bottom: 1px solid #d3d7cf;
     background: #f8f8f8;
   }
+  .panel-content.disabled {
+    opacity: 0.3;
+    filter: grayscale(1);
+  }
   .tab {
     display: inline-block;
     padding: 8px 14px;
@@ -210,8 +214,8 @@
 </div>
 <div id="sidepanel">
 	<div class="panel-header">
-		<div class="tab tab-active" id="fill-tab">Fill
-		</div><div class="tab" id="stroke-tab">Stroke</div>
+		<div class="tab tab-active" id="fill-tab" data-attribute="fill">Fill
+		</div><div class="tab" id="stroke-tab" data-attribute="stroke">Stroke</div>
 	</div>
 	<div class="panel-content">
 		<div id="color-wheel-container">

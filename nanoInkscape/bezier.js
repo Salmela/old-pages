@@ -100,7 +100,9 @@ nanoInk.addTool({
 			nanoInk.pointerStart = endPoint;
 		} else if(this.doPathClosing) {
 			// there is no active bezier, lets create one
-			nanoInk.setActiveNode(nanoInk.newElem("path", {"class": "bezier"}));
+			nanoInk.setActiveNode(nanoInk.newElem("path", {
+				"class": "bezier"
+			}));
 			this.tailHandleNode = nanoInk.newElem("rect", {
 				"x": -3.5,
 				"y": -3.5,

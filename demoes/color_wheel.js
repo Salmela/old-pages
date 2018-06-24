@@ -369,6 +369,7 @@ function color_wheel(node, func) {
 		return clampColor(color);
 	}
 	function clickHandler(e, isMouseDownEvent) {
+		//TODO this does not work if the user has scrolled
 		var coord = getCoord(hue_select);
 		var x = e.clientX - coord[0] - radius,
 		    y = e.clientY - coord[1] - radius;
