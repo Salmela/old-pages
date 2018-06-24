@@ -260,22 +260,23 @@ function color_wheel(node, func) {
 		tri_ctx.stroke();
 		tri_ctx.restore();
 		rotation = rot * 180 / Math.PI;
-		wheel.style.MozTransform = "rotate("+ Math.round(90+rotation) +"deg)";
-		wheel.style.WebkitTransform = "rotate("+ Math.round(90 + rotation) +"deg)";
-		wheel.style.transform = "rotate("+ Math.round(90 + rotation) +"deg)";
+		var transform = "rotate("+ Math.round(90+rotation) +"deg)";
+		wheel.style.MozTransform = transform;
+		wheel.style.WebkitTransform = transform;
+		wheel.style.transform = transform;
 
 		var cosi = Math.cos(rot + Math.PI / 2),
 		    sini = Math.sin(rot + Math.PI / 2);
 
 		// compute some helper values for picking the exact color from the triangle
-		triangle.a.x =  sini * innerRadius;
-		triangle.a.y = -cosi * innerRadius;
-
-		triangle.b.x =  cosi * triangleHalfWidth - sini * (triangleHeightInteger - innerRadius) - triangle.a.x;
-		triangle.b.y =  sini * triangleHalfWidth + cosi * (triangleHeightInteger - innerRadius) - triangle.a.y;
-
-		triangle.c.x = -cosi * triangleHalfWidth - sini * (triangleHeightInteger - innerRadius) - triangle.a.x;
-		triangle.c.y = -sini * triangleHalfWidth + cosi * (triangleHeightInteger - innerRadius) - triangle.a.y;
+		function rotate(x, y) {
+			var newX = cosi * x - sini * y;
+			var newY = sini * x + cosi * y;
+			return new vec2(newX, newY);
+		}
+		triangle.a = rotate(0, -innerRadius);
+		triangle.b = rotate(triangleHalfWidth, triangleHeightInteger - innerRadius);
+		triangle.c = rotate(-triangleHalfWidth, triangleHeightInteger - innerRadius);
 	}
 	function selectColor(u, v){
 		var point = triangle.c.mulS(v);
@@ -324,14 +325,16 @@ function color_wheel(node, func) {
 			var v = new vec2(x, y);
 			v = v.sub(triangle.a);
 
-			//console.info(triangle.a.x +","+ triangle.a.y +" "+ triangle.b.x +","+ triangle.b.y +" "+ triangle.c.x +","+ triangle.c.y);
+			// move the coordinates relative to the a point
+			var triangleB = triangle.b.sub(triangle.a.x);
+			var triangleC = triangle.c.sub(triangle.a.x);
 
 			// Compute dot products
-			var dot00 = triangle.b.dot(triangle.b);
-			var dot01 = triangle.b.dot(triangle.c);
-			var dot02 = triangle.b.dot(v);
-			var dot11 = triangle.c.dot(triangle.c);
-			var dot12 = triangle.c.dot(v);
+			var dot00 = triangleB.dot(triangleB);
+			var dot01 = triangleB.dot(triangleC);
+			var dot02 = triangleB.dot(v);
+			var dot11 = triangleC.dot(triangleC);
+			var dot12 = triangleC.dot(v);
 
 			// Compute barycentric coordinates
 			var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
