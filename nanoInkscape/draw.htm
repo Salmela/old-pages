@@ -98,6 +98,22 @@
   #color-wheel {
     display: inline-block;
   }
+  .line {
+    text-align: right;
+    margin: 8px 0;
+  }
+  .line input {
+    height: 1.5em;
+    width: 8em;
+    border: 1px solid #888;
+    border-radius: 3px;
+    padding: 6px;
+    font-family: monospace;
+  }
+  .line input.invalid {
+    background: #f88;
+    border-color: #f00;
+  }
 
   .tool {
     display: block;
@@ -201,6 +217,8 @@
 		<div id="color-wheel-container">
 			<div id="color-wheel"></div>
 		</div>
+		<div class="line">Opacity:<input type="number" id="opacity-input" min="0" max="255" size="3"></div>
+		<div class="line">RGBA:<input type="text" id="rgba-input" value="#00ff00ff" size="8"></div>
 	</div>
 </div>
 <div id="divider"></div>

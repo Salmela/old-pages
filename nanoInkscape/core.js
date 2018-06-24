@@ -125,6 +125,7 @@ var ColorPanel = {
 		var panel = document.getElementById("sidepanel");
 		this._initTabs();
 		this._initPanelResize(panel);
+		this._initColorWidgets();
 	}),
 	_initTabs: (function(panel) {
 		var tabs = document.querySelectorAll(".tab");
@@ -161,6 +162,84 @@ var ColorPanel = {
 			window.addEventListener("mousemove", mouseMoveListener);
 			window.addEventListener("mouseup", mouseUpListener);
 		});
+	}),
+	_initColorWidgets: (function() {
+		var opacityInput = document.querySelector("#opacity-input")
+		var rgbaInput = document.querySelector("#rgba-input")
+		this.opacityInput = opacityInput;
+		this.rgbaInput = rgbaInput;
+
+		function opacityHandler(e) {
+			var value = +opacityInput.value;
+			value = Math.max(0, Math.min(255, value));
+			if (isNaN(value)) {
+				opacityInput.classList.add("invalid");
+				return;
+			}
+			opacityInput.classList.remove("invalid");
+			opacityInput.value = value;
+			ColorPanel._updateColor("alpha");
+		}
+		opacityInput.addEventListener("input", opacityHandler);
+		opacityInput.addEventListener("change", opacityHandler);
+
+		function rgbaHandler(e) {
+			var value = rgbaInput.value;
+			if (!/#[0-9a-f]{3,8}/.test(value)) {
+				rgbaInput.classList.add("invalid");
+				return;
+			}
+			value = value.substring(1);
+			if (value.length == 3) {
+				var r = value[0], g = value[1], b = value[2];
+				value = r + r + g + g + b + b + "ff";
+			} else if (value.length == 6) {
+				value += "ff"
+			} else if (value.length != 8) {
+				rgbaInput.classList.add("invalid");
+				return;
+			}
+			rgbaInput.classList.remove("invalid");
+			value = "#" + value;
+			ColorPanel._updateColor("hex", value);
+			return value;
+		}
+		rgbaInput.addEventListener("input", function(e) { rgbaHandler(e); });
+		rgbaInput.addEventListener("change", function(e) {
+			rgbaInput.value = rgbaHandler(e);
+		});
+		this.wheel = createColorWheel(document.getElementById("color-wheel"), function(c) {
+			ColorPanel._updateColor("alpha");
+		});
+	}),
+
+	_updateColor: (function(source, value) {
+		if (!nanoInk.activeObject) return;
+
+		function toHex(value) {
+			var str = value.toString(16);
+			if (str.length == 1) return "0" + str;
+			return str;
+		}
+
+		if (source != "hex") {
+			var color = this.wheel.getValue();
+			color.a = +this.opacityInput.value;
+			var hex = toHex(color.r) + toHex(color.g) + toHex(color.b) +
+				toHex(color.a);
+			this.rgbaInput.value = "#" + hex;
+		} else {
+			var color = {}
+			var rgba = value;
+			color.r = parseInt(rgba.substring(1,3), 16);
+			color.g = parseInt(rgba.substring(3,5), 16);
+			color.b = parseInt(rgba.substring(5,7), 16);
+			color.a = parseInt(rgba.substring(7,9), 16);
+			this.opacityInput.value = color.a;
+			this.wheel.setValue(color);
+		}
+		nanoInk.activeObject.setAttributeNS(null, "fill",
+			"rgba("+ color.r +", "+ color.g +", "+ color.b +", " + (color.a / 256) + ")");
 	})
 };
 
@@ -186,11 +265,6 @@ var nanoInk = {
 		this.canvas = document.getElementById("canvas");
 		this.statusbar = document.getElementById("statusbar");
 
-		color_wheel(document.getElementById("color-wheel"), function(c) {
-			if (nanoInk.activeObject) {
-				nanoInk.activeObject.setAttributeNS(null, "fill", "rgb("+ c[0] +", "+ c[1] +", "+ c[2] +")");
-			}
-		});
 		ColorPanel.init();
 
 		document.body.addEventListener("mouseup", function(e) {nanoInk._mouseUp(e)});
