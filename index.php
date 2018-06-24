@@ -39,7 +39,7 @@
       <div id="sidebar">
         <div id="search">
           <h2>Etsi</h2>
-          <input type="text" id="searchBox" name="searchBox" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
+          <input type="text" id="searchBox" name="searchBox" placeholder="ei toimi vielä" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
         </div>
         <div id="statistics">
           <h2>Tilastot</h2>

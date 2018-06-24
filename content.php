@@ -1,15 +1,39 @@
 <?php
 header("Content-type: text/plain");
 
-switch ($_GET["page"]) {
-case "main":
-	echo <<<END
+$pageMap = array();
+
+/* put the data to database */
+class Page {
+	private $page;
+	private $content;
+	private $contentEnglish;
+
+	function __construct($page, $contentFinnish, $contentEnglish) {
+		global $pageMap;
+		$this->content = $contentFinnish;
+		$this->contentEnglish = $contentEnglish;
+
+		$pageMap[$page] = $this;
+	}
+
+	function getPage() {
+		return $this->page;
+	}
+
+	function getContent($lang="fi") {
+		return $lang == "fi" ? $this->content : $this->contentEnglish;
+	}
+}
+
+$content = <<<END
 <h1>Etusivu</h1>
 <p>Tein tämän sivun kouluni vapaa-valintaisena työnä, huhtikuussa 2011. Sivun tarkoituksena oli HTML5 ja CSS3 testaus. Aikaa sivun tekemisessä oli vain 8 koulu tuntia, joten tein sivuja myös kotona. Päätin että sivu pitää näkyä kaikilla selaimilla edes jotenkin siedettävässä muodossa (jopa IE:issä).</p>
 END;
-	break;
-case "demo":
-	echo <<<END
+
+$value = new Page("main", $content, null);
+
+$content = <<<END
 <h1>Demot</h1>
 <p id="headertext">Tämä sivu on sisältää HTML5 ja CSS3 teknologiaa käyttäviä demoja. Kaikki demot tällä sivulla on toteutettu 2011-2013 ellei toisin mainita</p>
 
@@ -49,7 +73,7 @@ Tein tämän WYSIWYG teksti editorin InfoTV slidejen luontiin. En kuitenkaan kos
 <div>
 <h3><a href="nanoInkscape/draw.htm">nanoInkscape</a></h3>
 <p>
-Kun olin tekemässä vava tunnilla tätä sivua, törmäsin svg javascript apiin jolla pystyi generoimaan svg kuvia. Tein tämän demon juuri tämän testaamiseen.
+Kun olin tekemässä vava tunnilla tätä sivua, törmäsin svg javascript apiin jolla pystyi generoimaan svg kuvia. Tein tämän demon, jotta voisin leikkiä tuolla svg apilla. Tämä demo toteuttaa <a href="http://www.inkscape.org">Inkscape</a> nimisen työpöytä ohjelman perus ominaisuudet.
 </p>
 <p>
 21-24.6.2018 Tein paljon lisää ominaisuuksia tähän demoon ja toteutin sille suht hyvän ulkoasun. <a href="nanoInkscape2/draw.htm">Alkuperäinen versio</a> toimi vain firefoxilla enään, kun svg api jota käytin oli poistettu webkitistä ja se oli korvattu yksinkertaisemmalla api:lla.
@@ -62,12 +86,11 @@ Kun olin tekemässä vava tunnilla tätä sivua, törmäsin svg javascript apiin
 Näemmä tosi keskeneräinen projekti.
 </p>
 </div>
-
 END;
-/*
-	echo <<<END
-<h1>Demot</h1>
-<p id="headertext">Tämä sivu on sisältää HTML5 ja CSS3 teknologiaa käyttäviä demoja.</p>
+
+$contentEnglish = <<<END
+<h1>Demoes</h1>
+<p id="headertext">This page contains some of the HTML5 and CSS demoes that I have done.</p>
 
 <div>
 <h3><a href="demoes/color_wheel.html">Color wheel</a></h3>
@@ -106,11 +129,9 @@ When I was making this site I came across with svg on web page and I wanted to t
 </div>
 
 END;
-*/
-	break;
+new Page("demo", $content, $contentEnglish);
 
-case "links":
-	echo <<<END
+$content = <<<END
 <h1>Linkit</h1>
 <p id="headertext">Koska Internetin alkuperäinen tarkoitus oli jakaa tietoja ja tehdä suuria verkkoja, jotka on linkitetty yhteen. Päätin tehdä linkki listan jolle lisään kaikki mielenkiintoiset sivut joita löydän. Lista on vielä aika vaatimaton, mutta muutamassa vuodessa se varmasti venyy...</p>
 <div>
@@ -141,11 +162,16 @@ case "links":
   </ul>
 </div>
 END;
-	break;
-default:
+new Page("links", $content, null);
+
+$pageName = $_GET["page"];
+
+if (array_key_exists($pageName, $pageMap)) {
+	$page = $pageMap[$pageName];
+	echo $page->getContent();
+} else {
 	echo <<<END
 <h1>404 Sivua ei löydy</h1>
 END;
-	break;
 }
 ?>
