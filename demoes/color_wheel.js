@@ -202,13 +202,15 @@ function color_wheel(node, func) {
 		tri_ctx.save();
 
 		var tri_line = (innerRadius * 2) * Math.sin(Math.PI / 3);
-		tri_line_half = Math.ceil(tri_line / 2);
 		var tri_width = tri_line * Math.cos(Math.PI / 6);
+		var offset = 0;
+
+		delta = (tri_line / 2) / tri_width;
+		tri_line_half = Math.ceil(tri_line / 2);
 		tri_width_int = Math.ceil(tri_width);
+		// create new buffer for the new coloring
 		var imageData = tri_ctx.createImageData(2 * tri_line_half, tri_width_int),
 		    data = imageData.data;
-		delta = (tri_line / 2) / tri_width;
-		var offset = 0;
 
 		var i, j;
 		for(i = 0; i < tri_width_int; i++) {
@@ -220,21 +222,30 @@ function color_wheel(node, func) {
 
 			for(j = 0; j <= Math.ceil(i*delta); j++) {
 				var index = Math.ceil(i*delta);
-				data[(offset + tri_line_half-j)*4 + 0] = lerp(start[0], end[0], 0.5 - j / (2*index));
-				data[(offset + tri_line_half-j)*4 + 1] = lerp(start[1], end[1], 0.5 - j / (2*index));
-				data[(offset + tri_line_half-j)*4 + 2] = lerp(start[2], end[2], 0.5 - j / (2*index));
-				data[(offset + tri_line_half-j)*4 + 3] = 255;
-				data[(offset + tri_line_half+j)*4 + 0] = lerp(start[0], end[0], 0.5 + j / (2*index));
-				data[(offset + tri_line_half+j)*4 + 1] = lerp(start[1], end[1], 0.5 + j / (2*index));
-				data[(offset + tri_line_half+j)*4 + 2] = lerp(start[2], end[2], 0.5 + j / (2*index));
-				data[(offset + tri_line_half+j)*4 + 3] = 255;
+				// draw pixel on the left side of triangle
+				var pixelIndex = (offset + tri_line_half - j)*4;
+				var lerpFactor = 0.5 - j / (2*index);
+				data[pixelIndex + 0] = lerp(start[0], end[0], lerpFactor);
+				data[pixelIndex + 1] = lerp(start[1], end[1], lerpFactor);
+				data[pixelIndex + 2] = lerp(start[2], end[2], lerpFactor);
+				data[pixelIndex + 3] = 255;
+
+				// draw pixel on the right side of triangle
+				var pixelIndex = (offset + tri_line_half + j)*4;
+				var lerpFactor = 0.5 + j / (2*index);
+				data[pixelIndex + 0] = lerp(start[0], end[0], lerpFactor);
+				data[pixelIndex + 1] = lerp(start[1], end[1], lerpFactor);
+				data[pixelIndex + 2] = lerp(start[2], end[2], lerpFactor);
+				data[pixelIndex + 3] = 255;
 			}
 			//antialiasing
-			var fact = i*delta - Math.floor(i*delta);
-			data[(offset + tri_line_half-j + 1)*4 + 3] = fact * 255;
-			data[(offset + tri_line_half+j - 1)*4 + 3] = fact * 255;
-			data[(tri_line_half*3)*4 + 3] = 255;//fix
+			var opacity = i*delta - Math.floor(i*delta);
+			data[(offset + tri_line_half-j + 1)*4 + 3] = opacity * 255;
+			data[(offset + tri_line_half+j - 1)*4 + 3] = opacity * 255;
 		}
+		// make the top most pixel completely opaque
+		data[(tri_line_half*3)*4 + 3] = 255;
+
 		tri_ctx.putImageData(imageData, radius - imageData.width/ 2 - 1, (radius - innerRadius) - 1);
 
 		tri_ctx.strokeStyle = "rgb(0, 0, 0)";
