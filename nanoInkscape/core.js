@@ -127,10 +127,10 @@ var ColorPanel = {
 		this._initPanelResize(panel);
 	}),
 	_initTabs: (function(panel) {
-		var tabs = document.querySelectorAll("tab");
+		var tabs = document.querySelectorAll(".tab");
 		tabs.forEach(function(tab) {
 			tab.addEventListener("click", function(e) {
-				var oldActiveTab = tabs.querySelector(".tab-active");
+				var oldActiveTab = document.querySelector(".tab-active");
 				if (oldActiveTab) {
 					oldActiveTab.classList.remove("tab-active");
 				}
