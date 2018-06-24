@@ -167,6 +167,8 @@ nanoInk.addTool({
 
 	_generateNodes: (function() {
 		var controlPoints = nanoInk.activeObject.pathSegList;
+		// use the polyfill if the browser doesn't support the old api
+		if (controlPoints._list) controlPoints = controlPoints._list;
 		var translation = Util.getNodeTranslation(nanoInk.activeObject);
 		var last = controlPoints.length - 1;
 

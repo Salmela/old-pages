@@ -36,6 +36,7 @@
   #canvas {
     height: 100%;
     width: -moz-available;
+    width: -webkit-fill-available;
   }
   #sidepanel {
     float: right;
@@ -181,6 +182,9 @@
   }
   </style>
   <script type="text/javascript" src="../demoes/color_wheel.js"></script>
+  <!-- support the browsers that have deprecated the old svg api -->
+  <script type="text/javascript" src="pathseg.js"></script>
+
   <script type="text/javascript" src="core.js"></script>
   <script type="text/javascript" src="edit.js"></script>
   <script type="text/javascript" src="bezier.js"></script>
