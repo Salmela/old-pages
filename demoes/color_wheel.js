@@ -164,9 +164,9 @@ function color_wheel(node, func) {
 	select_circle.width          =  select_circle.height = 9;
 	node.style.MozUserSelect     = "none";
 
-	var hue_ctx = hue_select.getContext("2d");
-	var tri_ctx = triangle_select.getContext("2d");
-	var circle_ctx = select_circle.getContext("2d");
+	var hueContext = hue_select.getContext("2d");
+	var triangleContext = triangle_select.getContext("2d");
+	var circleContext = select_circle.getContext("2d");
 
 	var drag = null;
 	var rotation = 0;
@@ -183,23 +183,23 @@ function color_wheel(node, func) {
 		c: new vec2(0,0)
 	};
 
-	function draw_circle(color) {
+	function drawSelectionCircle(color) {
 		select_circle.width = select_circle.width;
 		if(color) {
-			circle_ctx.strokeStyle = "white";
+			circleContext.strokeStyle = "white";
 		} else {
-			circle_ctx.strokeStyle = "black";
+			circleContext.strokeStyle = "black";
 		}
-		circle_ctx.beginPath();
-		circle_ctx.arc(4.5, 4.5, 4, 0, 2 * Math.PI, true);
-		circle_ctx.stroke();
+		circleContext.beginPath();
+		circleContext.arc(4.5, 4.5, 4, 0, 2 * Math.PI, true);
+		circleContext.stroke();
 	}
 
-	function redraw_hue() {
+	function redrawHueRing() {
 		var x = 1, y = 0, angle = 0;
 		var delta = (1.5 / (radius * Math.PI));
 
-		hue_ctx.translate(radius, radius);
+		hueContext.translate(radius, radius);
 		// generate the hue selection area from huge number of line segments
 		while (angle < Math.PI / 2) {
 			var a, b, a2, b2;
@@ -208,40 +208,40 @@ function color_wheel(node, func) {
 			frac     =  frac - Math.floor(frac);
 
 			if(angle < Math.PI / 3) {
-				a =  255;
-				b =  Math.floor(frac*255);
+				a = 255;
+				b = Math.floor(frac*255);
 			} else {
-				a =  Math.floor(255-frac*255);
-				b =  255;
+				a = Math.floor(255-frac*255);
+				b = 255;
 			}
 
 			// draw the green-red sector
-			hue_ctx.strokeStyle = "rgb("+ a +", "+ b +", 0)";
-			hue_ctx.beginPath();
-			hue_ctx.moveTo(x * radius,      y * radius);
-			hue_ctx.lineTo(x * innerRadius, y * innerRadius);
-			hue_ctx.stroke();
+			hueContext.strokeStyle = "rgb("+ a +", "+ b +", 0)";
+			hueContext.beginPath();
+			hueContext.moveTo(x * radius,      y * radius);
+			hueContext.lineTo(x * innerRadius, y * innerRadius);
+			hueContext.stroke();
 
 			// draw the red - violet sector
-			hue_ctx.strokeStyle = "rgb("+ a +", 0, "+ b +")";
-			hue_ctx.beginPath();
-			hue_ctx.moveTo(x * radius,      -y * radius);
-			hue_ctx.lineTo(x * innerRadius, -y * innerRadius);
-			hue_ctx.stroke();
+			hueContext.strokeStyle = "rgb("+ a +", 0, "+ b +")";
+			hueContext.beginPath();
+			hueContext.moveTo(x * radius,      -y * radius);
+			hueContext.lineTo(x * innerRadius, -y * innerRadius);
+			hueContext.stroke();
 
 			// draw the violet - cyan sector
-			hue_ctx.strokeStyle = "rgb("+ (255-a) +", "+ (255-b) +", 255)";
-			hue_ctx.beginPath();
-			hue_ctx.moveTo(-x * radius,      -y * radius);
-			hue_ctx.lineTo(-x * innerRadius, -y * innerRadius);
-			hue_ctx.stroke();
+			hueContext.strokeStyle = "rgb("+ (255-a) +", "+ (255-b) +", 255)";
+			hueContext.beginPath();
+			hueContext.moveTo(-x * radius,      -y * radius);
+			hueContext.lineTo(-x * innerRadius, -y * innerRadius);
+			hueContext.stroke();
 
 			// draw the cyan - green sector
-			hue_ctx.strokeStyle = "rgb("+ (255-a) +", 255, "+ (255-b) +")";
-			hue_ctx.beginPath();
-			hue_ctx.moveTo(-x * radius,      y * radius);
-			hue_ctx.lineTo(-x * innerRadius, y * innerRadius);
-			hue_ctx.stroke();
+			hueContext.strokeStyle = "rgb("+ (255-a) +", 255, "+ (255-b) +")";
+			hueContext.beginPath();
+			hueContext.moveTo(-x * radius,      y * radius);
+			hueContext.lineTo(-x * innerRadius, y * innerRadius);
+			hueContext.stroke();
 
 			angle += delta;
 			x = Math.cos(angle);
@@ -258,9 +258,9 @@ function color_wheel(node, func) {
 		var newY = rotationSin * x - rotationCos * y;
 		return new vec2(newX, newY);
 	}
-	function redraw_tri(rot) {
+	function redrawTriangle(rot) {
 		hueColor = hueToRGB(-rot / (2 * Math.PI));
-		tri_ctx.save();
+		triangleContext.save();
 
 		var triangleWidth = (innerRadius * 2) * Math.sin(Math.PI / 3);
 		var triangleHeight = triangleWidth * Math.cos(Math.PI / 6);
@@ -270,7 +270,7 @@ function color_wheel(node, func) {
 		var triangleHalfWidth = Math.ceil(triangleWidth / 2);
 		var triangleHeightInteger = Math.ceil(triangleHeight);
 		// create new buffer for the new coloring
-		var imageData = tri_ctx.createImageData(2 * triangleHalfWidth, triangleHeightInteger),
+		var imageData = triangleContext.createImageData(2 * triangleHalfWidth, triangleHeightInteger),
 		    data = imageData.data;
 
 		var i, j;
@@ -309,15 +309,15 @@ function color_wheel(node, func) {
 		// make the top most pixel completely opaque
 		data[(triangleHalfWidth*3)*4 + 3] = 255;
 
-		tri_ctx.putImageData(imageData, radius - imageData.width/ 2 - 1, (radius - innerRadius) - 1);
+		triangleContext.putImageData(imageData, radius - imageData.width/ 2 - 1, (radius - innerRadius) - 1);
 
-		tri_ctx.strokeStyle = "rgb(0, 0, 0)";
-		tri_ctx.translate(radius, radius);
-		tri_ctx.beginPath();
-		tri_ctx.moveTo(-0.5, -radius);
-		tri_ctx.lineTo(-0.5, -innerRadius);
-		tri_ctx.stroke();
-		tri_ctx.restore();
+		triangleContext.strokeStyle = "rgb(0, 0, 0)";
+		triangleContext.translate(radius, radius);
+		triangleContext.beginPath();
+		triangleContext.moveTo(-0.5, -radius);
+		triangleContext.lineTo(-0.5, -innerRadius);
+		triangleContext.stroke();
+		triangleContext.restore();
 		var cssRotation = 90 + rot * 180 / Math.PI;
 		var transform = "rotate("+ Math.round(cssRotation) +"deg)";
 		wheel.style.MozTransform = transform;
@@ -368,7 +368,7 @@ function color_wheel(node, func) {
 		var color = lerp3(start, end, tri_spot.y2);
 		return clampColor(color);
 	}
-	function click(e, isMouseDownEvent) {
+	function clickHandler(e, isMouseDownEvent) {
 		var coord = getCoord(hue_select);
 		var x = e.clientX - coord[0] - radius,
 		    y = e.clientY - coord[1] - radius;
@@ -425,20 +425,20 @@ function color_wheel(node, func) {
 		y *= (radius-2) / dist;
 
 		rot = Math.atan2(y, x);
-		redraw_tri(rot);
+		redrawTriangle(rot);
 
 		pixel = getFinalColor();
 		func(pixel);
 	}
 	wheel.addEventListener("mousedown", function(e) {
 		if(e.which == 1) {
-			click(e, true);
+			clickHandler(e, true);
 		}
 	});
 	document.addEventListener("mouseup", function(e) {
 		drag = false;
 	});
-	document.addEventListener("mousemove", click);
+	document.addEventListener("mousemove", clickHandler);
 
 	var obj = {
 		resize: function(size) {
@@ -448,9 +448,9 @@ function color_wheel(node, func) {
 			innerRadius = radius * 0.75;
 			wheel.style["transform-origin"] = radius + "px " + radius + "px";
 
-			draw_circle(0);
-			redraw_hue();
-			redraw_tri(rot);
+			drawSelectionCircle(0);
+			redrawHueRing();
+			redrawTriangle(rot);
 			pixel = getFinalColor();
 		},
 		getValue: function() {
@@ -458,7 +458,7 @@ function color_wheel(node, func) {
 		},
 		setValue: function(color) {
 			var hsl = rgbToHsl(color.r, color.g, color.b);
-			redraw_tri(-hsl[0] * 2 * Math.PI);
+			redrawTriangle(-hsl[0] * 2 * Math.PI);
 			var factor;
 			// compute point at the cartesian triangle space
 			if (hsl[2] < 0.5) {
