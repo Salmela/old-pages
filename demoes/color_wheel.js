@@ -41,6 +41,7 @@ function SVtoRGB(hue, s, v) {
 	return [Math.floor(r), Math.floor(g), Math.floor(b)];
 }
 function hueToRGB(hue) {
+	if (hue < 0) hue += 1;
 	hue *= 6;
 	var int = Math.floor(hue);
 	var fact = Math.floor((hue - int) * 255);
@@ -54,6 +55,44 @@ function hueToRGB(hue) {
 		default: return [255,  0,        255-fact];
 	}
 }
+
+/**
+ * Written by mjackson licensed under Creative Commons Attribution-ShareAlike 3.0
+ *
+ * Converts an RGB color value to HSL. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes r, g, and b are contained in the set [0, 255] and
+ * returns h, s, and l in the set [0, 1].
+ *
+ * @param   Number  r       The red color value
+ * @param   Number  g       The green color value
+ * @param   Number  b       The blue color value
+ * @return  Array           The HSL representation
+ */
+function rgbToHsl(r, g, b) {
+  r /= 255, g /= 255, b /= 255;
+
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var h, s, l = (max + min) / 2;
+
+  if (max == min) {
+    h = s = 0; // achromatic
+  } else {
+    var d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+
+    h /= 6;
+  }
+
+  return [ h, s, l ];
+}
+
 function lerp(a, b, i) {
 	i = Math.max(0, i);
 	return a + (b - a) * i;
@@ -61,6 +100,16 @@ function lerp(a, b, i) {
 
 function lerp3(a, b, i) {
 	return [lerp(a[0], b[0], i), lerp(a[1], b[1], i), lerp(a[2], b[2], i)];
+}
+
+function clamp(v, min, max) {
+	return Math.max(min, Math.min(max, v));
+}
+
+function clampColor(color) {
+	return [Math.floor(clamp(color[0], 0, 255)),
+		Math.floor(clamp(color[1], 0, 255)),
+		Math.floor(clamp(color[2], 0, 255))];
 }
 
 function vec2(x, y) {
@@ -119,7 +168,7 @@ function color_wheel(node, func) {
 	var tri_ctx = triangle_select.getContext("2d");
 	var circle_ctx = select_circle.getContext("2d");
 
-	var drag = false;
+	var drag = null;
 	var rotation = 0;
 	var triangleHeightInteger = 0,
 	    triangleHalfWidth = 0,
@@ -129,7 +178,7 @@ function color_wheel(node, func) {
 	    rot = 0,
 	    u = 0, v = 0;
 
-	var hue = [255, 0, 0];
+	var hueColor = [255, 0, 0];
 
 	var triangle = {
 		a: new vec2(0,0),
@@ -202,7 +251,8 @@ function color_wheel(node, func) {
 			y = -Math.sin(angle);
 		}
 	}
-	function redraw_tri(hueColor, rot) {
+	function redraw_tri(rot) {
+		hueColor = hueToRGB(-rot / (2 * Math.PI));
 		tri_ctx.save();
 
 		var triangleWidth = (innerRadius * 2) * Math.sin(Math.PI / 3);
@@ -279,8 +329,10 @@ function color_wheel(node, func) {
 		triangle.c = rotate(-triangleHalfWidth, triangleHeightInteger - innerRadius);
 	}
 	function selectColor(u, v){
-		var point = triangle.c.mulS(v);
-		point = point.add(triangle.b.mulS(u));
+		var triangleB = triangle.b.sub(triangle.a);
+		var triangleC = triangle.c.sub(triangle.a);
+		var point = triangleC.mulS(v);
+		point = point.add(triangleB.mulS(u));
 		point = point.add(triangle.a);
 
 		var cosi = Math.cos(-rotation / 180 * Math.PI - Math.PI / 2),
@@ -295,39 +347,35 @@ function color_wheel(node, func) {
 		tri_spot.x2 = u+v;
 		tri_spot.y2 = 0.5 + tri_spot.x / ((tri_spot.y+radius) * delta);
 
-		rotateWheel();
-
-		//pixel = SVtoRGB(hueColor, 1-u, 1-v);
-		func(pixel);
+		pixel = getFinalColor();
 	}
-	function rotateWheel() {
-		var start = [lerp(hue[0], 0,   tri_spot.x2), lerp(hue[1], 0,   tri_spot.x2), lerp(hue[2], 0,   tri_spot.x2)];
-		var end   = [lerp(hue[0], 255, tri_spot.x2), lerp(hue[1], 255, tri_spot.x2), lerp(hue[2], 255, tri_spot.x2)];
+	function getFinalColor() {
+		var start = lerp3(hueColor, [0, 0, 0], tri_spot.x2);
+		var end   = lerp3(hueColor, [255, 255, 255], tri_spot.x2);
 
-		pixel = [Math.floor(lerp(start[0], end[0], tri_spot.y2)),
-		         Math.floor(lerp(start[1], end[1], tri_spot.y2)),
-		         Math.floor(lerp(start[2], end[2], tri_spot.y2))];
+		var color = lerp3(start, end, tri_spot.y2);
+		return clampColor(color);
 	}
-	function click(e, c) {
+	function click(e, isMouseDownEvent) {
 		var coord = getCoord(hue_select);
 		var x = e.clientX - coord[0] - radius,
 		    y = e.clientY - coord[1] - radius;
-		var dist = x*x + y*y;
+		var dist = Math.sqrt(x*x + y*y);
 
-		if(!c && !drag) return;
+		if(!isMouseDownEvent && !drag) return;
 
-		var onHue = dist > innerRadius * innerRadius && dist < radius*radius;
+		var onHue = innerRadius < dist && dist < radius;
 
-		if(c && onHue) drag = 1;
+		if(isMouseDownEvent && onHue) drag = "hue";
 
-		if(drag != 1) {
+		if(drag != "hue") {
 			// Compute vectors (source: http://www.blackpawn.com/texts/pointinpoly/default.html)
 			var v = new vec2(x, y);
 			v = v.sub(triangle.a);
 
 			// move the coordinates relative to the a point
-			var triangleB = triangle.b.sub(triangle.a.x);
-			var triangleC = triangle.c.sub(triangle.a.x);
+			var triangleB = triangle.b.sub(triangle.a);
+			var triangleC = triangle.c.sub(triangle.a);
 
 			// Compute dot products
 			var dot00 = triangleB.dot(triangleB);
@@ -342,11 +390,10 @@ function color_wheel(node, func) {
 			var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 	
 			// Check if point is in triangle
-			if(c && u >= 0 && v >= 0 && u + v < 1) {
-				selectColor(u, v);
-				drag = 2;
+			if(isMouseDownEvent && u >= 0 && v >= 0 && u + v < 1) {
+				drag = "triangle";
 			}
-			if(drag == 2) {
+			if(drag == "triangle") {
 				if (u < 0) u = 0;
 				if (v < 0) v = 0;
 				if (u + v > 1) {
@@ -355,20 +402,18 @@ function color_wheel(node, func) {
 					v = v/sum;
 				}
 				selectColor(u, v);
+				func(pixel);
 			}
-
 			return;
-		} else if(!drag) return;
+		}
 
-		dist = Math.sqrt(dist);
 		x *= (radius-2) / dist;
 		y *= (radius-2) / dist;
 
-		hue = hue_ctx.getImageData(Math.floor(x) + radius, Math.floor(y) + radius, 1, 1).data;
 		var rot = Math.atan2(y, x);
-		redraw_tri(hue, rot);
+		redraw_tri(rot);
 
-		rotateWheel();
+		pixel = getFinalColor();
 		func(pixel);
 	}
 	wheel.addEventListener("mousedown", function(e) {
@@ -390,20 +435,29 @@ function color_wheel(node, func) {
 
 			draw_circle(0);
 			redraw_hue();
-			redraw_tri(hue, rot);
-			rotateWheel();
+			redraw_tri(rot);
+			pixel = getFinalColor();
 		},
 		getValue: function() {
 			return {"r": pixel[0], "g": pixel[1], "b": pixel[2]};
 		},
 		setValue: function(color) {
-			pixel[0] = color.r;
-			pixel[1] = color.g;
-			pixel[2] = color.b;
+			var hsl = rgbToHsl(color.r, color.g, color.b);
+			redraw_tri(-hsl[0] * 2 * Math.PI);
+			var factor;
+			if (hsl[2] < 0.5) {
+				factor = hsl[2] * 2;
+			} else {
+				factor = (1 - hsl[2]) * 2;
+			}
+			var v = 1 - (hsl[1] * factor);
+			selectColor(v * hsl[2], v);
+			pixel = getFinalColor();
 		}
 	};
 	obj.resize(radius * 2);
 	selectColor(0, 0);
+	func(pixel);
 
 	return obj;
 }
