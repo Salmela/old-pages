@@ -47,9 +47,9 @@ Vector.prototype.distance = function(other) {
 
 Vector.prototype.isParellel = function(other) {
 	// rotate 90 degrees
-	var normal = new Vector(tangent1.y, -tangent1.x);
+	var normal = new Vector(this.y, -this.x);
 	// dot product gives zero if the two vectors are perpendicular
-	var cos = tangent2.dot(normal);
+	var cos = other.dot(normal);
 	return Math.abs(cos) < 0.001;
 }
 
