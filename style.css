@@ -308,7 +308,7 @@ h3 a:visited {
 #content {
 	margin-right: 202px;
 	padding: 10px;
-	text-align: justify;
+	text-align: left;
 	-moz-column-rule: 1px dashed #ddd;
 	-webkit-column-rule: 1px dashed #ddd;
 	column-rule: 1px dashed #ddd;
