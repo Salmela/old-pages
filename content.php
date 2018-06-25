@@ -5,20 +5,21 @@ $pageMap = array();
 
 /* put the data to database */
 class Page {
-	private $page;
+	private $id;
 	private $content;
 	private $contentEnglish;
 
-	function __construct($page, $contentFinnish, $contentEnglish) {
+	function __construct($id, $contentFinnish, $contentEnglish) {
 		global $pageMap;
+		$this->id = $id;
 		$this->content = $contentFinnish;
 		$this->contentEnglish = $contentEnglish;
 
-		$pageMap[$page] = $this;
+		$pageMap[$id] = $this;
 	}
 
-	function getPage() {
-		return $this->page;
+	function getPageId() {
+		return $this->id;
 	}
 
 	function getContent($lang="fi") {
@@ -164,14 +165,30 @@ $content = <<<END
 END;
 new Page("links", $content, null);
 
-$pageName = $_GET["page"];
-
-if (array_key_exists($pageName, $pageMap)) {
-	$page = $pageMap[$pageName];
-	echo $page->getContent();
+if (isset($_GET["search"])) {
+	$query = $_GET["search"];
+	$isEmpty = true;
+	echo "<h1>Haku tulokset</h1>";
+	echo "<p>(keskeneräinen)</p>";
+	foreach ($pageMap as $page) {
+		if (strpos($page->getContent(), $query)) {
+			echo "<a href=\"#" . $page->getPageId() . "\">" . $page->getPageId() . "</a>";
+			$isEmpty = false;
+		}
+	}
+	if ($isEmpty) {
+		echo "No results found";
+	}
 } else {
-	echo <<<END
+	$pageName = isset($_GET["page"]) ? $_GET["page"] : null;
+
+	if (isset($pageName) && array_key_exists($pageName, $pageMap)) {
+		$page = $pageMap[$pageName];
+		echo $page->getContent();
+	} else {
+		echo <<<END
 <h1>404 Sivua ei löydy</h1>
 END;
+	}
 }
 ?>
