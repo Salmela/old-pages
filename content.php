@@ -76,7 +76,7 @@ Tein tämän WYSIWYG teksti editorin InfoTV slidejen luontiin. En kuitenkaan kos
 Kun olin tekemässä vava tunnilla tätä sivua, törmäsin svg javascript apiin jolla pystyi generoimaan svg kuvia. Tein tämän demon, jotta voisin leikkiä tuolla svg apilla. Tämä demo toteuttaa <a href="http://www.inkscape.org">Inkscape</a> nimisen työpöytä ohjelman perus ominaisuudet.
 </p>
 <p>
-21-24.6.2018 Tein paljon lisää ominaisuuksia tähän demoon ja toteutin sille suht hyvän ulkoasun. <a href="nanoInkscape2/draw.htm">Alkuperäinen versio</a> toimi vain firefoxilla enään, kun svg api jota käytin oli poistettu webkitistä ja se oli korvattu yksinkertaisemmalla api:lla.
+21-24.6.2018 Tein paljon lisää ominaisuuksia tähän demoon ja toteutin sille suht hyvän ulkoasun. <a href="nanoInkscape2/draw.htm">Alkuperäinen versio</a> toimi vain firefoxilla enään, koska svg api jota käytin oli poistettu webkitistä ja se oli korvattu yksinkertaisemmalla api:lla.
 </p>
 </div>
 
