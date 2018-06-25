@@ -10,7 +10,7 @@ body.js-enabled .js {
 	display: unset;
 }
 
-h1, h2, h3{
+h1, h2, h3 {
 	font-family: sans-serif;
 	margin: 0;
 	clear:  left;
@@ -19,7 +19,7 @@ h3 {
 	border-bottom: 1px solid #000;
 	margin:        10px 0;
 }
-h3 a{
+h3 a {
 	text-decoration: none;
 	color:          #008;
 }

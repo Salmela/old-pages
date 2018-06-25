@@ -8,19 +8,6 @@ function $(str, root) {
 	}
 }
 
-var ajax = (function(url, data, func) {
-	var request;
-
-	if(window.ActiveXObject) {
-		request = new ActiveXObject("Microsoft.XMLHTTP");
-	} else if(window.XMLHttpRequest) {
-		request = new XMLHttpRequest();
-	}
-	request.onreadystatechange = function() {func(request)};
-	request.open("GET", url, true);
-	request.send(data);
-});
-
 var login = {
 	wrap: null,
 	dialog: null,
@@ -43,34 +30,36 @@ var login = {
 	}),
 };
 
-var search = {
-	box: null,
-	submit: null,
-	oldValue: "",
+var Search = (function() {
+	var oldValue = "";
+	var $queryInput = jQuery("#searchBox");
+	var $submit = jQuery("#searchSubmit");
 
-	init: (function() {
-		this.box = $("#searchBox");
-		this.submit = $("#searchSubmit");
-		this.hideText();
-
-		this.submit.onclick = this.change;
-		this.box.onchange = this.change;
-	}),
-	hideText: (function() {
-		if(this.submit.style.border != undefined) {
-			this.submit.innerHTML = "<img src=\"icons/search.png\">";
+	var hideText = (function() {
+		//why?
+		if($submit.css("border") != undefined) {
+			$submit.html("<img src=\"icons/search.png\">");
 		}
-	}),
-	change: (function(event) {
-		var that = search;
+	});
+	var showSearchResults = (function(data, textStatus, jqXHR) {
+		jQuery("#content").html(data);
+	});
+	var onChange = (function(event) {
+		var newValue = $queryInput.val();
+		if(oldValue == newValue) return;
+		oldValue = newValue;
 
-		if(oldValue != that.box.value) {
-			oldValue = that.box.value;
-
-			ajax("./content.php?search="+page, oldValue, search.getSearchResults);
-		}
-	})
-};
+		var request = jQuery.ajax({url: "/content.php?search=" + newValue});
+		request.done(showSearchResults);
+		request.fail(function() {
+			//TODO improve this
+			alert("Jokin meni pieleen");
+		});
+	});
+	hideText();
+	$submit.on("click", onChange);
+	$queryInput.on("change", onChange);
+});
 
 var FontResizeButton = (function($button) {
 	"use strict";
@@ -176,15 +165,14 @@ var content = {
 		}
 	}),
 	load: (function(page) {
-		ajax("./content.php?page="+page, null, content.update);
+		jQuery.ajax({url: "/content.php?page="+page}).done(content.update);
+		//TODO do error handling
 		this.nextMenu = $("#"+page);
 	}),
-	update: (function(request) {
+	update: (function(data, textStatus, jqXHR) {
 		var that = content;
-		if(request.readyState != 4) return;
-		if(request.status != 200 || request.responseText == "") return;
 
-		that.contents.innerHTML = request.responseText;
+		that.contents.innerHTML = data;
 		that.oldMenu            = that.currentMenu;
 		that.currentMenu        = that.nextMenu;
 
@@ -208,6 +196,6 @@ var content = {
 
 jQuery(document).ready(function() {
 	login.init();
-	search.init();
+	new Search();
 	content.init();
 });
