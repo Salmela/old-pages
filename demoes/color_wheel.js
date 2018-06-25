@@ -469,13 +469,14 @@ function color_wheel(node, func) {
 			}
 			var y = 1 - (hsl[1] * factor);
 			var x = (hsl[2] - 0.5) * 2;
-			tri_spot.x2 = x;
-			tri_spot.y2 = y;
 
 			// compute the coordinate at fixed triangle space
 			var u = y / 2 + x / 2;
 			var v = y / 2 - x / 2;
 			updateSelectionCircle(u, v);
+
+			tri_spot.x2 = x;
+			tri_spot.y2 = y;
 			pixel = getFinalColor();
 		}
 	};

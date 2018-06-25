@@ -134,8 +134,9 @@ var ColorPanel = {
 			this.content.classList.remove("disabled");
 			var color;
 			var result = window.getComputedStyle(nanoInk.activeObject)[this.attribute];
-			this.rgbaInput.text = this._colorToHex(this._parseColor(result));
-			this._updateColor("hex", this.rgbaInput.text);
+			var colorText = this._colorToHex(this._parseColor(result));
+			this._setValue(this.rgbaInput, colorText);
+			this._updateColor("hex", colorText);
 		} else {
 			this.content.classList.add("disabled");
 		}
@@ -215,7 +216,7 @@ var ColorPanel = {
 				return;
 			}
 			opacityInput.classList.remove("invalid");
-			opacityInput.value = value;
+			ColorPanel.setValue(opacityInput, value);
 			ColorPanel._updateColor("alpha");
 		}
 		opacityInput.addEventListener("input", opacityHandler);
@@ -244,7 +245,7 @@ var ColorPanel = {
 		}
 		rgbaInput.addEventListener("input", function(e) { rgbaHandler(e); });
 		rgbaInput.addEventListener("change", function(e) {
-			rgbaInput.value = rgbaHandler(e);
+			this._setValue(rgbaInput, rgbaHandler(e));
 		});
 		this.wheel = createColorWheel(document.getElementById("color-wheel"), function(c) {
 			ColorPanel._updateColor("alpha");
@@ -269,7 +270,9 @@ var ColorPanel = {
 		if (source != "hex") {
 			var color = this.wheel.getValue();
 			color.a = +this.opacityInput.value;
-			this.rgbaInput.value = this._colorToHex(color);
+			// its hard to notice if the opacity is zero due to the default value
+			if (color.a == 0) color.a = 255;
+			this._setValue(this.rgbaInput, this._colorToHex(color));
 		} else {
 			var color = {}
 			var rgba = value;
@@ -277,7 +280,7 @@ var ColorPanel = {
 			color.g = parseInt(rgba.substring(3,5), 16);
 			color.b = parseInt(rgba.substring(5,7), 16);
 			color.a = parseInt(rgba.substring(7,9), 16);
-			this.opacityInput.value = color.a;
+			this._setValue(this.opacityInput, color.a);
 			this.wheel.setValue(color);
 		}
 		if (this.attribute == "fill") {
@@ -287,6 +290,11 @@ var ColorPanel = {
 		}
 		nanoInk.activeObject.setAttributeNS(null, this.attribute,
 			"rgba("+ color.r +", "+ color.g +", "+ color.b +", " + (color.a / 255) + ")");
+	}),
+
+	_setValue: (function(node, value) {
+		node.setAttribute('value', value);
+		node.value = value;
 	})
 };
 
