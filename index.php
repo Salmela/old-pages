@@ -3,15 +3,14 @@
 <head>
   <title>Otsikko</title>
   <link rel="stylesheet" title="Perus" type="text/css" href="style.css">
-  <script type="text/javascript" src="script.js"></script>
   <meta charset="utf-8">
   <meta name="robots" content="noindex,nofollow">
-  <link href='http://fonts.googleapis.com/css?family=Gentium+Basic' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Gentium+Basic" rel="stylesheet" type="text/css" crossorigin="anonymous">
 </head>
-<body onload="login.init(); search.init(); content.init();">
+<body>
   <div id="wrap">
     <header id="header">
-      <div id="headerright"><a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a></div>
+      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a></div>
       <h1><span>Sivusto</span></h1>
       <div id="nav_placeholder"></div>
       <nav>
@@ -166,5 +165,7 @@ echo "</div>";
     <div><span class="first">Salasana:</span><input type="text"></div>
     <div id="loginButtons"><span class="first">&nbsp;</span><input type="submit" value="Kirjaudu"></div>
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="script.js"></script>
 </body>
 </html>

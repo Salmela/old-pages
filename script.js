@@ -7,6 +7,7 @@ function $(str, root) {
 		return document.getElementById(str.substring(1, str.length));
 	}
 }
+
 var ajax = (function(url, data, func) {
 	var request;
 
@@ -41,6 +42,7 @@ var login = {
 		this.pageWrap.style.filter = "";
 	}),
 };
+
 var search = {
 	box: null,
 	submit: null,
@@ -70,6 +72,42 @@ var search = {
 	})
 };
 
+var FontResizeButton = (function($button) {
+	"use strict";
+	var $document = jQuery(document);
+	var $body = jQuery(document.body);
+	var startMousePosition = 0;
+	var sizeFont = 100;
+	var sizeChangeing = false;
+
+	var sizeFontChange = (function(e){
+		var deltaMovement = e.clientX - startMousePosition;
+		sizeFont = Math.floor(Math.pow(1.01, deltaMovement) * 100);
+		$body.css("fontSize", sizeFont + "%");
+	});
+	var sizeFontReset = (function(e){
+		e.stopPropagation();
+		e.preventDefault();
+		sizeChangeing = false;
+		$document.off("click", sizeFontReset);
+		$document.off("mousemove", sizeFontChange);
+	});
+	var sizeFontClick = (function(e){
+		if(sizeChangeing) {
+			$body.css("fontSize", "100%");
+			sizeChangeing = false;
+			return;
+		}
+		$document.on("click", sizeFontReset);
+		$document.on("mousemove", sizeFontChange);
+		sizeChangeing = true;
+		startMousePosition = e.clientX;
+		e.stopPropagation();
+	});
+
+	$button.on("click", sizeFontClick);
+});
+
 var content = {
 	oldMenu:  null,
 	currentMenu: null,
@@ -84,6 +122,7 @@ var content = {
 	links:    null,
 
 	init: (function() {
+		jQuery(document.body).addClass("js-enabled");
 		this.contents  = $("#content");
 		this.header    = $("#header");
 		this.links     = $("#headerright");
@@ -91,10 +130,7 @@ var content = {
 		this.navPrev   = $("h1", this.header);
 		this.navOffset = this.nav.offsetTop;
 
-		this.links.innerHTML          = "<button>Aa</button> | " + this.links.innerHTML;
-		this.links.firstChild.onclick = this.sizeFontClick;
-		document.onclick              = this.sizeFontReset;
-		document.onmousemove          = this.sizeFontChange;
+		new FontResizeButton(jQuery("#font-resize-button"));
 
 		window.onresize = this.resize;
 		/*document.onmousemove = (function(e) {
@@ -116,29 +152,6 @@ var content = {
 		}
 	}),
 
-	orgFontPos:    0,
-	sizeChangeing: false,
-	sizeFont:      100,
-	sizeFontReset: (function(e){
-		if(content.sizeChangeing) {
-			e.stopPropagation();
-			e.preventDefault();
-			content.sizeChangeing = false;
-		}
-	}),
-	sizeFontClick: (function(e){
-		if(!content.sizeChangeing) {
-			content.orgFontPos = content.links.offsetLeft;
-			content.sizeChangeing = true;
-		}
-		e.stopPropagation();
-	}),
-	sizeFontChange: (function(e){
-		if(!content.sizeChangeing) return;
-
-		content.sizeFont = Math.floor(Math.pow(1.01, e.clientX - content.orgFontPos) * 100);
-		document.body.style.fontSize = content.sizeFont +"%";
-	}),
 	scroll: (function(page) {
 		var that = content;
 
@@ -192,3 +205,9 @@ var content = {
 		}
 	})
 }
+
+jQuery(document).ready(function() {
+	login.init();
+	search.init();
+	content.init();
+});
