@@ -1,48 +1,3 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-  <title>Otsikko</title>
-  <link rel="stylesheet" title="Perus" type="text/css" href="style.css">
-  <meta charset="utf-8">
-  <meta name="robots" content="noindex,nofollow">
-  <link href="https://fonts.googleapis.com/css?family=Gentium+Basic" rel="stylesheet" type="text/css" crossorigin="anonymous">
-</head>
-<body>
-  <div id="wrap">
-    <header id="header">
-      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a></div>
-      <h1><span>Sivusto</span></h1>
-      <div id="nav_placeholder"></div>
-      <nav>
-        <div id="menus">
-          <ol>
-            <li id="main"><a href="#main" onclick="content.load('main');">Etusivu</a></li>
-            <li id="demo" class="menu"><a href="#demo" onclick="content.load('demo');">Demoja</a>
-              <ul>
-                <li><a href="#demo" onclick="content.load('demo');">Javascript</a></li>
-                <li><a href="javascript: void(0)" onclick="window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300');">nanoInkscape</a></li>
-              </ul>
-            </li>
-            <li id="links" class="menu"><a href="#links" onclick="content.load('links');">Linkkejä</a>
-              <ul>
-                <li><a href="http://www.google.com">Google</a></li>
-                <li><a href="http://www.kernel.org">Linux</a></li>
-                <li><a href="http://www.wikipedia.org">Wikipedia</a></li>
-              </ul>
-            </li>
-          </ol>
-        </div>
-      </nav>
-    </header>
-    <div id="content-wrapper">
-      <div id="sidebar">
-        <div id="search">
-          <h2>Etsi</h2>
-          <input type="text" id="searchBox" name="searchBox" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
-        </div>
-        <div id="statistics">
-          <h2>Tilastot</h2>
-          <p>Kävijöistä käyttää:</p>
 <?php
 /*	mysql_connect("localhost", "fooshell_admin", "z7q9e7i3s6") or die("Unable to connect to db. " . mysql_error());
 	mysql_select_db("fooshell_test") or die("Could not select database. " . mysql_error());
@@ -109,63 +64,45 @@
 
 	$query = "SELECT * FROM browser_usage WHERE type=0";
 	$result = mysql_query($query) or die("Could not query database. " . mysql_error());
-	$count = mysql_num_rows($result);
 
 	//$browsers = array(array("Firefox", 0.90), array("Chrome", 0.10));
-	$colors = array("#8ae234", "#fce94f", "#fcaf3e", "#729fcf", "#ad7fa8", "#e9b96e", "#ef2929");
-	$r = 75;
-	$w = $r*2;
-echo<<<END
-<svg width="$w" height="$w" xmlns="http://www.w3.org/2000/svg" version="1.1">
-END;
-	$cosi2 = $r - $r * 1;
-	$sini2 = $r + 0;
-	$rad = 0;
-	$html = "";
-	for($i = 0; $i < $count, $row = mysql_fetch_assoc($result); $i++) {
-		$rad += $row["ammount"] / $total * 2 * M_PI;
-		$cosi = $r - cos($rad) * $r;
-		$sini = $r + sin($rad) * $r;
-		$flag = ($row["ammount"] > 0.5 * $total) ? 1 : 0;
-		echo "<path d=\"M$r,$r L$sini2,$cosi2 A$r,$r 0 $flag,1 $sini,$cosi z\" fill=\"{$colors[$i]}\" stroke=\"blue\" stroke-width=\"1\" />";
-		$cosi2 = $cosi;
-		$sini2 = $sini;
-		$html .= "<span style=\"background:{$colors[$i]}; border: 1px solid #000;\">&nbsp;&nbsp;</span> {$row["name"]}<br/>";
-	}
-
-echo<<<END
-</svg>
-<div>
-END;
-	echo $html;
-echo "</div>";
 */
+$sector_colors = array("#8ae234", "#fce94f", "#fcaf3e", "#729fcf", "#ad7fa8", "#e9b96e", "#ef2929");
+$radius = 75;
+$pie_width = $radius*2;
+function generatePath($sini, $cosi, $sini2, $cosi2, $flag) {
+	global $radius;
+	return "M$radius,$radius L$sini2,$cosi2 A$radius,$radius 0 $flag,1 $sini,$cosi z";
+}
+$sectors = array();
+$cosi2 = $radius - $radius * 1;
+$sini2 = $radius + 0;
+$rad = 0;
+$html = "";
+$i = 0;
+//$row = mysql_fetch_assoc($result)
+$rows = array(
+	array("ammount" => 0.1, "name" => "test"),
+	array("ammount" => 0.6, "name" => "test2"),
+	array("ammount" => 0.2, "name" => "test3"),
+	array("ammount" => 0.2, "name" => "test4")
+);
+$total = 1.0;
+foreach($rows as $row) {
+	$rad += $row["ammount"] / $total * 2 * M_PI;
+	$cosi = $radius - cos($rad) * $radius;
+	$sini = $radius + sin($rad) * $radius;
+	$flag = ($row["ammount"] > 0.5 * $total) ? 1 : 0;
+	$sectors[] = array(
+		"path" => generatePath($sini, $cosi, $sini2, $cosi2, $flag),
+		"color" => $sector_colors[$i]
+	);
+	$cosi2 = $cosi;
+	$sini2 = $sini;
+	$html .= "<span style=\"background:{$sector_colors[$i]}; border: 1px solid #000;\">&nbsp;&nbsp;</span> {$row["name"]}<br/>";
+	$i++;
+}
+
+$pie = "test";
+require "templates/main.php"
 ?>
-        </div>
-      </div>
-      <article id="content">
-        <h1>Ladataan...</h1>
-        <p>
-          Jos sivu ei näy käytät liian vanhaa selainta, voit hankkia paremman selaimen osoitteesta <a href="http://www.mozilla-europe.org/en/">http://www.mozilla-europe.org/en/</a> 
-        </p>
-      </article>
-      <div id="copyrights">
-        Teksti on saatavilla <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution/Share-Alike</a> -lisenssillä.
-        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL).</br>
-	© Aleksi Salmela
-      </div>
-    </div>
-  </div>
-  <div id="loginWrap" onClick="login.unshow()">
-  </div>
-  <div id="loginDialog">
-    <button id="loginClose" onClick="login.unshow()">Close</button>
-    <h2>Kirjaudu sisään</h2>
-    <div><span class="first">Käyttäjä:</span><input type="text"></div>
-    <div><span class="first">Salasana:</span><input type="text"></div>
-    <div id="loginButtons"><span class="first">&nbsp;</span><input type="submit" value="Kirjaudu"></div>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="script.js"></script>
-</body>
-</html>
