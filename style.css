@@ -319,15 +319,30 @@ h3 a:visited {
 	text-align: left;
 	-moz-column-rule: 1px dashed #ddd;
 	-webkit-column-rule: 1px dashed #ddd;
+	-o-column-column-rule: 1px dashed #ddd;
+	-ms-column-column-rule: 1px dashed #ddd;
 	column-rule: 1px dashed #ddd;
 	-moz-column-gap: 20px;
 	-webkit-column-gap: 20px;
+	-o-column-column-gap: 20px;
+	-ms-column-column-gap: 20px;
 	column-gap: 20px;
 }
+
+#content .section {
+	-webkit-column-break-inside:avoid;
+	-moz-column-break-inside:avoid;
+	-o-column-break-inside:avoid;
+	-ms-column-break-inside:avoid;
+	column-break-inside:avoid;
+}
+
 #content h1,
 #content #headertext {
 	-moz-column-span: all;
 	-webkit-column-span: all;
+	-o-column-column-span: all;
+	-ms-column-column-span: all;
 	column-span: all;
 }
 #copyrights {

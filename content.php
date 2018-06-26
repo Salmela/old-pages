@@ -28,8 +28,10 @@ class Page {
 }
 
 $content = <<<END
+<div class="section">
 <h1>Etusivu</h1>
 <p>Tein tämän sivun kouluni vapaa-valintaisena työnä, huhtikuussa 2011. Sivun tarkoituksena oli HTML5 ja CSS3 testaus. Aikaa sivun tekemisessä oli vain 8 koulu tuntia, joten tein sivuja myös kotona. Päätin että sivu pitää näkyä kaikilla selaimilla edes jotenkin siedettävässä muodossa (jopa IE:issä).</p>
+</div>
 END;
 
 $value = new Page("main", $content, null);
@@ -168,17 +170,25 @@ new Page("links", $content, null);
 if (isset($_GET["search"])) {
 	$query = $_GET["search"];
 	$isEmpty = true;
+	echo "<div class=\"section\">";
 	echo "<h1>Haku tulokset</h1>";
-	echo "<p>(keskeneräinen)</p>";
+
+	$results = array();
 	foreach ($pageMap as $page) {
 		if (strpos($page->getContent(), $query)) {
-			echo "<a href=\"#" . $page->getPageId() . "\">" . $page->getPageId() . "</a>";
-			$isEmpty = false;
+			$results[] = $page;
 		}
 	}
-	if ($isEmpty) {
-		echo "No results found";
+	if (empty($results)) {
+		echo "<p>No results found</p>";
+	} else {
+		echo "<ol>";
+		foreach ($results as $page) {
+			echo "<li><a href=\"#" . $page->getPageId() . "\">" . $page->getPageId() . "</a></li>";
+		}
+		echo "</ol>";
 	}
+	echo "</div>";
 } else {
 	$pageName = isset($_GET["page"]) ? $_GET["page"] : null;
 

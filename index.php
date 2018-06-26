@@ -20,7 +20,7 @@
             <li id="demo" class="menu"><a href="#demo" onclick="content.load('demo');">Demoja</a>
               <ul>
                 <li><a href="#demo" onclick="content.load('demo');">Javascript</a></li>
-                <li><a href="javascript: void(0)" onclick="window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300');">Gtk</a></li>
+                <li><a href="javascript: void(0)" onclick="window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300');">nanoInkscape</a></li>
               </ul>
             </li>
             <li id="links" class="menu"><a href="#links" onclick="content.load('links');">Linkkejä</a>
@@ -38,7 +38,7 @@
       <div id="sidebar">
         <div id="search">
           <h2>Etsi</h2>
-          <input type="text" id="searchBox" name="searchBox" placeholder="ei toimi vielä" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
+          <input type="text" id="searchBox" name="searchBox" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
         </div>
         <div id="statistics">
           <h2>Tilastot</h2>
