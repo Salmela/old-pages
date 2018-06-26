@@ -6,6 +6,7 @@
   <meta charset="utf-8">
   <meta name="robots" content="noindex,nofollow">
   <link href="https://fonts.googleapis.com/css?family=Gentium+Basic" rel="stylesheet" type="text/css" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=4.0" />
 </head>
 <body>
   <div id="wrap">
