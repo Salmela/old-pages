@@ -45,11 +45,9 @@ var Search = (function() {
 		jQuery("#content").html(data);
 	});
 	var onChange = (function(event) {
-		var newValue = $queryInput.val();
-		if(oldValue == newValue) return;
-		oldValue = newValue;
+		var query = $queryInput.val();
 
-		var request = jQuery.ajax({url: "/content.php?search=" + newValue});
+		var request = jQuery.ajax({url: "/search.php?q=" + query});
 		request.done(showSearchResults);
 		request.fail(function() {
 			//TODO improve this

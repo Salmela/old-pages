@@ -53,10 +53,7 @@
         </div>
       </div>
       <article id="content">
-        <h1>Ladataan...</h1>
-        <p>
-          Jos sivu ei näy käytät liian vanhaa selainta, voit hankkia paremman selaimen osoitteesta <a href="http://www.mozilla-europe.org/en/">http://www.mozilla-europe.org/en/</a> 
-        </p>
+        <?= $content ?>
       </article>
       <div id="copyrights">
         Teksti on saatavilla <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution/Share-Alike</a> -lisenssillä.
