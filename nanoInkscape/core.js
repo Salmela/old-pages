@@ -216,7 +216,7 @@ var ColorPanel = {
 				return;
 			}
 			opacityInput.classList.remove("invalid");
-			ColorPanel.setValue(opacityInput, value);
+			ColorPanel._setValue(opacityInput, value);
 			ColorPanel._updateColor("alpha");
 		}
 		opacityInput.addEventListener("input", opacityHandler);
