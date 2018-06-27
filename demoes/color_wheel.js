@@ -475,8 +475,9 @@ function color_wheel(node, func) {
 			var v = y / 2 - x / 2;
 			updateSelectionCircle(u, v);
 
-			tri_spot.x2 = x;
-			tri_spot.y2 = y;
+			//TODO why negation here
+			tri_spot.x2 = -x;
+			tri_spot.y2 = -y;
 			pixel = getFinalColor();
 		}
 	};
