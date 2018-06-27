@@ -118,13 +118,12 @@ var content = {
 		this.nav       = $("nav");
 		this.navPrev   = $("h1", this.header);
 		this.navOffset = this.nav.offsetTop;
+		// required for fixing zoom on retina displays
+		this.initialZoom = window.devicePixelRatio;
 
 		new FontResizeButton(jQuery("#font-resize-button"));
 
 		window.onresize = this.resize;
-		/*document.onmousemove = (function(e) {
-			content.sizeFontChange(e.clientX / 400);
-		});*/
 		if(document.documentElement.clientHeight > 480) {
 			window.onscroll = this.scroll;
 		}
@@ -156,13 +155,23 @@ var content = {
 		that.navOffset = that.navPrev.offsetTop + that.navPrev.offsetHeight;
 		$("#nav_placeholder").style.height = that.nav.offsetHeight +"px";
 
+		// hide the menu if it would take too much screen real estate
 		if(document.documentElement.clientHeight < 480) {
 			that.header.className = "";
 			window.onscroll = null;
 		} else {
+			if (that._zoomedIn()) {
+				jQuery("nav", that.header).stop().animate({top: -that.header.clientHeight}, {duration:500});
+			} else {
+				jQuery("nav", that.header).stop().animate({top: 0}, {duration:500});
+			}
 			window.onscroll = that.scroll;
 			that.scroll();
 		}
+	}),
+	_zoomedIn: (function() {
+		var browserZoomLevel = window.devicePixelRatio;
+		return (browserZoomLevel > this.initialZoom + 0.01);
 	}),
 	load: (function(page) {
 		jQuery.ajax({url: "/content.php?page="+page}).done(content.update);
