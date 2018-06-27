@@ -96,7 +96,6 @@ var FontResizeButton = (function($button) {
 });
 
 var content = {
-	oldMenu:  null,
 	currentMenu: null,
 	nextMenu: null,
 	navMenu:  null,
@@ -136,9 +135,17 @@ var content = {
 		}
 
 		jQuery("a", this.nav).on("click", function(e) {
-			var page = jQuery(e.target).attr("href").substring(1);
-			content.load(page);
+			var newUrl = jQuery(e.target).attr("href");
+			if (!newUrl.startsWith("/")) return;
+			var page = newUrl.substring(1);
+			//TODO do error handling
+			content.load(page, e.target);
 			e.preventDefault();
+		});
+
+		jQuery(window).on('popstate', function(event){
+			var state = event.state;
+			content.setContent(jQuery("[href=" + state[0] + "]"), state[1]);
 		});
 	}),
 
@@ -175,32 +182,37 @@ var content = {
 		var browserZoomLevel = window.devicePixelRatio;
 		return (browserZoomLevel > this.initialZoom + 0.01);
 	}),
-	load: (function(page) {
+	load: (function(page, link) {
 		jQuery.ajax({url: "/content.php?page="+page}).done(content.update);
-		//TODO do error handling
-		this.nextMenu = $("#"+page);
+		this.nextMenu = link;
 	}),
 	update: (function(data, textStatus, jqXHR) {
 		var that = content;
 
-		that.contents.innerHTML = data;
-		that.oldMenu            = that.currentMenu;
-		that.currentMenu        = that.nextMenu;
+		var url = jQuery(that.nextMenu).attr("href");
+		history.pushState([url, data], "Otsikko", url);
+		that.setContent(data, that.nextMenu);
+	}),
+	setContent: (function(data, newActiveItem) {
+		this.contents.innerHTML = data;
 
-		if(that.oldMenu) {
-			that.oldMenu.classList.remove("active");
+		var oldMenu = this.currentMenu;
+		this.currentMenu = newActiveItem.parentNode;
+
+		if(oldMenu) {
+			oldMenu.classList.remove("active");
 		}
-		that.currentMenu.classList.add("active");
-		if(that.navMenu != null) {
-			that.navMenu.parentNode.removeChild(that.navMenu);
-			that.navMenu = null;
+		this.currentMenu.classList.add("active");
+		if(this.navMenu != null) {
+			this.navMenu.parentNode.removeChild(this.navMenu);
+			this.navMenu = null;
 		}
-		var lastElementChild = that.currentMenu.children[that.currentMenu.children.length-1];
-		if(that.currentMenu.children[0] != lastElementChild) {
-			that.navMenu = lastElementChild.cloneNode(true);
-			that.navMenu.id = "sub-menus";
-			that.nav.appendChild(that.navMenu);
-			$("#nav_placeholder").style.height = that.nav.offsetHeight +"px";
+		var lastElementChild = this.currentMenu.children[this.currentMenu.children.length-1];
+		if(this.currentMenu.children[0] != lastElementChild) {
+			this.navMenu = lastElementChild.cloneNode(true);
+			this.navMenu.id = "sub-menus";
+			this.nav.appendChild(this.navMenu);
+			$("#nav_placeholder").style.height = this.nav.offsetHeight +"px";
 		}
 	})
 }

@@ -31,9 +31,11 @@ class Page {
 
 	static function getPage($pageName) {
 		global $pageMap;
-		if (isset($pageName) && array_key_exists($pageName, $pageMap)) {
+		if (!$pageName) $pageName = "main";
+		if (array_key_exists($pageName, $pageMap)) {
 			return $pageMap[$pageName];
 		}
+		http_response_code(404);
 		return self::$notFoundPage;
 	}
 }
