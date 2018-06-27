@@ -17,20 +17,17 @@
       <nav>
         <div id="menus">
           <ol>
-            <li id="main"><a href="#main" onclick="content.load('main');">Etusivu</a></li>
-            <li id="demo" class="menu"><a href="#demo" onclick="content.load('demo');">Demoja</a>
+            <?php foreach($links as $topLink) { ?>
+            <li class="<?= $topLink->children ? "menu" : "" ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent() ?></a>
+              <?php if($topLink->children) { ?>
               <ul>
-                <li><a href="#demo" onclick="content.load('demo');">Javascript</a></li>
-                <li><a href="javascript: void(0)" onclick="window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300');">nanoInkscape</a></li>
+                <?php foreach($topLink->children as $link) { ?>
+                  <li><a href="<?= $link->url ?>"><?= $link->getContent() ?></a></li>
+                <?php } ?>
               </ul>
+              <?php } ?>
             </li>
-            <li id="links" class="menu"><a href="#links" onclick="content.load('links');">Linkkejä</a>
-              <ul>
-                <li><a href="http://www.google.com">Google</a></li>
-                <li><a href="http://www.kernel.org">Linux</a></li>
-                <li><a href="http://www.wikipedia.org">Wikipedia</a></li>
-              </ul>
-            </li>
+            <?php } ?>
           </ol>
         </div>
       </nav>

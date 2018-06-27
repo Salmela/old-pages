@@ -129,13 +129,17 @@ var content = {
 		$("#nav_placeholder").style.height = this.nav.offsetHeight +"px";
 
 		if(window.location.href.split("#")[1] != undefined) {
-			var page = window.location.href.split("#")[1];
+			var page = window.location.pathname.substring(1);
 			this.currentMenu = $("#"+page);
-			this.load(page);
 		} else {
 			this.currentMenu = $("#main");
-			this.load("main");
 		}
+
+		jQuery("a", this.nav).on("click", function(e) {
+			var page = jQuery(e.target).attr("href").substring(1);
+			content.load(page);
+			e.preventDefault();
+		});
 	}),
 
 	scroll: (function(page) {

@@ -111,5 +111,36 @@ foreach($rows as $row) {
 
 $pie = "test";
 
+class Link {
+	private $text;
+	private $textEnglish;
+	public $url;
+	public $children;
+
+	function __construct($text, $textEnglish, $url, $children=null) {
+		$this->text = $text;
+		$this->textEnglish = $textEnglish;
+		$this->url = $url;
+		$this->children = $children;
+	}
+
+	function getContent($lang="fi") {
+		return $lang == "fi" ? $this->text : $this->textEnglish;
+	}
+}
+
+$links = array(
+	new Link("Etusivu", "Home", "/"),
+	new Link("Demoja", "Demoes", "/demo", array(
+		new Link("Javascript", "Javascript", "/demo"),
+		new Link("nanoInkscape", "nanoInkscape", "javascript: window.open('nanoInkscape/draw.htm', 'piirrä', 'width=300, height=300'); void(0);"),
+	)),
+	new Link("Linkkejä", "Links", "/links", array(
+		new Link("Google", "Google", "https://www.google.com"),
+		new Link("Linux", "Linux", "https://www.kernel.org"),
+		new Link("Wikipedia", "Wikipedia", "https://www.wikipedia.org"),
+	))
+);
+
 require "templates/main.php"
 ?>
