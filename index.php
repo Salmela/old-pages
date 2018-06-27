@@ -1,20 +1,31 @@
 <?php
-/*	mysql_connect("localhost", "fooshell_admin", "z7q9e7i3s6") or die("Unable to connect to db. " . mysql_error());
-	mysql_select_db("fooshell_test") or die("Could not select database. " . mysql_error());
+$db_url = getenv("DATABASE_URL");
+$db = parse_url($db_url);
+
+if (False && $db_url) {
+	$pdo = new PDO("pgsql:" . sprintf(
+	    "host=%s;port=%s;user=%s;password=%s;dbname=%s",
+	    $db["host"],
+	    $db["port"],
+	    $db["user"],
+	    $db["pass"],
+	    ltrim($db["path"], "/")
+	)) or die("Unable to connect to db. " . mysql_error());;
 
 	$ip = ip2long($_SERVER['REMOTE_ADDR']);
-	$ua = $_SERVER['HTTP_USER_AGENT'];
 
-	$query = "SELECT * FROM visitors WHERE ip = $ip;";
-	$result = mysql_query($query) or die("Could not query database. " . mysql_error());
-	//$row = mysql_fetch_assoc($result) or die("Could not fetch from database. " . mysql_error());
+	$search_query = $pdo->prepare("SELECT * FROM visitors WHERE ip = ?");
+	$search_query->bindParam(1, $ip);
+	$search_query->execute();
 
-	if(mysql_num_rows($result) == 0) {
+	$result = $search_query->fetch();
+	if (!$result) {
 		$os = "unknown";
 		$browser = "unknown";
 		$browser_ver = "";
 		$layout_engine = "";
 
+		$ua = $_SERVER['HTTP_USER_AGENT'];
 		if(stristr($ua, "linux")) $os = "linux";
 		else if(stristr($ua, "windows")) $os = "windows";
 		else if(stristr($ua, "mac")) $os = "mac";
@@ -43,30 +54,33 @@
 		} 
 
 		echo "'$ip', '$browser', '$browser_ver', '$os'";
-		$browser = mysql_real_escape_string($browser);
-		$browser_ver = mysql_real_escape_string($browser_ver);
-		$os = mysql_real_escape_string($os);
-		$query = "INSERT INTO visitors (ip, browser, browser_ver, os) VALUES('$ip', '$browser', '$browser_ver', '$os')";
-		mysql_query($query) or die("Could not query database. " . mysql_error());
+		$insert = $pdo->prepare("INSERT INTO visitors (ip, browser, browser_ver, os) VALUES(?, ?, ?, ?)");
+		$insert->execute(array($ip, $browser, $browser_ver, $os));
 
-		$query = "INSERT INTO browser_usage (name,ammount,type) VALUES ('$browser $browser_ver',1,0)
-		          ON DUPLICATE KEY UPDATE ammount = ammount + 1";
-		mysql_query($query) or die("Could not query database. " . mysql_error());
-
-		$query = "INSERT INTO browser_usage (name,ammount,type) VALUES ('$os',1,1)
-		          ON DUPLICATE KEY UPDATE ammount = ammount + 1";
-		mysql_query($query) or die("Could not query database. " . mysql_error());
+		$insert = $pdo->prepare("INSERT INTO browser_usage (name,ammount,type) VALUES (?,1,?)
+			  ON CONFLICT DO UPDATE SET ammount = ammount + 1");
+		$insert->execute(array("$browser $browser_ver", 0));
+		$insert->execute(array("$os", 1));
 	}
-	$query = "SELECT SUM(ammount) AS sum FROM browser_usage WHERE type=0";
-	$result = mysql_query($query) or die("Could not query database. " . mysql_error());
-	$row = mysql_fetch_assoc($result);
+	$query = $pdo->prepare("SELECT SUM(ammount) AS sum FROM browser_usage WHERE type=0");
+	$query->execute();
+	$row = $query->fetch();
 	$total = $row["sum"];
 
-	$query = "SELECT * FROM browser_usage WHERE type=0";
-	$result = mysql_query($query) or die("Could not query database. " . mysql_error());
+	$query = $pdo->prepare("SELECT * FROM browser_usage WHERE type=0");
+	$result = $query->execute();
+	$rows = $query->fetchAll();
+} else {
+	$rows = array(
+		array("ammount" => 0.1, "name" => "test"),
+		array("ammount" => 0.6, "name" => "test2"),
+		array("ammount" => 0.2, "name" => "test3"),
+		array("ammount" => 0.2, "name" => "test4")
+	);
+	$total = 1.0;
+}
 
-	//$browsers = array(array("Firefox", 0.90), array("Chrome", 0.10));
-*/
+//$browsers = array(array("Firefox", 0.90), array("Chrome", 0.10));
 $sector_colors = array("#8ae234", "#fce94f", "#fcaf3e", "#729fcf", "#ad7fa8", "#e9b96e", "#ef2929");
 $radius = 75;
 $pie_width = $radius*2;
@@ -80,14 +94,6 @@ $sini2 = $radius + 0;
 $rad = 0;
 $html = "";
 $i = 0;
-//$row = mysql_fetch_assoc($result)
-$rows = array(
-	array("ammount" => 0.1, "name" => "test"),
-	array("ammount" => 0.6, "name" => "test2"),
-	array("ammount" => 0.2, "name" => "test3"),
-	array("ammount" => 0.2, "name" => "test4")
-);
-$total = 1.0;
 foreach($rows as $row) {
 	$rad += $row["ammount"] / $total * 2 * M_PI;
 	$cosi = $radius - cos($rad) * $radius;
