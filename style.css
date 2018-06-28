@@ -66,6 +66,8 @@ h3 a:visited {
 	padding-left: 20px;
 	background: #FCE94F -webkit-radial-gradient(left bottom , #E9B96E, #B16E02);
 	background: #FCE94F -moz-radial-gradient(left bottom , #E9B96E, #B16E02);
+	background: #FCE94F -ms-radial-gradient(left bottom , #E9B96E, #B16E02);
+	background: #FCE94F -o-radial-gradient(left bottom , #E9B96E, #B16E02);
 	background: #FCE94F radial-gradient(left bottom , #E9B96E, #B16E02);
 	font-family: "Gentium Basic";
 	font-size:   4em;
@@ -116,11 +118,13 @@ h3 a:visited {
 	background: linear-gradient(top, #8ae234, #4e9a06);
 	border-bottom: 1px solid #1f3e02;
 }
+/*
 #menus a:focus,
 #menus a:active {
 	outline: 0 none;
 	-moz-outline: 0 none;
 }
+*/
 /* main-menu list */
 #menus ol {
 	padding: 0;
