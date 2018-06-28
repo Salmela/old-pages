@@ -142,6 +142,9 @@ $links = array(
 	))
 );
 $activeLink = null;
+if ($name == "main") {
+	$name = "";
+}
 foreach ($links as $link) {
 	if ($link->url == "/" . $name) {
 		$activeLink = $link;
