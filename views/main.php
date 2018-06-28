@@ -141,6 +141,13 @@ $links = array(
 		new Link("Wikipedia", "Wikipedia", "https://www.wikipedia.org"),
 	))
 );
+$activeLink = null;
+foreach ($links as $link) {
+	if ($link->url == "/" . $name) {
+		$activeLink = $link;
+		break;
+	}
+}
 
 require "templates/main.php"
 ?>

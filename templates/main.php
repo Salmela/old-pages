@@ -18,7 +18,8 @@
         <div id="menus">
           <ol>
             <?php foreach($links as $topLink) { ?>
-            <li class="<?= $topLink->children ? "menu" : "" ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent() ?></a>
+            <li class="<?= ($activeLink == $topLink ? "active " : "") . ($topLink->children ? "menu" : "")
+                        ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent() ?></a>
               <?php if($topLink->children) { ?>
               <ul>
                 <?php foreach($topLink->children as $link) { ?>
@@ -30,6 +31,13 @@
             <?php } ?>
           </ol>
         </div>
+        <?php if($activeLink->children) { ?>
+        <ul id="sub-menus">
+          <?php foreach($activeLink->children as $link) { ?>
+            <li><a href="<?= $link->url ?>"><?= $link->getContent() ?></a></li>
+          <?php } ?>
+        </ul>
+        <?php } ?>
       </nav>
     </header>
     <div id="content-wrapper">

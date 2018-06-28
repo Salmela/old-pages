@@ -127,12 +127,8 @@ var content = {
 
 		$("#nav_placeholder").style.height = this.nav.offsetHeight +"px";
 
-		if(window.location.href.split("#")[1] != undefined) {
-			var page = window.location.pathname.substring(1);
-			this.currentMenu = $("#"+page);
-		} else {
-			this.currentMenu = $("#main");
-		}
+		this.currentMenu = $(".active");
+		this.navMenu = jQuery("#sub-menus")[0];
 
 		jQuery("a", this.nav).on("click", function(e) {
 			var newUrl = jQuery(e.target).attr("href");
