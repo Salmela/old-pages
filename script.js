@@ -47,7 +47,7 @@ var Search = (function() {
 	var onChange = (function(event) {
 		var query = $queryInput.val();
 
-		var request = jQuery.ajax({url: "/search.php?q=" + query});
+		var request = jQuery.ajax({url: "/search.php?q=" + query, cache:true});
 		request.done(showSearchResults);
 		request.fail(function() {
 			//TODO improve this
@@ -183,7 +183,7 @@ var content = {
 		return (browserZoomLevel > this.initialZoom + 0.01);
 	}),
 	load: (function(page, link) {
-		jQuery.ajax({url: "/content.php?page="+page}).done(content.update);
+		jQuery.ajax({url: "/content.php?page="+page, cache:true}).done(content.update);
 		this.nextMenu = link;
 	}),
 	update: (function(data, textStatus, jqXHR) {
