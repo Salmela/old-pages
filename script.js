@@ -136,7 +136,7 @@ var content = {
 
 		jQuery("a", this.nav).on("click", function(e) {
 			var newUrl = jQuery(e.target).attr("href");
-			if (!newUrl.startsWith("/")) return;
+			if (newUrl[0] != "/") return;
 			var page = newUrl.substring(1);
 			//TODO do error handling
 			content.load(page, e.target);
