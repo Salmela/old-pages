@@ -353,7 +353,7 @@ h3 a:visited {
 }
 
 
-#loginWrap {
+#login-wrap {
 	display: none;
 	z-index: 50;
 	position: fixed;
@@ -363,15 +363,15 @@ h3 a:visited {
 	width: 100%;
 	background: rgba(0,0,0,0.5);
 }
-#loginDialog {
+#login-dialog {
 	z-index: 60;
 	display: none;
-	margin: 0 auto;
-	position: relative;
-	top: 25%;
+	position: fixed;
+	top: 50%;
+	left: 50%;
 	padding: 20px;
-	width: 20%;
-	min-width: 200px;
+	margin: -6em 0 0 -9em;
+	width: 18em;
 	background: #fff;
 	border: 1px solid #000;
 	background: #73d216;
@@ -381,37 +381,75 @@ h3 a:visited {
 	color: #1e3b02;
 	text-shadow: 0 1px 0 #c6f19d;
 }
-#loginDialog h2 {
+#login-dialog h2 {
 	color: #346504;
 	text-shadow: 0 1px 0 #c6f19d, 0 -1px 0 #000;
 }
-#loginDialog span.first {
+#login-dialog span.first {
 	display: inline-block;
+	width: 35%;
+}
+#login-dialog input[type=text] {
+	width: 65%;
+	box-sizing: border-box;
+}
+#login-dialog input[type=button],
+#login-dialog input[type=submit] {
 	width: 40%;
 }
-#loginDialog input[type=text] {
-	width: 55%;
+#login-dialog div {
+	margin: 10px 0 0;
 }
-#loginDialog input[type=button],
-#loginDialog input[type=submit] {
-	width: 40%;
+#login-close span {
+	display: none;
 }
-#loginClose {
+#login-close {
 	width: 24px;
 	height: 24px;
-	color: transparent;
 	border: 0;
 	padding: 0;
 	float: right;
-	background: url(icons/login-close.png);
 	margin-top: -30px;
+
+	border-radius: 50%;
+	background-image: -moz-linear-gradient(top, #ffb0b0, #ef2929);
+	background-image: -webkit-linear-gradient(top, #ffb0b0, #ef2929);
+	background-image: -ms-linear-gradient(top, #ffb0b0, #ef2929);
+	background-image: -o-linear-gradient(top, #ffb0b0, #ef2929);
+	background-image: linear-gradient(top, #ffb0b0, #ef2929);
+	-moz-text-shadow: 0px 1px #ce9196;
+	-webkit-text-shadow: 0px 1px #ce9196;
+	-ms-text-shadow: 0px 1px #ce9196;
+	-o-text-shadow: 0px 1px #ce9196;
+	text-shadow: 0px 1px #ce9196;
 }
-#loginClose:hover {
-	background: url(icons/login-close-hover.png);
+#login-close::after {
+	content: "X";
+	color: #513234;
 }
-#loginDialog div {
-	margin: 10px 0 0;
+#login-close:hover,
+#login-close:focus {
+	background-image: -moz-linear-gradient(top, #ffb0b0, #ec6a6a);
+	background-image: -webkit-linear-gradient(top, #ffb0b0, #ec6a6a);
+	background-image: -ms-linear-gradient(top, #ffb0b0, #ec6a6a);
+	background-image: -o-linear-gradient(top, #ffb0b0, #ec6a6a);
+	background-image: linear-gradient(top, #ffb0b0, #ec6a6a);
 }
+
+#login-close:active {
+	-moz-box-shadow: inset 0px 2px 2px #732b2b;
+	-webkit-box-shadow: inset 0px 2px 2px #732b2b;
+	-ms-box-shadow: inset 0px 2px 2px #732b2b;
+	-o-box-shadow: inset 0px 2px 2px #732b2b;
+	box-shadow: inset 0px 2px 2px #732b2b;
+	background-image: -moz-linear-gradient(bottom, #ffb0b0, #ef2929);
+	background-image: -webkit-linear-gradient(bottom, #ffb0b0, #ef2929);
+	background-image: -ms-linear-gradient(bottom, #ffb0b0, #ef2929);
+	background-image: -o-linear-gradient(bottom, #ffb0b0, #ef2929);
+	background-image: linear-gradient(bottom, #ffb0b0, #ef2929);
+	line-height: 2em;/* move the X little bit down */
+}
+
 @media screen and (max-width: 320px) {
 	#header > h1 {
 		padding-left: 0;

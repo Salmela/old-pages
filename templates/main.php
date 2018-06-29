@@ -11,7 +11,7 @@
 <body>
   <div id="wrap">
     <header id="header">
-      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" onclick="login.show()">kirjaudu sisään</a></div>
+      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" id="login-link">kirjaudu sisään</a></div>
       <h1><span>Sivusto</span></h1>
       <div id="nav_placeholder"></div>
       <nav>
@@ -67,13 +67,13 @@
       </div>
     </div>
   </div>
-  <div id="loginWrap" onClick="login.unshow()">
+  <div id="login-wrap">
   </div>
-  <div id="loginDialog">
-    <button id="loginClose" onClick="login.unshow()">Close</button>
+  <div id="login-dialog">
+    <button id="login-close"><span>Close</span></button>
     <h2>Kirjaudu sisään</h2>
-    <div><span class="first">Käyttäjä:</span><input type="text"></div>
-    <div><span class="first">Salasana:</span><input type="text"></div>
+    <div><span class="first">Käyttäjä:</span><input type="text" id="username"></div>
+    <div><span class="first">Salasana:</span><input type="text" id="password"></div>
     <div id="loginButtons"><span class="first">&nbsp;</span><input type="submit" value="Kirjaudu"></div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>

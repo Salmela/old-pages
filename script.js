@@ -8,27 +8,29 @@ function $(str, root) {
 	}
 }
 
-var login = {
-	wrap: null,
-	dialog: null,
-	pageWrap: null,
-	
-	init: (function() {
-		this.wrap = document.getElementById("loginWrap");
-		this.dialog = document.getElementById("loginDialog");
-		this.pageWrap = document.getElementById("wrap");
-	}),
-	show: (function() {
-		this.wrap.style.display = "block";
-		this.dialog.style.display = "block";
-		this.pageWrap.style.filter = "url(\"filters.svg#login\")";
-	}),
-	unshow: (function() {
-		this.wrap.style.display = "none";
-		this.dialog.style.display = "none";
-		this.pageWrap.style.filter = "";
-	}),
-};
+var Login = (function() {
+	var $wrap = jQuery("#login-wrap");
+	var $dialog = jQuery("#login-dialog");
+	var $pageWrap = jQuery("#wrap");
+
+	var show = (function() {
+		$wrap.css("display", "block");
+		$dialog.css("display", "block");
+		$pageWrap.css("filter", "url(\"filters.svg#login\")");
+	});
+	var unshow = (function() {
+		$wrap.css("display", "none");
+		$dialog.css("display", "none");
+		$pageWrap.css("filter", "");
+	});
+
+	jQuery("#login-link").on("click", function() {
+		show();
+	});
+	jQuery("#login-close, #login-wrap").on("click", function() {
+		unshow();
+	});
+});
 
 var Search = (function() {
 	var oldValue = "";
@@ -214,7 +216,7 @@ var content = {
 }
 
 jQuery(document).ready(function() {
-	login.init();
+	new Login();
 	new Search();
 	content.init();
 });
