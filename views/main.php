@@ -141,7 +141,7 @@ $links = array(
 		new Link("Wikipedia", "Wikipedia", "https://www.wikipedia.org"),
 	))
 );
-$activeLink = null;
+$activeLink = new Link("Invalid", null, null);
 if ($name == "main") {
 	$name = "";
 }

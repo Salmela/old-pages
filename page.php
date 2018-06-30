@@ -23,7 +23,7 @@ class Page {
 	}
 
 	static function init() {
-		self::$notFoundPage = new Page(null, "<h1>404 Sivua ei löydy</h1>", "<h1>404 Page not found</h1>");
+		self::$notFoundPage = new Page(null, new Template('templates/$lang/not_found.html'));
 	}
 
 	static function getPage($pageName) {
