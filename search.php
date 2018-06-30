@@ -13,7 +13,7 @@ echo "<h1>Haku tulokset</h1>";
 
 $results = array();
 foreach ($pageMap as $page) {
-	if (strpos($page->getContent(), $query)) {
+	if ($query && strpos($page->getContent(), $query)) {
 		$results[] = $page;
 	}
 }
