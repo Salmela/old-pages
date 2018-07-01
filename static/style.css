@@ -559,7 +559,7 @@ h3 a:visited {
 	}
 }*/
 
-body.js-enabled #frontpage-gallery {
+#frontpage-gallery {
 	width: 512px;
 	height: 380px;
 	display: block;
@@ -572,7 +572,7 @@ body.js-enabled #frontpage-gallery:hover {
 	background: #fff;
 }
 
-body.js-enabled #frontpage-gallery .image {
+#frontpage-gallery .image {
 	position: absolute;
 	top: 50%;
 	margin-top: -170px;
@@ -582,7 +582,7 @@ body.js-enabled #frontpage-gallery .image {
 	background: url("/images/turbines_web.jpg");
 }
 
-body.js-enabled #frontpage-gallery .title {
+#frontpage-gallery .title {
 	text-shadow: none;
 	position: absolute;
 	top: 80%;

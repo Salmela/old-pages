@@ -11,7 +11,7 @@
 <body>
   <div id="wrap">
     <header id="header">
-      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> |
+      <div id="headerright"><span class="js"><button id="font-resize-button">Aa</button> |</span>
       <?= anchorWithParam("lang=fi", "FI") ?> |
       <?= anchorWithParam("lang=en", "EN") ?></div>
       <h1><span><a href="/">Salmela</a></span></h1>
