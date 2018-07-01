@@ -147,7 +147,7 @@ h3 a:visited {
 /* cell of main-menu list */
 #menus ol > li {
 	display: inline-block;
-	padding: 0 5px;
+	margin:  0 10px;
 }
 /* cell of main-menu list link */
 #menus ol > li > a {
@@ -160,17 +160,16 @@ h3 a:visited {
 	color:           #2e3436;
 	display:         block;
 	text-shadow:     0 1px 0 #8ae234;
-	margin:          0 10px;
 }
 /* sublist of main-menu list shows, when mouse is over list */
-#menus ol > li > a:hover ~ ul {
+#menus ol > li:hover > ul {
 	display:         block;
 }
 #menus ol > li.active > ul {
 	display:         none !important;
 }
 /* cell of main-menu list, when mouse over */
-#menus ol > li > a:hover,
+#menus ol > li:hover > a,
 #menus ol > li > a:focus,
 #menus ol > li.active > a {
 	background:      #59a90f;
@@ -193,7 +192,7 @@ h3 a:visited {
 	background:      -webkit-linear-gradient(top, #8AE234, #6FC61E);
 	background:      linear-gradient(top, #8AE234, #6FC61E);
 }
-#menus ol > li.menu > a:hover,
+#menus ol > li.menu:hover > a,
 #menus ol > li.menu.active > a {
 	border-bottom:   1px solid #4E9A06;
 	padding:         3px 5px 5px;
@@ -217,7 +216,7 @@ h3 a:visited {
 	border-radius:   5px;
 	background:      #4E9A06;
 	padding:         5px 0;
-	margin:          -1px 0 0 0;
+	margin:          -1px 0 0 -10px;
 	display:         none;
 	/*width:           200px;*/
 	z-index:         11;
@@ -239,7 +238,7 @@ h3 a:visited {
 	-moz-transition:    padding-left .1s linear, padding-right .1s linear;
 	transition:         padding-left .1s linear, padding-right .1s linear;
 }
-#menus ul > li > a:hover {
+#menus ul > li:hover > a {
 	background: rgba(138, 226, 52, 0.4);
 	border-top: 1px dotted #73d216;
 	border-bottom: 1px dotted #73d216;
