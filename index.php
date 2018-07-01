@@ -9,7 +9,7 @@ function getRequestInfo() {
 	}
 
 	$uriParts = preg_split("/\?/", $uri);
-	$filename = $uriParts[0];
+	$_SERVER["REQUEST_FILE"] = $uriParts[0];
 
 	if (count($uriParts) == 2) {
 		$params = preg_split("/&/", $uriParts[1]);
@@ -18,13 +18,15 @@ function getRequestInfo() {
 			$_GET[urldecode($key)] = urldecode($value);
 		}
 	}
-	return substr($filename, 1);
+	return substr($_SERVER["REQUEST_FILE"], 1);
 }
 
 function view() {
 	$name = getRequestInfo();
 
-	$content = Page::getPage($name)->generateContent();
+	$lang = @$_GET["lang"] ?: "fi";
+	$content = Page::getPage($name)->generateContent($lang);
+
 	if (isset($_GET["format"]) && $_GET["format"] == "body") {
 		header("Content-type: text/plain");
 		header("Cache-Control: max-age=3600");

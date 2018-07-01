@@ -11,14 +11,17 @@
 <body>
   <div id="wrap">
     <header id="header">
-      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" id="login-link">kirjaudu sisään</a></div>
+      <div id="headerright" class="js"><button id="font-resize-button">Aa</button> |
+      <?= anchorWithParam("lang=fi", "Fi") ?> |
+      <?= anchorWithParam("lang=en", "En") ?></div>
       <h1><span><a href="/">Salmela</a></span></h1>
       <div id="nav_placeholder"></div>
       <nav>
         <div id="menus">
           <ol>
             <?php foreach($links as $topLink) { ?>
-            <li class="<?= ($activeLink == $topLink ? "active " : "") . ($topLink->children ? "menu" : "")
+            <li class="<?= onlyIfTrue($activeLink == $topLink, "active ") .
+                           onlyIfTrue($topLink->children, "menu")
                         ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent() ?></a>
               <?php if($topLink->children) { ?>
               <ul>
@@ -64,8 +67,8 @@
       </article>
       <div id="copyrights">
         Teksti on saatavilla <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution/Share-Alike</a> -lisenssillä.
-        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL).</br>
-	© Aleksi Salmela
+        Sivustolla käytetyt <a href="http://www.gnome.org/">GNOME</a> ikonit ovat julkaistu <a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL</a> -lisenssillä. Sivuston muut osat on julkaistu General Public License:llä (GPL). <a href="javascript: void(0);" class="js" id="login-link">kirjaudu sisään</a></br>
+	© 2018 Aleksi Salmela
       </div>
     </div>
   </div>

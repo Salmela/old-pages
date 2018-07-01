@@ -141,6 +141,7 @@ $links = array(
 		new Link("Wikipedia", "Wikipedia", "https://www.wikipedia.org"),
 	))
 );
+
 function computeActiveLink($name, $links) {
 	$activeLink = new Link("Invalid", null, null);
 	if ($name == "main") {
@@ -156,6 +157,33 @@ function computeActiveLink($name, $links) {
 }
 
 $activeLink = computeActiveLink($name, $links);
+
+function onlyIfTrue($condition, $value) {
+	return $condition ? $value : "";
+}
+
+function urlWith($param) {
+	$currentUrl = $_SERVER["REQUEST_FILE"];
+	$params = $_GET; // implicit clone
+	list($key, $value) = preg_split("/=/", $param);
+	$params[$key] = $value;
+
+	$url = $currentUrl;
+	$isFirst = true;
+	foreach($params as $key => $value) {
+		$url .= $isFirst ? "?" : "&";
+		$url .= urlencode($key) . "=" . urlencode($value);
+		$isFirst = false;
+	}
+	return $url;
+}
+
+function anchorWithParam($param, $name) {
+	$url = urlWith($param);
+	// If js changes url then the link href is incorrect
+	// this is why the data-param attribute is added here.
+	return "<a href=\"$url\" data-url-param=\"$param\">$name</a>";
+}
 
 require("templates/main.php");
 ?>

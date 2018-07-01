@@ -51,7 +51,7 @@ var Search = (function() {
 
 		request.done((function(data, textStatus, jqXHR) {
 			jQuery("#content").html(data);
-			history.pushState([url, data], "Otsikko", url);
+			content.updateBrowserUrl(url, data);
 		}));
 		request.fail(function() {
 			//TODO improve this
@@ -191,8 +191,29 @@ var content = {
 		var that = content;
 
 		var url = jQuery(that.nextMenu).attr("href");
-		history.pushState([url, data], "Otsikko", url);
+		that.updateBrowserUrl(url, data);
 		that.setContent(data, that.nextMenu);
+	}),
+	_parseGetParams: (function(urlGetPart) {
+		var result = {};
+		var items = urlGetPart.substr(1).split("&");
+		for (var index = 0; index < items.length; index++) {
+			var parts = items[index].split("=");
+			result[parts[0]] = decodeURIComponent(parts[1]);
+		}
+		return result;
+	}),
+	updateBrowserUrl: (function(url, data) {
+		var params = this._parseGetParams(location.search);
+		history.pushState([url, data], "Otsikko", url);
+		jQuery("[data-url-param]").each(function() {
+			var $this = jQuery(this);
+			var linkParams = jQuery.extend({}, params);
+			var param = $this.attr("data-url-param");
+			var paramParts = param.split("=");
+			linkParams[paramParts[0]] = paramParts[1];
+			$this.attr("href", window.location.pathname + "?" + jQuery.param(linkParams));
+		});
 	}),
 	setContent: (function(data, newActiveItem) {
 		this.contents.innerHTML = data;
