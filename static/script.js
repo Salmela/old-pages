@@ -145,8 +145,8 @@ var content = {
 		});
 
 		jQuery(window).on('popstate', function(event){
-			var state = event.state;
-			content.setContent(jQuery("[href=" + state[0] + "]"), state[1]);
+			var state = event.originalEvent.state;
+			content.setContent(state[1], jQuery(".menu > [href=\"" + state[0] + "\"]")[0]);
 		});
 	}),
 
@@ -226,6 +226,11 @@ var content = {
 
 		var oldMenu = this.currentMenu;
 		this.currentMenu = newActiveItem.parentNode;
+		var that = this;
+		// fix weird issue were focus() is not working when devtools are open
+		window.setTimeout(function () {
+			that.currentMenu.children[0].focus();
+		}, 0);
 
 		if(oldMenu) {
 			oldMenu.classList.remove("active");
