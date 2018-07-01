@@ -24,7 +24,12 @@ function getRequestInfo() {
 function view() {
 	$name = getRequestInfo();
 
-	$lang = @$_GET["lang"] ?: "fi";
+	$acceptedLanguage = substr($_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2);
+	$lanuageSetting = @$_COOKIE["LANGUAGE"] ?: $acceptedLanguage;
+	$lang = @$_GET["lang"] ?: $lanuageSetting;
+	if ($lanuageSetting != $lang) {
+		setcookie("LANGUAGE", $lang, time() + (3600 * 24 * 30), "/");
+	}
 	$content = Page::getPage($name)->generateContent($lang);
 	$title = Search::getHeaders($content)[0][1];
 
