@@ -550,3 +550,46 @@ h3 a:visited {
 		display:	none;
 	}
 }*/
+
+body.js-enabled #frontpage-gallery {
+	width: 512px;
+	height: 380px;
+	display: block;
+	position: relative;
+	background: #fff;
+	transition: background-color 0.5s, box-shadow 0.5s;
+}
+body.js-enabled #frontpage-gallery:hover {
+	box-shadow: inset 0 0 30px #bcbdaa;
+	background: #fff;
+}
+
+body.js-enabled #frontpage-gallery .image {
+	position: absolute;
+	top: 50%;
+	margin-top: -170px;
+	width: 512px;
+	height: 341px;
+	display: block;
+	background: url("/images/turbines_web.jpg");
+}
+
+body.js-enabled #frontpage-gallery .title {
+	text-shadow: none;
+	position: absolute;
+	top: 80%;
+	z-index: 1;
+	display: block;
+	font-size: 1.4em;
+	margin-top: -0.7em;
+	padding: 0 8px;
+	color: #fff;/* fallback */
+	/* transparent white is required for nice transition effect */
+	color: rgba(255, 255, 255, 0);
+	transition: color 0.5s, box-shadow 0.5s;
+}
+
+body.js-enabled #frontpage-gallery:hover .title {
+	color: #fff;
+	text-shadow: 0 2px 5px #000, 0 2px 5px rgba(0,0,0,0.5);
+}

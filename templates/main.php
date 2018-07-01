@@ -12,8 +12,8 @@
   <div id="wrap">
     <header id="header">
       <div id="headerright" class="js"><button id="font-resize-button">Aa</button> |
-      <?= anchorWithParam("lang=fi", "Fi") ?> |
-      <?= anchorWithParam("lang=en", "En") ?></div>
+      <?= anchorWithParam("lang=fi", "FI") ?> |
+      <?= anchorWithParam("lang=en", "EN") ?></div>
       <h1><span><a href="/">Salmela</a></span></h1>
       <div id="nav_placeholder"></div>
       <nav>
@@ -22,11 +22,11 @@
             <?php foreach($links as $topLink) { ?>
             <li class="<?= onlyIfTrue($activeLink == $topLink, "active ") .
                            onlyIfTrue($topLink->children, "menu")
-                        ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent() ?></a>
+                        ?>"><a href="<?= $topLink->url ?>"><?= $topLink->getContent($lang) ?></a>
               <?php if($topLink->children) { ?>
               <ul>
                 <?php foreach($topLink->children as $link) { ?>
-                  <li><a href="<?= $link->url ?>"><?= $link->getContent() ?></a></li>
+                  <li><a href="<?= $link->url ?>"><?= $link->getContent($lang) ?></a></li>
                 <?php } ?>
               </ul>
               <?php } ?>
@@ -37,7 +37,7 @@
         <?php if($activeLink->children) { ?>
         <ul id="sub-menus">
           <?php foreach($activeLink->children as $link) { ?>
-            <li><a href="<?= $link->url ?>"><?= $link->getContent() ?></a></li>
+            <li><a href="<?= $link->url ?>"><?= $link->getContent($lang) ?></a></li>
           <?php } ?>
         </ul>
         <?php } ?>

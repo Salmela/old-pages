@@ -144,9 +144,43 @@ var content = {
 			e.preventDefault();
 		});
 
-		jQuery(window).on('popstate', function(event){
+		jQuery(window).on("popstate", function(event) {
 			var state = event.originalEvent.state;
 			content.setContent(state[1], jQuery(".menu > [href=\"" + state[0] + "\"]")[0]);
+		});
+		this.setupImageGallery();
+	}),
+
+	setupImageGallery: (function() {
+		function GalleryImage(title, url, height) {
+			this.title = title;
+			this.url = url;
+			this.height = height;
+		}
+		var images = [
+			new GalleryImage("Turbiinit (synttäri kortti)", "/images/turbines_web.jpg", 341),
+			new GalleryImage("Usvainen tulevaisuus<br>(Ylioppilaskutsu kortti)", "/images/yo_card_web.jpg", 362),
+			new GalleryImage("Uusi koti (synttäri kortti)", "/images/brothers_home_web.jpg", 339),
+			new GalleryImage("Maan läpileikkaus ja kuu (synttäri kortti)", "/images/earth_web.jpg", 288)
+		];
+		var activeImage = 0;
+		var $gallery = jQuery("#frontpage-gallery");
+		var $imageNode = $gallery.children(".image");
+		var $title = $gallery.children(".title");
+
+		$title.css("visibility", "hidden");
+		$title.text(images[0].title);
+		// ugly hack to hide the transition animation at page load
+		window.setTimeout(function() {
+			$title.css("visibility", "visible");
+		}, 600);
+		$gallery.on("click", function(event) {
+			activeImage = (activeImage + 1) % images.length;
+			var image = images[activeImage];
+			$imageNode.css("background-image", "url(" + image.url + ")");
+			$imageNode.css("margin-top", -image.height / 2 + "px");
+			$imageNode.css("height", image.height + "px");
+			$title.html(image.title);
 		});
 	}),
 
@@ -207,7 +241,7 @@ var content = {
 		return result;
 	}),
 	_findPageTitle: (function(content) {
-		matches = /<h[1-9]>(.*)<\/h[1-9]>/.exec(content);
+		matches = /<h[1-9][^>]*>(.*)<\/h[1-9]>/.exec(content);
 		return matches[1];
 	}),
 	updateBrowserUrl: (function(url, content) {
