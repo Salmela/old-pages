@@ -11,7 +11,7 @@ function getRequestInfo() {
 	$uriParts = preg_split("/\?/", $uri);
 	$_SERVER["REQUEST_FILE"] = $uriParts[0];
 
-	if (count($uriParts) == 2) {
+	if (count($uriParts) == 2 && $uriParts[1] != "") {
 		$params = preg_split("/&/", $uriParts[1]);
 		foreach ($params as $param) {
 			list($key, $value) = preg_split("/=/", $param);

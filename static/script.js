@@ -196,6 +196,9 @@ var content = {
 	}),
 	_parseGetParams: (function(urlGetPart) {
 		var result = {};
+		if (!urlGetPart) {
+			return result;
+		}
 		var items = urlGetPart.substr(1).split("&");
 		for (var index = 0; index < items.length; index++) {
 			var parts = items[index].split("=");
