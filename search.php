@@ -15,7 +15,7 @@ class Search implements View {
 		global $pageMap;
 		$results = array();
 		foreach ($pageMap as $page) {
-			if ($query && $page->isSearchable() && strpos($page->generateContent(), $query)) {
+			if ($query && $page->isSearchable() && strpos($page->generateContent(), $query) !== false) {
 				$results[] = $page;
 			}
 		}
