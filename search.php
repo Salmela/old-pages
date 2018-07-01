@@ -11,11 +11,11 @@ class Search implements View {
 		return $_GET["q"];
 	}
 
-	private function getSearchResult($query) {
+	private function getSearchResult($query, $lang) {
 		global $pageMap;
 		$results = array();
 		foreach ($pageMap as $page) {
-			if ($query && $page->isSearchable() && strpos($page->generateContent(), $query) !== false) {
+			if ($query && $page->isSearchable() && strpos($page->generateContent($lang), $query) !== false) {
 				$results[] = $page;
 			}
 		}
@@ -49,11 +49,11 @@ class Search implements View {
 
 	function generateContent($lang) {
 		$query = $this->getQuery();
-		$results = $this->getSearchResult($query);
+		$results = $this->getSearchResult($query, $lang);
 
 		$generated = array();
 		foreach ($results as $page) {
-			$content = $page->generateContent();
+			$content = $page->generateContent($lang);
 			$textTokens = $this->getTokenizer($content);
 			//var_dump($textTokens);
 			$headers = $this::getHeaders($content);
