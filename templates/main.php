@@ -12,7 +12,7 @@
   <div id="wrap">
     <header id="header">
       <div id="headerright" class="js"><button id="font-resize-button">Aa</button> | <a href="javascript: void(0);" id="login-link">kirjaudu sisään</a></div>
-      <h1><span>Sivusto</span></h1>
+      <h1><span><a href="/">Salmela</a></span></h1>
       <div id="nav_placeholder"></div>
       <nav>
         <div id="menus">

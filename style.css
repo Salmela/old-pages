@@ -57,13 +57,16 @@ h3 a:visited {
 	border-radius: 3px;
 	-moz-box-shadow:    0 6px 5px -1px #8AE234 inset, 0 2px 2px -1px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow: 0 6px 5px -1px #8AE234 inset, 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+	-ms-box-shadow:     0 6px 5px -1px #8AE234 inset, 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+	-o-box-shadow:      0 6px 5px -1px #8AE234 inset, 0 2px 2px -1px rgba(0, 0, 0, 0.4);
 	box-shadow:         0 6px 5px -1px #8AE234 inset, 0 2px 2px -1px rgba(0, 0, 0, 0.4);
 	-moz-text-shadow:    0 1px #8AE234;
 	-webkit-text-shadow: 0 1px #8AE234;
+	-ms-text-shadow:     0 1px #8AE234;
+	-o-text-shadow:      0 1px #8AE234;
 	text-shadow:         0 1px #8AE234;
 }
 #header > h1 {
-	padding-left: 20px;
 	background: #FCE94F -webkit-radial-gradient(left bottom , #E9B96E, #B16E02);
 	background: #FCE94F -moz-radial-gradient(left bottom , #E9B96E, #B16E02);
 	background: #FCE94F -ms-radial-gradient(left bottom , #E9B96E, #B16E02);
@@ -71,26 +74,34 @@ h3 a:visited {
 	background: #FCE94F radial-gradient(left bottom , #E9B96E, #B16E02);
 	font-family: "Gentium Basic";
 	font-size:   4em;
+	padding: 5px 20px;
 }
 #header > h1 a {
 	position: relative;
 	z-index:  1;
-	color:    #4E9A06;
-	-webkit-text-shadow: 0 -1px #60B60E, 0 -2px #73D216;
-	-moz-text-shadow:    0 -1px #60B60E, 0 -2px #73D216;
-	text-shadow:         0 -1px #60B60E, 0 -2px #73D216;
+	color: #74d316;
+	-webkit-text-shadow: 1px -1px 0 #458905, 2px -2px 0 #458905;
+	-moz-text-shadow:    1px -1px 0 #458905, 2px -2px 0 #458905;
+	-ms-text-shadow:     1px -1px 0 #458905, 2px -2px 0 #458905;
+	-o-text-shadow:      1px -1px 0 #458905, 2px -2px 0 #458905;
+	text-shadow:         1px -1px 0 #458905, 2px -2px 0 #458905;
+	text-decoration: none;
+	cursor: default;
+}
+#header > h1 a:hover {
+	color: #8de932;
 }
 #header > h1 div {
 	display: inline;
 }
 #header > h1 a:before {
-	content:  "Sivusto";
+	content:  "Salmela";
 	position: absolute;
 	color:    transparent;
 	z-index:  -1;
-	-moz-text-shadow: 0 0 8px #000000;
-	-webkit-text-shadow: 0 0 8px #000000;
-	text-shadow: 0 0 8px #000000;
+	-moz-text-shadow: 0 0 2px rgba(0,0,0,.3);
+	-webkit-text-shadow: 0 0 2px rgba(0,0,0,.3);
+	text-shadow: 0 0 2px rgba(0,0,0,.3);
 	-moz-transform:    translate(0.1em, 0.2em) scale(1, 0.4) skewX(-20deg);
 	-webkit-transform: translate(0.1em, 0.2em) scale(1, 0.4) skewX(-20deg);
 	transform:         translate(0.1em, 0.2em) scale(1, 0.4) skewX(-20deg);
@@ -117,6 +128,9 @@ h3 a:visited {
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#8ae234", endColorstr="#4e9a06");
 	background: linear-gradient(top, #8ae234, #4e9a06);
 	border-bottom: 1px solid #1f3e02;
+}
+#menus a {
+	cursor: default;
 }
 #menus a:focus,
 #menus a:active {
@@ -145,18 +159,18 @@ h3 a:visited {
 	text-decoration: none;
 	color:           #2e3436;
 	display:         block;
-	margin:          0 10px;
 	text-shadow:     0 1px 0 #8ae234;
+	margin:          0 10px;
 }
 /* sublist of main-menu list shows, when mouse is over list */
-#menus ol > li:hover > ul {
+#menus ol > li > a:hover ~ ul {
 	display:         block;
 }
 #menus ol > li.active > ul {
-	display:         none;
+	display:         none !important;
 }
 /* cell of main-menu list, when mouse over */
-#menus ol > li:hover > a,
+#menus ol > li > a:hover,
 #menus ol > li > a:focus,
 #menus ol > li.active > a {
 	background:      #59a90f;
@@ -179,7 +193,7 @@ h3 a:visited {
 	background:      -webkit-linear-gradient(top, #8AE234, #6FC61E);
 	background:      linear-gradient(top, #8AE234, #6FC61E);
 }
-#menus ol > li.menu:hover > a,
+#menus ol > li.menu > a:hover,
 #menus ol > li.menu.active > a {
 	border-bottom:   1px solid #4E9A06;
 	padding:         3px 5px 5px;
