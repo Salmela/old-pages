@@ -15,7 +15,7 @@ function getRequestInfo() {
 		$params = preg_split("/&/", $uriParts[1]);
 		foreach ($params as $param) {
 			list($key, $value) = preg_split("/=/", $param);
-			$_GET[$key] = $value;
+			$_GET[urldecode($key)] = urldecode($value);
 		}
 	}
 	return substr($filename, 1);
