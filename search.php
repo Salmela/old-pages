@@ -3,37 +3,50 @@
 require_once("page.php");
 
 class Search implements View {
-	function generateContent($lang) {
-		global $pageMap;
+	private function getQuery() {
 		if (!isset($_GET["q"])) {
-			die("Expect query 'q' GET parameter");
+			return "";
 		}
 
-		$query = $_GET["q"];
-		$isEmpty = true;
-		echo "<div class=\"section\">";
-		echo "<h1>Haku tulokset</h1>";
+		return $_GET["q"];
+	}
 
+	private function getSearchResult($query) {
+		global $pageMap;
 		$results = array();
 		foreach ($pageMap as $page) {
-			if ($query && strpos($page->getContent(), $query)) {
+			if ($query && $page->isSearchable() && strpos($page->generateContent(), $query)) {
 				$results[] = $page;
 			}
 		}
-		if (empty($results)) {
-			echo "<p>No results found</p>";
-		} else {
-			echo "<ol>";
-			foreach ($results as $page) {
-				echo "<li><a href=\"/" . $page->getPageId() . "\">" . $page->getPageId() . "</a></li>";
-			}
-			echo "</ol>";
+		return $results;
+	}
+
+	private function getHeaders($content) {
+		preg_match_all("/<h[1-9]>(.*)<\/h[1-9]>/", $content, $headers, PREG_SET_ORDER);
+		return $headers;
+	}
+
+	function generateContent($lang) {
+		$query = $this->getQuery();
+		$results = $this->getSearchResult($query);
+
+		$generated = array();
+		foreach ($results as $page) {
+			$content = $page->generateContent();
+			$headers = $this->getHeaders($content);
+
+			$generated[] = array(
+				"url" => "/" . $page->getPageId(),
+				"title" => $headers[0][1],
+				"excerpt" => "test"
+			);
 		}
-		echo "</div>";
-		return "";//TODO dont print the content directly
+
+		ob_start();
+		require("templates/$lang/search.php");
+		return ob_get_clean();
 	}
 }
-$page = new Search();
-echo $page->generateContent("fi");
 
 ?>

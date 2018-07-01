@@ -43,18 +43,21 @@ var Search = (function() {
 			$submit.html("<img src=\"icons/search.png\">");
 		}
 	});
-	var showSearchResults = (function(data, textStatus, jqXHR) {
-		jQuery("#content").html(data);
-	});
 	var onChange = (function(event) {
 		var query = $queryInput.val();
 
-		var request = jQuery.ajax({url: "/search.php?q=" + query, cache:true});
-		request.done(showSearchResults);
+		var url = "/search?q=" + query;
+		var request = jQuery.ajax({url: url + "&format=body", cache:true});
+
+		request.done((function(data, textStatus, jqXHR) {
+			jQuery("#content").html(data);
+			history.pushState([url, data], "Otsikko", url);
+		}));
 		request.fail(function() {
 			//TODO improve this
 			alert("Jokin meni pieleen");
 		});
+		event.preventDefault();
 	});
 	hideText();
 	$submit.on("click", onChange);

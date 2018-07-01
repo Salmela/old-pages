@@ -44,7 +44,9 @@
       <div id="sidebar">
         <div id="search">
           <h2>Etsi</h2>
-          <input type="text" id="searchBox" name="searchBox" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
+          <form action="/search" method="GET">
+            <input type="text" id="searchBox" name="q" accesskey="f"><button type="submit" id="searchSubmit">Etsi</button>
+          </form>
         </div>
         <div id="statistics">
           <h2>Tilastot</h2>

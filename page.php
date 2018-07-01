@@ -67,6 +67,8 @@ Page::init();
 new Page("main", new Template('templates/$lang/main.html'));
 new Page("demo", new Template('templates/$lang/demoes.html'));
 new Page("links", new Template('templates/$lang/links.html'));
-//new Page("search", new Template('template/$lang/.html'));
+
+require_once("search.php");
+new Page("search", new Search(), False);
 
 ?>
