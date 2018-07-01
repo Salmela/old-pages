@@ -2,7 +2,7 @@
 <html lang="fi">
 <head>
   <title>Otsikko</title>
-  <link rel="stylesheet" title="Perus" type="text/css" href="style.css">
+  <link rel="stylesheet" title="Perus" type="text/css" href="/static/style.css">
   <meta charset="utf-8">
   <meta name="robots" content="noindex,nofollow">
   <link href="https://fonts.googleapis.com/css?family=Gentium+Basic" rel="stylesheet" type="text/css" crossorigin="anonymous">
@@ -79,6 +79,6 @@
     <div id="loginButtons"><span class="first">&nbsp;</span><input type="submit" value="Kirjaudu"></div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="script.js"></script>
+  <script type="text/javascript" src="/static/script.js"></script>
 </body>
 </html>

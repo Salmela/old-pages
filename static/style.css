@@ -365,7 +365,9 @@ h3 a:visited {
 	margin: 25px;
 }
 
-
+#wrap.login-show {
+	filter: url("filters.svg#login");
+}
 #login-wrap {
 	display: none;
 	z-index: 50;

@@ -16,12 +16,12 @@ var Login = (function() {
 	var show = (function() {
 		$wrap.css("display", "block");
 		$dialog.css("display", "block");
-		$pageWrap.css("filter", "url(\"filters.svg#login\")");
+		$pageWrap.addClass("login-show");
 	});
 	var unshow = (function() {
 		$wrap.css("display", "none");
 		$dialog.css("display", "none");
-		$pageWrap.css("filter", "");
+		$pageWrap.removeClass("login-show");
 	});
 
 	jQuery("#login-link").on("click", function() {

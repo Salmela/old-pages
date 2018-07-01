@@ -141,16 +141,21 @@ $links = array(
 		new Link("Wikipedia", "Wikipedia", "https://www.wikipedia.org"),
 	))
 );
-$activeLink = new Link("Invalid", null, null);
-if ($name == "main") {
-	$name = "";
-}
-foreach ($links as $link) {
-	if ($link->url == "/" . $name) {
-		$activeLink = $link;
-		break;
+function computeActiveLink($name, $links) {
+	$activeLink = new Link("Invalid", null, null);
+	if ($name == "main") {
+		$name = "";
 	}
+	foreach ($links as $link) {
+		if ($link->url == "/" . $name) {
+			$activeLink = $link;
+			break;
+		}
+	}
+	return $activeLink;
 }
+
+$activeLink = computeActiveLink($name, $links);
 
 require("templates/main.php");
 ?>
