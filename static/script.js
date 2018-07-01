@@ -161,7 +161,8 @@ var content = {
 			new GalleryImage("Turbiinit (synttäri kortti)", "/images/turbines_web.jpg", 341),
 			new GalleryImage("Usvainen tulevaisuus<br>(Ylioppilaskutsu kortti)", "/images/yo_card_web.jpg", 362),
 			new GalleryImage("Uusi koti (synttäri kortti)", "/images/brothers_home_web.jpg", 339),
-			new GalleryImage("Maan läpileikkaus ja kuu (synttäri kortti)", "/images/earth_web.jpg", 288)
+			new GalleryImage("Maan läpileikkaus ja kuu (synttäri kortti)", "/images/earth_web.jpg", 288),
+			new GalleryImage("Kouluni (yläasteen loppuprojekti)", "/images/koulu_new_web.jpg", 288)
 		];
 		var activeImage = 0;
 		var $gallery = jQuery("#frontpage-gallery");
