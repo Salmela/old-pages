@@ -1,4 +1,5 @@
 <?php
+
 $db_url = getenv("DATABASE_URL");
 $db = parse_url($db_url);
 
@@ -84,8 +85,7 @@ if (False && $db_url) {
 $sector_colors = array("#8ae234", "#fce94f", "#fcaf3e", "#729fcf", "#ad7fa8", "#e9b96e", "#ef2929");
 $radius = 75;
 $pie_width = $radius*2;
-function generatePath($sini, $cosi, $sini2, $cosi2, $flag) {
-	global $radius;
+function generatePath($radius, $sini, $cosi, $sini2, $cosi2, $flag) {
 	return "M$radius,$radius L$sini2,$cosi2 A$radius,$radius 0 $flag,1 $sini,$cosi z";
 }
 $sectors = array();
@@ -100,7 +100,7 @@ foreach($rows as $row) {
 	$sini = $radius + sin($rad) * $radius;
 	$flag = ($row["ammount"] > 0.5 * $total) ? 1 : 0;
 	$sectors[] = array(
-		"path" => generatePath($sini, $cosi, $sini2, $cosi2, $flag),
+		"path" => generatePath($radius, $sini, $cosi, $sini2, $cosi2, $flag),
 		"color" => $sector_colors[$i]
 	);
 	$cosi2 = $cosi;
@@ -152,5 +152,5 @@ foreach ($links as $link) {
 	}
 }
 
-require "templates/main.php"
+require("templates/main.php");
 ?>

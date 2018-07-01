@@ -181,7 +181,7 @@ var content = {
 		return (browserZoomLevel > this.initialZoom + 0.01);
 	}),
 	load: (function(page, link) {
-		jQuery.ajax({url: "/content.php?page="+page, cache:true}).done(content.update);
+		jQuery.ajax({url: "/" + page + "?format=body", cache:true}).done(content.update);
 		this.nextMenu = link;
 	}),
 	update: (function(data, textStatus, jqXHR) {
