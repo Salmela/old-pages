@@ -47,7 +47,7 @@ var Search = (function() {
 		var query = $queryInput.val();
 
 		var url = "/search?q=" + query;
-		var request = jQuery.ajax({url: url + "&format=body", cache:true});
+		var request = jQuery.ajax({url: url + "&format=body&lang=" + jQuery("html").attr("lang"), cache:true});
 
 		request.done((function(data, textStatus, jqXHR) {
 			jQuery("#content").html(data);
@@ -218,7 +218,7 @@ var content = {
 		return (browserZoomLevel > this.initialZoom + 0.01);
 	}),
 	load: (function(page, link) {
-		jQuery.ajax({url: "/" + page + "?format=body", cache:true}).done(content.update);
+		jQuery.ajax({url: "/" + page + "?format=body&lang=" + jQuery("html").attr("lang"), cache:true}).done(content.update);
 		this.nextMenu = link;
 	}),
 	update: (function(data, textStatus, jqXHR) {

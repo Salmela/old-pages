@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="<?= $lang ?>">
 <head>
   <title><?= $title ?> - Salmela</title>
   <link rel="stylesheet" title="Perus" type="text/css" href="/static/style.css">
