@@ -43,6 +43,14 @@ h3 a:visited {
 #headerright {
 	float:   right;
 	padding: 5px;
+	cursor: default;
+}
+#headerright a {
+	text-decoration: none;
+	color: #fff;
+}
+#headerright a:hover {
+	text-decoration: underline;
 }
 #header {
 	-webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.5);
