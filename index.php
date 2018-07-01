@@ -26,6 +26,7 @@ function view() {
 
 	$lang = @$_GET["lang"] ?: "fi";
 	$content = Page::getPage($name)->generateContent($lang);
+	$title = Search::getHeaders($content)[0][1];
 
 	if (isset($_GET["format"]) && $_GET["format"] == "body") {
 		header("Content-type: text/plain");

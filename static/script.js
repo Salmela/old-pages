@@ -203,9 +203,15 @@ var content = {
 		}
 		return result;
 	}),
-	updateBrowserUrl: (function(url, data) {
+	_findPageTitle: (function(content) {
+		matches = /<h[1-9]>(.*)<\/h[1-9]>/.exec(content);
+		return matches[1];
+	}),
+	updateBrowserUrl: (function(url, content) {
 		var params = this._parseGetParams(location.search);
-		history.pushState([url, data], "Otsikko", url);
+		var title = this._findPageTitle(content);
+		document.title = title + " - Salmela";
+		history.pushState([url, content], document.title, url);
 		jQuery("[data-url-param]").each(function() {
 			var $this = jQuery(this);
 			var linkParams = jQuery.extend({}, params);

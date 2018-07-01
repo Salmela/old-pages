@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <title>Otsikko</title>
+  <title><?= $title ?> - Salmela</title>
   <link rel="stylesheet" title="Perus" type="text/css" href="/static/style.css">
   <meta charset="utf-8">
   <meta name="robots" content="noindex,nofollow">
