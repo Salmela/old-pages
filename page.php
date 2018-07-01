@@ -5,11 +5,13 @@ class Page {
 	private $id;
 	private $contentProvider;
 	static private $notFoundPage;
+	private $searchable;
 
-	function __construct($id, $contentProvider) {
+	function __construct($id, $contentProvider, $searchable=true) {
 		global $pageMap;
 		$this->id = $id;
 		$this->contentProvider = $contentProvider;
+		$this->searchable = $searchable;
 
 		$pageMap[$id] = $this;
 	}
@@ -18,8 +20,12 @@ class Page {
 		return $this->id;
 	}
 
-	function getContent($lang="fi") {
-		return $this->contentProvider->getContent($lang);
+	function generateContent($lang="fi") {
+		return $this->contentProvider->generateContent($lang);
+	}
+
+	function isSearchable() {
+		return $this->searchable;
 	}
 
 	static function init() {
@@ -38,7 +44,7 @@ class Page {
 }
 
 interface View {
-	function getContent($lang);
+	function generateContent($lang);
 }
 
 class Template implements View {
@@ -48,7 +54,7 @@ class Template implements View {
 		$this->templateName = $templateName;
 	}
 
-	function getContent($lang) {
+	function generateContent($lang) {
 		$contents = file_get_contents(str_replace('$lang', $lang, $this->templateName));
 		if ($contents === False)
 			return null;

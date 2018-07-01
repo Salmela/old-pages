@@ -9,7 +9,7 @@ if ($uri[0] != '/') {
 
 $name = substr($uri, 1);
 
-$content = Page::getPage($name)->getContent();
+$content = Page::getPage($name)->generateContent();
 require_once("views/main.php");
 
 ?>

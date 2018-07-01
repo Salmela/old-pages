@@ -3,7 +3,7 @@
 require_once("page.php");
 
 class Search implements View {
-	function getContent($lang) {
+	function generateContent($lang) {
 		global $pageMap;
 		if (!isset($_GET["q"])) {
 			die("Expect query 'q' GET parameter");
@@ -30,9 +30,10 @@ class Search implements View {
 			echo "</ol>";
 		}
 		echo "</div>";
+		return "";//TODO dont print the content directly
 	}
 }
 $page = new Search();
-echo $page->getContent("fi");
+echo $page->generateContent("fi");
 
 ?>

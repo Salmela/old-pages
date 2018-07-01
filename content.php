@@ -5,5 +5,5 @@ header("Cache-Control: max-age=3600");
 require_once("page.php");
 
 
-echo Page::getPage($_GET["page"])->getContent();
+echo Page::getPage($_GET["page"])->generateContent();
 ?>
